@@ -1,0 +1,48 @@
+@use '../styles/mixins' as m;
+@use '../styles/tokens' as t;
+
+.page {
+  height: 100%;
+  display: grid;
+  gap: 0.72rem;
+  padding: 0.72rem;
+}
+
+.layout {
+  min-height: 0;
+  display: grid;
+  gap: 0.72rem;
+  grid-template-columns: minmax(220px, 260px) minmax(420px, 1fr) minmax(350px, 430px);
+}
+
+.leftPane,
+.centerPane,
+.rightPane {
+  min-height: 0;
+}
+
+.rightPane {
+  display: grid;
+  gap: 0.72rem;
+  align-content: start;
+  overflow: auto;
+  @include m.slim-scrollbar;
+}
+
+@media (max-width: 1360px) {
+  .layout {
+    grid-template-columns: minmax(210px, 250px) minmax(380px, 1fr) minmax(320px, 390px);
+  }
+}
+
+@media (max-width: 1100px) {
+  .layout {
+    grid-template-columns: 1fr;
+  }
+
+  .leftPane,
+  .centerPane,
+  .rightPane {
+    display: grid;
+  }
+}

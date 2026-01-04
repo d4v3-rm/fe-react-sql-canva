@@ -1,0 +1,95 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.editorStack {
+  display: grid;
+  gap: 0.72rem;
+}
+
+.metaGrid {
+  display: grid;
+  gap: 0.5rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  input {
+    @include m.input-base;
+  }
+}
+
+.columnsHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+
+  h4 {
+    margin: 0;
+    font-family: t.$font-heading;
+    font-size: 0.84rem;
+    color: t.$color-text;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+}
+
+.columnsWrap {
+  overflow: auto;
+  max-height: 360px;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  @include m.slim-scrollbar;
+
+  table {
+    width: 100%;
+    border-collapse: collapse;
+    min-width: 780px;
+  }
+
+  th {
+    background: #f3f8ff;
+    color: t.$color-text-soft;
+    font-size: 0.68rem;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+    text-align: left;
+    padding: 0.45rem;
+    border-bottom: 1px solid t.$color-border;
+  }
+
+  td {
+    padding: 0.35rem;
+    vertical-align: middle;
+    border-bottom: 1px solid #e6edf9;
+  }
+
+  input,
+  select {
+    @include m.input-base;
+    min-width: 90px;
+  }
+}
+
+.flags {
+  display: grid;
+  grid-template-columns: repeat(2, auto);
+  gap: 0.2rem 0.4rem;
+
+  label {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.24rem;
+    color: t.$color-text-soft;
+    font-size: 0.72rem;
+    font-weight: 600;
+  }
+}
+
+@media (max-width: 1180px) {
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

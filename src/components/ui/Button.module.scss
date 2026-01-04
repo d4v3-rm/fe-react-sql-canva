@@ -1,0 +1,53 @@
+@use '../../styles/tokens' as t;
+
+.button {
+  border: 1px solid transparent;
+  border-radius: t.$radius-sm;
+  font-family: t.$font-heading;
+  font-size: 0.8rem;
+  font-weight: 630;
+  padding: 0.52rem 0.85rem;
+  transition: transform t.$transition-fast, background-color t.$transition-fast, border-color t.$transition-fast;
+  cursor: pointer;
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+
+  &:not(:disabled):hover {
+    transform: translateY(-1px);
+  }
+}
+
+.compact {
+  padding: 0.34rem 0.58rem;
+  font-size: 0.73rem;
+}
+
+.primary {
+  background: t.$color-primary;
+  color: white;
+
+  &:not(:disabled):hover {
+    background: t.$color-primary-strong;
+  }
+}
+
+.secondary {
+  background: #edf5ff;
+  color: t.$color-text;
+  border-color: t.$color-border;
+}
+
+.ghost {
+  background: transparent;
+  color: t.$color-text-soft;
+  border-color: t.$color-border;
+}
+
+.danger {
+  background: rgba(214, 69, 69, 0.1);
+  color: t.$color-danger;
+  border-color: rgba(214, 69, 69, 0.28);
+}

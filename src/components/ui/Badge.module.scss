@@ -1,0 +1,28 @@
+@use '../../styles/tokens' as t;
+
+.badge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border-radius: 999px;
+  font-size: 0.68rem;
+  font-weight: 700;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.2rem 0.52rem;
+}
+
+.neutral {
+  color: t.$color-text-soft;
+  background: #e9eff8;
+}
+
+.warning {
+  color: t.$color-warning;
+  background: rgba(199, 120, 21, 0.16);
+}
+
+.success {
+  color: t.$color-success;
+  background: rgba(29, 143, 78, 0.13);
+}

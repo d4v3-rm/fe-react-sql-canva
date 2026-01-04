@@ -1,0 +1,49 @@
+@use './tokens' as t;
+@use './mixins' as m;
+
+:root {
+  color: t.$color-text;
+  font-family: t.$font-body;
+  background: t.$color-bg;
+  line-height: 1.4;
+  font-weight: 500;
+  text-rendering: geometricPrecision;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+}
+
+* {
+  box-sizing: border-box;
+}
+
+html,
+body,
+#root {
+  margin: 0;
+  min-height: 100%;
+  height: 100%;
+}
+
+body {
+  background:
+    radial-gradient(circle at 12% 8%, rgba(15, 138, 141, 0.14), transparent 40%),
+    radial-gradient(circle at 82% 18%, rgba(199, 120, 21, 0.1), transparent 32%),
+    linear-gradient(180deg, #f9fbff 0%, #f4f6fb 55%, #edf1f8 100%);
+}
+
+button,
+input,
+select,
+textarea {
+  font: inherit;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+textarea,
+pre {
+  @include m.slim-scrollbar;
+}

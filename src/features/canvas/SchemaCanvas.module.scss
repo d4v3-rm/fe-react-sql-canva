@@ -1,0 +1,26 @@
+@use '../../styles/tokens' as t;
+
+.canvasCard {
+  min-height: 100%;
+}
+
+.canvasWrapper {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  overflow: hidden;
+  height: calc(100vh - 270px);
+  min-height: 420px;
+  background: linear-gradient(180deg, #fcfdff, #f3f7ff);
+}
+
+.minimap {
+  background: rgba(255, 255, 255, 0.85);
+  border-radius: 8px;
+  border: 1px solid t.$color-border;
+}
+
+:global(.react-flow__controls button) {
+  border-color: t.$color-border;
+  color: t.$color-text;
+  background: white;
+}

@@ -1,0 +1,71 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.createRelation {
+  display: grid;
+  gap: 0.48rem;
+
+  select,
+  input {
+    @include m.input-base;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    gap: 0.35rem;
+  }
+}
+
+.relationList {
+  display: grid;
+  gap: 0.55rem;
+  max-height: 260px;
+  overflow: auto;
+  @include m.slim-scrollbar;
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.78rem;
+  color: t.$color-text-soft;
+  text-align: center;
+}
+
+.relationRow {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: #fbfdff;
+  padding: 0.58rem;
+  display: grid;
+  gap: 0.44rem;
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.76rem;
+  }
+}
+
+.relationHeader {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 0.6rem;
+
+  strong {
+    font-size: 0.8rem;
+    @include m.text-ellipsis;
+  }
+}
+
+.actionsGrid {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.4rem;
+
+  select {
+    @include m.input-base;
+  }
+}
