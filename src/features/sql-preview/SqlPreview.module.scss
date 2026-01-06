@@ -22,9 +22,69 @@
   }
 }
 
+.statusRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+}
+
+.controls {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.45rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.35rem;
+  }
+}
+
+.liveSyncToggle {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: #f8fbff;
+  padding: 0.35rem 0.55rem;
+  font-size: 0.75rem;
+  color: t.$color-text-soft;
+  font-weight: 650;
+
+  input {
+    margin: 0;
+  }
+}
+
+.editArea,
+.previewArea {
+  display: grid;
+  gap: 0.34rem;
+
+  h4 {
+    margin: 0;
+    font-family: t.$font-heading;
+    font-size: 0.77rem;
+    color: t.$color-text;
+    display: inline-flex;
+    align-items: center;
+    gap: 0.32rem;
+  }
+}
+
+.editArea textarea {
+  min-height: 210px;
+  max-height: 340px;
+  resize: vertical;
+  @include m.input-base;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  line-height: 1.45;
+}
+
 .sqlBlock {
   margin: 0;
-  max-height: 280px;
+  max-height: 230px;
   overflow: auto;
   background: #16202f;
   border-radius: t.$radius-md;

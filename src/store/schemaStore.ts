@@ -38,7 +38,7 @@ interface SchemaStore {
   updateRelation: (relationId: string, patch: UpdateRelationInput) => void
   deleteRelation: (relationId: string) => void
   setTablePosition: (tableId: string, x: number, y: number) => void
-  importSql: (sql: string) => void
+  importSql: (sql: string) => boolean
   replaceProject: (tables: TableModel[], relations: RelationModel[]) => void
   clearProject: () => void
   clearWarnings: () => void
@@ -287,7 +287,7 @@ export const useSchemaStore = create<SchemaStore>()(
           set({
             importWarnings: result.warnings,
           })
-          return
+          return false
         }
 
         set({
@@ -297,6 +297,8 @@ export const useSchemaStore = create<SchemaStore>()(
           importWarnings: result.warnings,
           lastSavedAt: nowIso(),
         })
+
+        return true
       },
       replaceProject: (tables, relations) => {
         set({
