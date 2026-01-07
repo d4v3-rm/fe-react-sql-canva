@@ -9,19 +9,34 @@
 }
 
 .layout {
+  --left-pane-width: 260px;
+  --right-pane-width: 400px;
   min-height: 0;
-  display: grid;
-  gap: 0.72rem;
-  grid-template-columns: minmax(220px, 260px) minmax(420px, 1fr) minmax(350px, 430px);
+  display: flex;
+  align-items: stretch;
+  gap: 0.52rem;
 }
 
-.leftPane,
-.centerPane,
-.rightPane {
+.leftPane {
+  width: var(--left-pane-width);
+  min-width: 220px;
+  max-width: 520px;
+  flex: 0 0 var(--left-pane-width);
+  min-height: 0;
+}
+
+.centerPane {
+  min-width: 420px;
+  flex: 1 1 auto;
   min-height: 0;
 }
 
 .rightPane {
+  width: var(--right-pane-width);
+  min-width: 320px;
+  max-width: 620px;
+  flex: 0 0 var(--right-pane-width);
+  min-height: 0;
   display: grid;
   gap: 0.72rem;
   align-content: start;
@@ -29,20 +44,59 @@
   @include m.slim-scrollbar;
 }
 
-@media (max-width: 1360px) {
-  .layout {
-    grid-template-columns: minmax(210px, 250px) minmax(380px, 1fr) minmax(320px, 390px);
+.splitter {
+  flex: 0 0 10px;
+  border-radius: 999px;
+  cursor: col-resize;
+  position: relative;
+  background: transparent;
+  transition: background-color t.$transition-fast;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 4px;
+    height: 84px;
+    border-radius: 999px;
+    background: t.$color-border-strong;
+    opacity: 0.6;
+    transition: background-color t.$transition-fast, opacity t.$transition-fast;
+  }
+
+  &:hover::before {
+    background: t.$color-primary;
+    opacity: 1;
+  }
+
+  &:active::before {
+    background: t.$color-primary-strong;
+    opacity: 1;
   }
 }
 
 @media (max-width: 1100px) {
   .layout {
+    display: grid;
     grid-template-columns: 1fr;
+    gap: 0.72rem;
+  }
+
+  .splitter {
+    display: none;
   }
 
   .leftPane,
-  .centerPane,
   .rightPane {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    flex: initial;
     display: grid;
+  }
+
+  .centerPane {
+    min-width: 0;
   }
 }
