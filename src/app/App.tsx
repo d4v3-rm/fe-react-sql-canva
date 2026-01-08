@@ -1,3 +1,5 @@
+import clsx from 'clsx'
+import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
 import { useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
@@ -6,7 +8,7 @@ import { TableEditor } from '@/features/table-editor/TableEditor'
 import { TableList } from '@/features/table-list/TableList'
 import { Toolbar } from '@/features/toolbar/Toolbar'
 import { generateProjectSql } from '@/lib/sql/generateSql'
-import { useLayoutStore } from '@/store/layoutStore'
+import { useLayoutStore, type PaneId } from '@/store/layoutStore'
 import { useSchemaStore } from '@/store/schemaStore'
 
 import styles from './App.module.scss'
@@ -15,6 +17,7 @@ const MIN_LEFT_PANE_WIDTH = 220
 const MIN_RIGHT_PANE_WIDTH = 320
 const MIN_CENTER_PANE_WIDTH = 420
 const TOTAL_SPLITTER_WIDTH = 20
+const MOBILE_BREAKPOINT = 1100
 
 type ResizeTarget = 'left' | 'right'
 
@@ -22,13 +25,34 @@ function clamp(value: number, min: number, max: number): number {
   return Math.min(Math.max(value, min), max)
 }
 
+function paneTitle(pane: PaneId): string {
+  if (pane === 'left') {
+    return 'Tabelle'
+  }
+
+  if (pane === 'center') {
+    return 'Canvas'
+  }
+
+  return 'Editor'
+}
+
 export default function App() {
   const tables = useSchemaStore((state) => state.tables)
   const relations = useSchemaStore((state) => state.relations)
+
   const leftPaneWidth = useLayoutStore((state) => state.leftPaneWidth)
   const rightPaneWidth = useLayoutStore((state) => state.rightPaneWidth)
+  const leftCollapsed = useLayoutStore((state) => state.leftCollapsed)
+  const centerCollapsed = useLayoutStore((state) => state.centerCollapsed)
+  const rightCollapsed = useLayoutStore((state) => state.rightCollapsed)
+  const maximizedPane = useLayoutStore((state) => state.maximizedPane)
+
   const setLeftPaneWidth = useLayoutStore((state) => state.setLeftPaneWidth)
   const setRightPaneWidth = useLayoutStore((state) => state.setRightPaneWidth)
+  const setPaneCollapsed = useLayoutStore((state) => state.setPaneCollapsed)
+  const togglePaneCollapsed = useLayoutStore((state) => state.togglePaneCollapsed)
+  const togglePaneMaximized = useLayoutStore((state) => state.togglePaneMaximized)
   const resetPaneWidths = useLayoutStore((state) => state.resetPaneWidths)
 
   const layoutRef = useRef<HTMLElement | null>(null)
@@ -53,8 +77,17 @@ export default function App() {
     '--right-pane-width': `${rightPaneWidth}px`,
   } as CSSProperties
 
+  function handleToggleMaximize(pane: PaneId) {
+    setPaneCollapsed(pane, false)
+    togglePaneMaximized(pane)
+  }
+
   function startResize(target: ResizeTarget, event: ReactPointerEvent<HTMLDivElement>) {
-    if (window.innerWidth <= 1100) {
+    if (window.innerWidth <= MOBILE_BREAKPOINT || maximizedPane !== null) {
+      return
+    }
+
+    if ((target === 'left' && (leftCollapsed || centerCollapsed)) || (target === 'right' && (rightCollapsed || centerCollapsed))) {
       return
     }
 
@@ -110,41 +143,137 @@ export default function App() {
     window.addEventListener('pointerup', upHandler)
   }
 
+  const showLeftPane = maximizedPane === null || maximizedPane === 'left'
+  const showCenterPane = maximizedPane === null || maximizedPane === 'center'
+  const showRightPane = maximizedPane === null || maximizedPane === 'right'
+  const showLeftSplitter = maximizedPane === null && showLeftPane && showCenterPane && !leftCollapsed && !centerCollapsed
+  const showRightSplitter = maximizedPane === null && showRightPane && showCenterPane && !rightCollapsed && !centerCollapsed
+
   return (
     <div className={styles.page}>
       <Toolbar sqlScript={sqlScript} />
 
       <main ref={layoutRef} className={styles.layout} style={layoutStyle}>
-        <aside className={styles.leftPane}>
-          <TableList />
-        </aside>
+        {showLeftPane ? (
+          <aside className={clsx(styles.leftPane, leftCollapsed && styles.collapsedPane, maximizedPane === 'left' && styles.maximizedPane)}>
+            <div className={styles.paneWindow}>
+              <div className={styles.paneHeader}>
+                <span className={styles.paneTitle}>{paneTitle('left')}</span>
+                <div className={styles.windowButtons}>
+                  <button
+                    className={clsx(styles.windowButton, styles.minimizeButton)}
+                    onClick={() => togglePaneCollapsed('left')}
+                    title={leftCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
+                    type="button"
+                  >
+                    {leftCollapsed ? <Plus size={12} /> : <Minus size={12} />}
+                  </button>
+                  <button
+                    className={clsx(styles.windowButton, styles.maximizeButton)}
+                    onClick={() => handleToggleMaximize('left')}
+                    title={maximizedPane === 'left' ? 'Ripristina layout' : 'Massimizza pannello'}
+                    type="button"
+                  >
+                    {maximizedPane === 'left' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                  </button>
+                </div>
+              </div>
 
-        <div
-          className={styles.splitter}
-          role="separator"
-          aria-label="Ridimensiona pannello sinistro"
-          aria-orientation="vertical"
-          onDoubleClick={resetPaneWidths}
-          onPointerDown={(event) => startResize('left', event)}
-        />
+              {leftCollapsed ? <div className={styles.collapsedLabel}>TBL</div> : <div className={styles.paneContent}><TableList /></div>}
+            </div>
+          </aside>
+        ) : null}
 
-        <section className={styles.centerPane}>
-          <SchemaCanvas />
-        </section>
+        {showLeftSplitter ? (
+          <div
+            className={styles.splitter}
+            role="separator"
+            aria-label="Ridimensiona pannello sinistro"
+            aria-orientation="vertical"
+            onDoubleClick={resetPaneWidths}
+            onPointerDown={(event) => startResize('left', event)}
+          />
+        ) : null}
 
-        <div
-          className={styles.splitter}
-          role="separator"
-          aria-label="Ridimensiona pannello destro"
-          aria-orientation="vertical"
-          onDoubleClick={resetPaneWidths}
-          onPointerDown={(event) => startResize('right', event)}
-        />
+        {showCenterPane ? (
+          <section
+            className={clsx(styles.centerPane, centerCollapsed && styles.collapsedPane, maximizedPane === 'center' && styles.maximizedPane)}
+          >
+            <div className={styles.paneWindow}>
+              <div className={styles.paneHeader}>
+                <span className={styles.paneTitle}>{paneTitle('center')}</span>
+                <div className={styles.windowButtons}>
+                  <button
+                    className={clsx(styles.windowButton, styles.minimizeButton)}
+                    onClick={() => togglePaneCollapsed('center')}
+                    title={centerCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
+                    type="button"
+                  >
+                    {centerCollapsed ? <Plus size={12} /> : <Minus size={12} />}
+                  </button>
+                  <button
+                    className={clsx(styles.windowButton, styles.maximizeButton)}
+                    onClick={() => handleToggleMaximize('center')}
+                    title={maximizedPane === 'center' ? 'Ripristina layout' : 'Massimizza pannello'}
+                    type="button"
+                  >
+                    {maximizedPane === 'center' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                  </button>
+                </div>
+              </div>
 
-        <aside className={styles.rightPane}>
-          <TableEditor />
-          <SqlPreview sql={sqlScript} />
-        </aside>
+              {centerCollapsed ? <div className={styles.collapsedLabel}>CNV</div> : <div className={styles.paneContent}><SchemaCanvas /></div>}
+            </div>
+          </section>
+        ) : null}
+
+        {showRightSplitter ? (
+          <div
+            className={styles.splitter}
+            role="separator"
+            aria-label="Ridimensiona pannello destro"
+            aria-orientation="vertical"
+            onDoubleClick={resetPaneWidths}
+            onPointerDown={(event) => startResize('right', event)}
+          />
+        ) : null}
+
+        {showRightPane ? (
+          <aside className={clsx(styles.rightPane, rightCollapsed && styles.collapsedPane, maximizedPane === 'right' && styles.maximizedPane)}>
+            <div className={styles.paneWindow}>
+              <div className={styles.paneHeader}>
+                <span className={styles.paneTitle}>{paneTitle('right')}</span>
+                <div className={styles.windowButtons}>
+                  <button
+                    className={clsx(styles.windowButton, styles.minimizeButton)}
+                    onClick={() => togglePaneCollapsed('right')}
+                    title={rightCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
+                    type="button"
+                  >
+                    {rightCollapsed ? <Plus size={12} /> : <Minus size={12} />}
+                  </button>
+                  <button
+                    className={clsx(styles.windowButton, styles.maximizeButton)}
+                    onClick={() => handleToggleMaximize('right')}
+                    title={maximizedPane === 'right' ? 'Ripristina layout' : 'Massimizza pannello'}
+                    type="button"
+                  >
+                    {maximizedPane === 'right' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+                  </button>
+                </div>
+              </div>
+
+              {rightCollapsed ? (
+                <div className={styles.collapsedLabel}>EDT</div>
+              ) : (
+                <div className={clsx(styles.paneContent, styles.rightPaneContent)}>
+                  <TableEditor />
+                  <SqlPreview sql={sqlScript} />
+                </div>
+              )}
+            </div>
+          </aside>
+        ) : null}
       </main>
     </div>
   )
