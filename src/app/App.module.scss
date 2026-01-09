@@ -73,6 +73,11 @@
   background: linear-gradient(120deg, rgba(15, 138, 141, 0.08), rgba(15, 138, 141, 0.02));
 }
 
+.collapsedHeader {
+  justify-content: center;
+  padding: 0.32rem;
+}
+
 .paneTitle {
   font-family: t.$font-heading;
   font-size: 0.76rem;
@@ -85,6 +90,11 @@
   display: inline-flex;
   align-items: center;
   gap: 0.28rem;
+}
+
+.collapsedPane .windowButtons {
+  width: 100%;
+  justify-content: center;
 }
 
 .windowButton {
@@ -105,6 +115,11 @@
   &:active {
     transform: translateY(0);
   }
+}
+
+.collapsedPane .windowButton {
+  width: 24px;
+  height: 24px;
 }
 
 .minimizeButton {

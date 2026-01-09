@@ -77,10 +77,8 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
         <div className={styles.logoTile}>
           <DatabaseZap size={18} strokeWidth={2.1} />
         </div>
-        <div>
-          <h1>SQL Canvas Modeler</h1>
-          <p>Progettazione visuale PostgreSQL, export e import SQL, persistenza locale automatica.</p>
-        </div>
+        <h1>SQL Canvas Modeler</h1>
+        <span>PostgreSQL visual builder</span>
       </div>
 
       <div className={styles.actions}>

@@ -143,6 +143,32 @@ export default function App() {
     window.addEventListener('pointerup', upHandler)
   }
 
+  function renderPaneButtons(pane: PaneId, collapsed: boolean) {
+    return (
+      <div className={styles.windowButtons}>
+        <button
+          className={clsx(styles.windowButton, styles.minimizeButton)}
+          onClick={() => togglePaneCollapsed(pane)}
+          title={collapsed ? 'Espandi pannello' : 'Collassa pannello'}
+          type="button"
+        >
+          {collapsed ? <Plus size={12} /> : <Minus size={12} />}
+        </button>
+
+        {!collapsed ? (
+          <button
+            className={clsx(styles.windowButton, styles.maximizeButton)}
+            onClick={() => handleToggleMaximize(pane)}
+            title={maximizedPane === pane ? 'Ripristina layout' : 'Massimizza pannello'}
+            type="button"
+          >
+            {maximizedPane === pane ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
+          </button>
+        ) : null}
+      </div>
+    )
+  }
+
   const showLeftPane = maximizedPane === null || maximizedPane === 'left'
   const showCenterPane = maximizedPane === null || maximizedPane === 'center'
   const showRightPane = maximizedPane === null || maximizedPane === 'right'
@@ -157,26 +183,9 @@ export default function App() {
         {showLeftPane ? (
           <aside className={clsx(styles.leftPane, leftCollapsed && styles.collapsedPane, maximizedPane === 'left' && styles.maximizedPane)}>
             <div className={styles.paneWindow}>
-              <div className={styles.paneHeader}>
-                <span className={styles.paneTitle}>{paneTitle('left')}</span>
-                <div className={styles.windowButtons}>
-                  <button
-                    className={clsx(styles.windowButton, styles.minimizeButton)}
-                    onClick={() => togglePaneCollapsed('left')}
-                    title={leftCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
-                    type="button"
-                  >
-                    {leftCollapsed ? <Plus size={12} /> : <Minus size={12} />}
-                  </button>
-                  <button
-                    className={clsx(styles.windowButton, styles.maximizeButton)}
-                    onClick={() => handleToggleMaximize('left')}
-                    title={maximizedPane === 'left' ? 'Ripristina layout' : 'Massimizza pannello'}
-                    type="button"
-                  >
-                    {maximizedPane === 'left' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-                  </button>
-                </div>
+              <div className={clsx(styles.paneHeader, leftCollapsed && styles.collapsedHeader)}>
+                {!leftCollapsed ? <span className={styles.paneTitle}>{paneTitle('left')}</span> : null}
+                {renderPaneButtons('left', leftCollapsed)}
               </div>
 
               {leftCollapsed ? <div className={styles.collapsedLabel}>TBL</div> : <div className={styles.paneContent}><TableList /></div>}
@@ -200,26 +209,9 @@ export default function App() {
             className={clsx(styles.centerPane, centerCollapsed && styles.collapsedPane, maximizedPane === 'center' && styles.maximizedPane)}
           >
             <div className={styles.paneWindow}>
-              <div className={styles.paneHeader}>
-                <span className={styles.paneTitle}>{paneTitle('center')}</span>
-                <div className={styles.windowButtons}>
-                  <button
-                    className={clsx(styles.windowButton, styles.minimizeButton)}
-                    onClick={() => togglePaneCollapsed('center')}
-                    title={centerCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
-                    type="button"
-                  >
-                    {centerCollapsed ? <Plus size={12} /> : <Minus size={12} />}
-                  </button>
-                  <button
-                    className={clsx(styles.windowButton, styles.maximizeButton)}
-                    onClick={() => handleToggleMaximize('center')}
-                    title={maximizedPane === 'center' ? 'Ripristina layout' : 'Massimizza pannello'}
-                    type="button"
-                  >
-                    {maximizedPane === 'center' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-                  </button>
-                </div>
+              <div className={clsx(styles.paneHeader, centerCollapsed && styles.collapsedHeader)}>
+                {!centerCollapsed ? <span className={styles.paneTitle}>{paneTitle('center')}</span> : null}
+                {renderPaneButtons('center', centerCollapsed)}
               </div>
 
               {centerCollapsed ? <div className={styles.collapsedLabel}>CNV</div> : <div className={styles.paneContent}><SchemaCanvas /></div>}
@@ -241,26 +233,9 @@ export default function App() {
         {showRightPane ? (
           <aside className={clsx(styles.rightPane, rightCollapsed && styles.collapsedPane, maximizedPane === 'right' && styles.maximizedPane)}>
             <div className={styles.paneWindow}>
-              <div className={styles.paneHeader}>
-                <span className={styles.paneTitle}>{paneTitle('right')}</span>
-                <div className={styles.windowButtons}>
-                  <button
-                    className={clsx(styles.windowButton, styles.minimizeButton)}
-                    onClick={() => togglePaneCollapsed('right')}
-                    title={rightCollapsed ? 'Espandi pannello' : 'Collassa pannello'}
-                    type="button"
-                  >
-                    {rightCollapsed ? <Plus size={12} /> : <Minus size={12} />}
-                  </button>
-                  <button
-                    className={clsx(styles.windowButton, styles.maximizeButton)}
-                    onClick={() => handleToggleMaximize('right')}
-                    title={maximizedPane === 'right' ? 'Ripristina layout' : 'Massimizza pannello'}
-                    type="button"
-                  >
-                    {maximizedPane === 'right' ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
-                  </button>
-                </div>
+              <div className={clsx(styles.paneHeader, rightCollapsed && styles.collapsedHeader)}>
+                {!rightCollapsed ? <span className={styles.paneTitle}>{paneTitle('right')}</span> : null}
+                {renderPaneButtons('right', rightCollapsed)}
               </div>
 
               {rightCollapsed ? (
