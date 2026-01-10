@@ -1,10 +1,12 @@
 import { useRef, useState } from 'react'
-import { Copy, DatabaseZap, Download, FileUp, Plus, RotateCcw, Save } from 'lucide-react'
+import clsx from 'clsx'
+import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Save, SunMedium } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { readTextFile, downloadTextFile } from '@/lib/file/textFile'
 import { useSchemaStore } from '@/store/schemaStore'
+import { useThemeStore } from '@/store/themeStore'
 
 import styles from './Toolbar.module.scss'
 
@@ -24,6 +26,8 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
   const clearWarnings = useSchemaStore((state) => state.clearWarnings)
   const warnings = useSchemaStore((state) => state.importWarnings)
   const lastSavedAt = useSchemaStore((state) => state.lastSavedAt)
+  const theme = useThemeStore((state) => state.theme)
+  const toggleTheme = useThemeStore((state) => state.toggleTheme)
 
   async function handleCopySql() {
     try {
@@ -102,6 +106,19 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
           <RotateCcw size={15} />
           Nuovo progetto
         </Button>
+        <button
+          className={clsx(styles.themeSwitch, theme === 'dark' && styles.themeSwitchDark)}
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
+          type="button"
+        >
+          <span className={styles.switchTrack}>
+            <span className={clsx(styles.switchThumb, theme === 'dark' && styles.switchThumbDark)}>
+              {theme === 'dark' ? <MoonStar size={11} /> : <SunMedium size={11} />}
+            </span>
+          </span>
+          <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+        </button>
       </div>
 
       <div className={styles.meta}>

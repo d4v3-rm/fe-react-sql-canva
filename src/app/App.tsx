@@ -1,6 +1,6 @@
 import clsx from 'clsx'
 import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
-import { useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
 import { SqlPreview } from '@/features/sql-preview/SqlPreview'
@@ -10,6 +10,7 @@ import { Toolbar } from '@/features/toolbar/Toolbar'
 import { generateProjectSql } from '@/lib/sql/generateSql'
 import { useLayoutStore, type PaneId } from '@/store/layoutStore'
 import { useSchemaStore } from '@/store/schemaStore'
+import { useThemeStore } from '@/store/themeStore'
 
 import styles from './App.module.scss'
 
@@ -40,6 +41,7 @@ function paneTitle(pane: PaneId): string {
 export default function App() {
   const tables = useSchemaStore((state) => state.tables)
   const relations = useSchemaStore((state) => state.relations)
+  const theme = useThemeStore((state) => state.theme)
 
   const leftPaneWidth = useLayoutStore((state) => state.leftPaneWidth)
   const rightPaneWidth = useLayoutStore((state) => state.rightPaneWidth)
@@ -71,6 +73,10 @@ export default function App() {
       }),
     [tables, relations],
   )
+
+  useEffect(() => {
+    document.documentElement.setAttribute('data-theme', theme)
+  }, [theme])
 
   const layoutStyle: CSSProperties = {
     '--left-pane-width': `${leftPaneWidth}px`,

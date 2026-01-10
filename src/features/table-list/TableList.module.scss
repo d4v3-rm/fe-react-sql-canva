@@ -17,7 +17,7 @@
 .item {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
-  background: #f8fbff;
+  background: t.$color-row-alt-bg;
   padding: 0.58rem;
   display: flex;
   justify-content: space-between;
@@ -34,7 +34,7 @@
 
 .selected {
   border-color: t.$color-primary;
-  background: rgba(15, 138, 141, 0.08);
+  background: t.$color-primary-soft;
 }
 
 .itemInfo {

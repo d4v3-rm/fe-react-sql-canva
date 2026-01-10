@@ -28,7 +28,7 @@
 
   &:focus {
     border-color: t.$color-primary;
-    box-shadow: 0 0 0 3px rgba(15, 138, 141, 0.15);
+    box-shadow: 0 0 0 3px t.$color-focus-ring;
     outline: none;
   }
 }

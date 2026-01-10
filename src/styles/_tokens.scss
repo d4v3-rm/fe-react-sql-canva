@@ -1,25 +1,59 @@
 $font-heading: 'Space Grotesk', 'Segoe UI', sans-serif;
 $font-body: 'Manrope', 'Segoe UI', sans-serif;
 
-$color-bg: #f4f6fb;
-$color-surface: #ffffff;
-$color-surface-soft: #f9fbff;
-$color-border: #d9e2f1;
-$color-border-strong: #b4c3dc;
-$color-text: #1f2a44;
-$color-text-soft: #5b6a85;
-$color-primary: #0f8a8d;
-$color-primary-strong: #0c6f72;
-$color-danger: #d64545;
-$color-warning: #c77815;
-$color-success: #1d8f4e;
+$color-bg: var(--color-bg);
+$color-surface: var(--color-surface);
+$color-surface-soft: var(--color-surface-soft);
+$color-border: var(--color-border);
+$color-border-strong: var(--color-border-strong);
+$color-text: var(--color-text);
+$color-text-soft: var(--color-text-soft);
+$color-primary: var(--color-primary);
+$color-primary-strong: var(--color-primary-strong);
+$color-danger: var(--color-danger);
+$color-warning: var(--color-warning);
+$color-success: var(--color-success);
+
+$color-focus-ring: var(--color-focus-ring);
+$color-page-radial-primary: var(--color-page-radial-primary);
+$color-page-radial-warning: var(--color-page-radial-warning);
+$color-page-gradient-start: var(--color-page-gradient-start);
+$color-page-gradient-mid: var(--color-page-gradient-mid);
+$color-page-gradient-end: var(--color-page-gradient-end);
+
+$color-pane-bg-start: var(--color-pane-bg-start);
+$color-pane-bg-end: var(--color-pane-bg-end);
+$color-pane-header-start: var(--color-pane-header-start);
+$color-pane-header-end: var(--color-pane-header-end);
+$color-logo-end: var(--color-logo-end);
+
+$color-secondary-bg: var(--color-secondary-bg);
+$color-neutral-soft: var(--color-neutral-soft);
+$color-primary-soft: var(--color-primary-soft);
+$color-danger-soft: var(--color-danger-soft);
+$color-danger-border: var(--color-danger-border);
+$color-warning-soft: var(--color-warning-soft);
+$color-warning-border: var(--color-warning-border);
+$color-warning-strong: var(--color-warning-strong);
+$color-success-soft: var(--color-success-soft);
+$color-success-border: var(--color-success-border);
+
+$color-row-alt-bg: var(--color-row-alt-bg);
+$color-table-head-bg: var(--color-table-head-bg);
+$color-divider-soft: var(--color-divider-soft);
+$color-canvas-bg-start: var(--color-canvas-bg-start);
+$color-canvas-bg-end: var(--color-canvas-bg-end);
+$color-minimap-bg: var(--color-minimap-bg);
+$color-code-bg: var(--color-code-bg);
+$color-code-text: var(--color-code-text);
+$color-overlay-surface: var(--color-overlay-surface);
 
 $radius-sm: 8px;
 $radius-md: 12px;
 $radius-lg: 16px;
 
-$shadow-soft: 0 10px 30px rgba(37, 58, 100, 0.08);
-$shadow-card: 0 8px 24px rgba(31, 42, 68, 0.08);
+$shadow-soft: var(--shadow-soft);
+$shadow-card: var(--shadow-card);
 
 $transition-fast: 160ms ease;
 $transition-medium: 220ms ease;

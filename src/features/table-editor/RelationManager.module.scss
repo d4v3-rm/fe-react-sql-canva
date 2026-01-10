@@ -36,7 +36,7 @@
 .relationRow {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
-  background: #fbfdff;
+  background: t.$color-row-alt-bg;
   padding: 0.58rem;
   display: grid;
   gap: 0.44rem;

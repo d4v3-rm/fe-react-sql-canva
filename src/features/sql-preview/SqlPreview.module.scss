@@ -2,8 +2,8 @@
 @use '../../styles/tokens' as t;
 
 .warningBox {
-  border: 1px solid rgba(199, 120, 21, 0.3);
-  background: rgba(199, 120, 21, 0.07);
+  border: 1px solid t.$color-warning-border;
+  background: t.$color-warning-soft;
   border-radius: t.$radius-md;
   padding: 0.55rem;
   display: grid;
@@ -46,7 +46,7 @@
   gap: 0.35rem;
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;
-  background: #f8fbff;
+  background: t.$color-row-alt-bg;
   padding: 0.35rem 0.55rem;
   font-size: 0.75rem;
   color: t.$color-text-soft;
@@ -86,9 +86,9 @@
   margin: 0;
   max-height: 230px;
   overflow: auto;
-  background: #16202f;
+  background: t.$color-code-bg;
   border-radius: t.$radius-md;
-  color: #d6e6ff;
+  color: t.$color-code-text;
   padding: 0.8rem;
   font-size: 0.74rem;
   line-height: 1.5;

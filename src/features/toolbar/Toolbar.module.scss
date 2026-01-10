@@ -44,7 +44,7 @@
   align-items: center;
   justify-content: center;
   color: white;
-  background: linear-gradient(135deg, t.$color-primary, #1ea4a7);
+  background: linear-gradient(135deg, t.$color-primary, t.$color-logo-end);
   box-shadow: t.$shadow-soft;
 }
 
@@ -63,6 +63,48 @@
     padding: 0.4rem 0.62rem;
     font-size: 0.74rem;
   }
+}
+
+.themeSwitch {
+  border: 1px solid t.$color-border;
+  border-radius: 999px;
+  background: t.$color-surface-soft;
+  color: t.$color-text;
+  min-width: 92px;
+  justify-content: space-between;
+  gap: 0.4rem;
+}
+
+.switchTrack {
+  width: 32px;
+  height: 18px;
+  border-radius: 999px;
+  border: 1px solid t.$color-border;
+  background: t.$color-primary-soft;
+  display: inline-flex;
+  align-items: center;
+  padding: 1px;
+}
+
+.switchThumb {
+  width: 14px;
+  height: 14px;
+  border-radius: 50%;
+  background: t.$color-surface;
+  color: t.$color-primary;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  transform: translateX(0);
+  transition: transform t.$transition-medium, background-color t.$transition-fast;
+}
+
+.switchThumbDark {
+  transform: translateX(14px);
+}
+
+.themeSwitchDark {
+  border-color: t.$color-border-strong;
 }
 
 .meta {

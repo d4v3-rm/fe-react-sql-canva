@@ -14,15 +14,15 @@
 
 .neutral {
   color: t.$color-text-soft;
-  background: #e9eff8;
+  background: t.$color-neutral-soft;
 }
 
 .warning {
   color: t.$color-warning;
-  background: rgba(199, 120, 21, 0.16);
+  background: t.$color-warning-soft;
 }
 
 .success {
   color: t.$color-success;
-  background: rgba(29, 143, 78, 0.13);
+  background: t.$color-success-soft;
 }

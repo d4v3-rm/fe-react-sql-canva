@@ -35,7 +35,7 @@
 }
 
 .secondary {
-  background: #edf5ff;
+  background: t.$color-secondary-bg;
   color: t.$color-text;
   border-color: t.$color-border;
 }
@@ -47,7 +47,7 @@
 }
 
 .danger {
-  background: rgba(214, 69, 69, 0.1);
+  background: t.$color-danger-soft;
   color: t.$color-danger;
-  border-color: rgba(214, 69, 69, 0.28);
+  border-color: t.$color-danger-border;
 }

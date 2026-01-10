@@ -4,6 +4,7 @@ import { Background, Controls, MiniMap, ReactFlow, type Edge, type NodeTypes } f
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useSchemaStore } from '@/store/schemaStore'
+import { useThemeStore } from '@/store/themeStore'
 
 import { TableNode, type TableFlowNode } from './TableNode'
 import styles from './SchemaCanvas.module.scss'
@@ -26,6 +27,7 @@ export function SchemaCanvas() {
   const selectedTableId = useSchemaStore((state) => state.selectedTableId)
   const selectTable = useSchemaStore((state) => state.selectTable)
   const setTablePosition = useSchemaStore((state) => state.setTablePosition)
+  const theme = useThemeStore((state) => state.theme)
 
   const nodes: TableFlowNode[] = useMemo(
     () =>
@@ -68,17 +70,17 @@ export function SchemaCanvas() {
           },
           style: {
             strokeWidth: 1.5,
-            stroke: '#0f8a8d',
+            stroke: theme === 'dark' ? '#44bcc3' : '#0f8a8d',
           },
           labelStyle: {
-            fill: '#1f2a44',
+            fill: theme === 'dark' ? '#e6edff' : '#1f2a44',
             fontSize: 11,
             fontWeight: 600,
           },
         } as Edge
       })
       .filter((edge): edge is Edge => edge !== null)
-  }, [relations, tables])
+  }, [relations, tables, theme])
 
   return (
     <Card className={styles.canvasCard} title="Canvas Relazionale" subtitle="Trascina le tabelle e visualizza i collegamenti foreign key.">
@@ -101,7 +103,7 @@ export function SchemaCanvas() {
               selectTable(node.id)
             }}
           >
-            <Background color="#c9d5e9" gap={22} />
+            <Background color={theme === 'dark' ? '#2f4569' : '#c9d5e9'} gap={22} />
             <MiniMap pannable zoomable className={styles.minimap} />
             <Controls />
           </ReactFlow>
