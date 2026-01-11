@@ -2,7 +2,7 @@
 @use '../../styles/tokens' as t;
 
 .tableList {
-  min-height: 100%;
+  min-height: 0;
 }
 
 .items {
@@ -10,7 +10,7 @@
   flex-direction: column;
   gap: 0.42rem;
   overflow: auto;
-  max-height: calc(100vh - 280px);
+  max-height: 320px;
   @include m.slim-scrollbar;
 }
 

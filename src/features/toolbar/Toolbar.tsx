@@ -26,6 +26,7 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
   const clearWarnings = useSchemaStore((state) => state.clearWarnings)
   const warnings = useSchemaStore((state) => state.importWarnings)
   const lastSavedAt = useSchemaStore((state) => state.lastSavedAt)
+  const database = useSchemaStore((state) => state.database)
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
 
@@ -82,7 +83,7 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
           <DatabaseZap size={18} strokeWidth={2.1} />
         </div>
         <h1>SQL Canvas Modeler</h1>
-        <span>PostgreSQL visual builder</span>
+        <span>{database.name} | {database.schemas.length} schemi</span>
       </div>
 
       <div className={styles.actions}>

@@ -3,6 +3,7 @@ import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
 import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
+import { DatabaseModelPanel } from '@/features/database-model/DatabaseModelPanel'
 import { SqlPreview } from '@/features/sql-preview/SqlPreview'
 import { TableEditor } from '@/features/table-editor/TableEditor'
 import { TableList } from '@/features/table-list/TableList'
@@ -28,7 +29,7 @@ function clamp(value: number, min: number, max: number): number {
 
 function paneTitle(pane: PaneId): string {
   if (pane === 'left') {
-    return 'Tabelle'
+    return 'Database'
   }
 
   if (pane === 'center') {
@@ -39,6 +40,7 @@ function paneTitle(pane: PaneId): string {
 }
 
 export default function App() {
+  const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
   const relations = useSchemaStore((state) => state.relations)
   const theme = useThemeStore((state) => state.theme)
@@ -68,10 +70,11 @@ export default function App() {
   const sqlScript = useMemo(
     () =>
       generateProjectSql({
+        database,
         tables,
         relations,
       }),
-    [tables, relations],
+    [database, tables, relations],
   )
 
   useEffect(() => {
@@ -194,7 +197,14 @@ export default function App() {
                 {renderPaneButtons('left', leftCollapsed)}
               </div>
 
-              {leftCollapsed ? <div className={styles.collapsedLabel}>TBL</div> : <div className={styles.paneContent}><TableList /></div>}
+              {leftCollapsed ? (
+                <div className={styles.collapsedLabel}>DB</div>
+              ) : (
+                <div className={clsx(styles.paneContent, styles.leftPaneContent)}>
+                  <DatabaseModelPanel />
+                  <TableList />
+                </div>
+              )}
             </div>
           </aside>
         ) : null}

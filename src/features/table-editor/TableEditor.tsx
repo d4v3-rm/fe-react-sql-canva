@@ -56,6 +56,7 @@ function typePatch(column: ColumnModel, nextType: DataType): Partial<ColumnModel
 
 export function TableEditor() {
   const selectedTable = useSelectedTable()
+  const databaseSchemas = useSchemaStore((state) => state.database.schemas)
   const updateTable = useSchemaStore((state) => state.updateTable)
   const addColumn = useSchemaStore((state) => state.addColumn)
   const updateColumn = useSchemaStore((state) => state.updateColumn)
@@ -78,10 +79,16 @@ export function TableEditor() {
         <div className={styles.metaGrid}>
           <Field label="Schema">
             <input
+              list="database-schema-options"
               value={selectedTable.schema}
               onChange={(event) => updateTable(selectedTable.id, { schema: event.target.value })}
               placeholder="public"
             />
+            <datalist id="database-schema-options">
+              {databaseSchemas.map((schemaName) => (
+                <option key={schemaName} value={schemaName} />
+              ))}
+            </datalist>
           </Field>
 
           <Field label="Nome tabella">

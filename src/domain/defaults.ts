@@ -1,4 +1,4 @@
-import type { ColumnModel, RelationModel, TableModel } from '@/domain/schema'
+import type { ColumnModel, DatabaseModel, RelationModel, TableModel } from '@/domain/schema'
 import { createId } from '@/lib/id'
 
 export function createDefaultColumn(name = 'id'): ColumnModel {
@@ -16,10 +16,24 @@ export function createDefaultColumn(name = 'id'): ColumnModel {
   }
 }
 
-export function createDefaultTable(index: number): TableModel {
+export function createDefaultDatabase(): DatabaseModel {
+  return {
+    id: createId('db'),
+    name: 'app_database',
+    owner: 'postgres',
+    encoding: 'UTF8',
+    lcCollate: 'en_US.UTF-8',
+    lcCType: 'en_US.UTF-8',
+    template: 'template0',
+    schemas: ['public'],
+    extensions: ['uuid-ossp'],
+  }
+}
+
+export function createDefaultTable(index: number, schema = 'public'): TableModel {
   return {
     id: createId('tbl'),
-    schema: 'public',
+    schema,
     name: `table_${index}`,
     columns: [createDefaultColumn('id')],
     position: {

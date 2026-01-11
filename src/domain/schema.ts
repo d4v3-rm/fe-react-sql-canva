@@ -47,6 +47,18 @@ export interface TableModel {
   position: TablePosition
 }
 
+export interface DatabaseModel {
+  id: string
+  name: string
+  owner: string
+  encoding: string
+  lcCollate: string
+  lcCType: string
+  template: string
+  schemas: string[]
+  extensions: string[]
+}
+
 export interface RelationModel {
   id: string
   constraintName: string
@@ -60,13 +72,16 @@ export interface RelationModel {
 
 export interface SqlCanvasProject {
   version: number
+  database: DatabaseModel
   tables: TableModel[]
   relations: RelationModel[]
   updatedAt: string
 }
 
 export interface SqlImportResult {
+  database: DatabaseModel
   tables: TableModel[]
   relations: RelationModel[]
   warnings: string[]
+  parsedEntities: number
 }

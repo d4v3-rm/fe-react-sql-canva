@@ -1,8 +1,14 @@
 import { create } from 'zustand'
 import { createJSONStorage, persist } from 'zustand/middleware'
 
-import { createDefaultColumn, createDefaultRelation, createDefaultRelationName, createDefaultTable } from '@/domain/defaults'
-import type { ColumnModel, ForeignKeyAction, RelationModel, TableModel } from '@/domain/schema'
+import {
+  createDefaultColumn,
+  createDefaultDatabase,
+  createDefaultRelation,
+  createDefaultRelationName,
+  createDefaultTable,
+} from '@/domain/defaults'
+import type { ColumnModel, DatabaseModel, ForeignKeyAction, RelationModel, TableModel } from '@/domain/schema'
 import { ensureUniqueName, findTableById } from '@/lib/schemaHelpers'
 import { parseSqlSchema } from '@/lib/sql/parseSql'
 
@@ -21,13 +27,22 @@ interface UpdateRelationInput {
   onUpdate?: ForeignKeyAction
 }
 
+type DatabasePatch = Partial<Pick<DatabaseModel, 'name' | 'owner' | 'encoding' | 'lcCollate' | 'lcCType' | 'template'>>
+
 interface SchemaStore {
+  database: DatabaseModel
   tables: TableModel[]
   relations: RelationModel[]
   selectedTableId: string | null
   importWarnings: string[]
   lastSavedAt: string
   selectTable: (tableId: string | null) => void
+  updateDatabase: (patch: DatabasePatch) => void
+  addSchema: (schemaName: string) => boolean
+  renameSchema: (currentSchema: string, nextSchema: string) => boolean
+  deleteSchema: (schemaName: string) => boolean
+  addExtension: (extensionName: string) => boolean
+  removeExtension: (extensionName: string) => void
   addTable: () => void
   updateTable: (tableId: string, patch: Partial<Pick<TableModel, 'schema' | 'name'>>) => void
   deleteTable: (tableId: string) => void
@@ -39,13 +54,88 @@ interface SchemaStore {
   deleteRelation: (relationId: string) => void
   setTablePosition: (tableId: string, x: number, y: number) => void
   importSql: (sql: string) => boolean
-  replaceProject: (tables: TableModel[], relations: RelationModel[]) => void
+  replaceProject: (database: DatabaseModel, tables: TableModel[], relations: RelationModel[]) => void
   clearProject: () => void
   clearWarnings: () => void
 }
 
 function nowIso(): string {
   return new Date().toISOString()
+}
+
+function normalizeEntityName(raw: string): string {
+  const normalized = raw
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase()
+
+  return normalized
+}
+
+function normalizeSchemaName(raw: string): string {
+  const normalized = normalizeEntityName(raw)
+  return normalized || 'public'
+}
+
+function normalizeExtensionName(raw: string): string {
+  return normalizeEntityName(raw)
+}
+
+function dedupeCaseInsensitive(items: string[]): string[] {
+  const seen = new Set<string>()
+  const deduped: string[] = []
+
+  items.forEach((item) => {
+    const normalized = item.trim()
+    if (!normalized) {
+      return
+    }
+
+    const lower = normalized.toLowerCase()
+    if (seen.has(lower)) {
+      return
+    }
+
+    seen.add(lower)
+    deduped.push(normalized)
+  })
+
+  return deduped
+}
+
+function collectSchemasFromTables(tables: TableModel[]): string[] {
+  const fromTables = tables.map((table) => normalizeSchemaName(table.schema))
+  const schemas = dedupeCaseInsensitive(['public', ...fromTables])
+
+  return schemas.length > 0 ? schemas : ['public']
+}
+
+function sanitizeDatabase(database: DatabaseModel, tables: TableModel[]): DatabaseModel {
+  const fallback = createDefaultDatabase()
+
+  const normalizedSchemas = dedupeCaseInsensitive(
+    database.schemas.map((schema) => normalizeSchemaName(schema)).concat(collectSchemasFromTables(tables)),
+  )
+
+  const normalizedExtensions = dedupeCaseInsensitive(database.extensions.map((extension) => normalizeExtensionName(extension))).filter(
+    Boolean,
+  )
+
+  return {
+    ...fallback,
+    ...database,
+    name: normalizeEntityName(database.name) || fallback.name,
+    owner: normalizeEntityName(database.owner) || fallback.owner,
+    encoding: database.encoding.trim() || fallback.encoding,
+    lcCollate: database.lcCollate.trim() || fallback.lcCollate,
+    lcCType: database.lcCType.trim() || fallback.lcCType,
+    template: normalizeEntityName(database.template) || fallback.template,
+    schemas: normalizedSchemas.length > 0 ? normalizedSchemas : ['public'],
+    extensions: normalizedExtensions,
+  }
 }
 
 function dropRelationsForMissingColumns(relations: RelationModel[], tableId: string, deletedColumnId: string): RelationModel[] {
@@ -78,9 +168,25 @@ function buildUniqueConstraintName(existingRelations: RelationModel[], baseName:
   )
 }
 
+function applySchemaRename(tables: TableModel[], currentSchema: string, nextSchema: string): TableModel[] {
+  return tables.map((table) => {
+    if (table.schema !== currentSchema) {
+      return table
+    }
+
+    return {
+      ...table,
+      schema: nextSchema,
+    }
+  })
+}
+
+const initialDatabase = createDefaultDatabase()
+
 export const useSchemaStore = create<SchemaStore>()(
   persist(
     (set) => ({
+      database: initialDatabase,
       tables: [],
       relations: [],
       selectedTableId: null,
@@ -89,9 +195,156 @@ export const useSchemaStore = create<SchemaStore>()(
       selectTable: (tableId) => {
         set({ selectedTableId: tableId })
       },
+      updateDatabase: (patch) => {
+        set((state) => ({
+          database: sanitizeDatabase(
+            {
+              ...state.database,
+              ...patch,
+            },
+            state.tables,
+          ),
+          lastSavedAt: nowIso(),
+        }))
+      },
+      addSchema: (schemaName) => {
+        let added = false
+
+        set((state) => {
+          const normalized = normalizeSchemaName(schemaName)
+          const exists = state.database.schemas.some((schema) => schema.toLowerCase() === normalized.toLowerCase())
+
+          if (exists) {
+            return state
+          }
+
+          added = true
+
+          return {
+            database: {
+              ...state.database,
+              schemas: [...state.database.schemas, normalized],
+            },
+            lastSavedAt: nowIso(),
+          }
+        })
+
+        return added
+      },
+      renameSchema: (currentSchema, nextSchema) => {
+        let renamed = false
+
+        set((state) => {
+          const normalizedCurrent = normalizeSchemaName(currentSchema)
+          const normalizedNext = normalizeSchemaName(nextSchema)
+
+          if (normalizedCurrent === normalizedNext) {
+            return state
+          }
+
+          const currentExists = state.database.schemas.some((schema) => schema.toLowerCase() === normalizedCurrent.toLowerCase())
+          const nextExists = state.database.schemas.some((schema) => schema.toLowerCase() === normalizedNext.toLowerCase())
+
+          if (!currentExists || nextExists) {
+            return state
+          }
+
+          renamed = true
+
+          return {
+            database: {
+              ...state.database,
+              schemas: state.database.schemas.map((schema) => (schema === normalizedCurrent ? normalizedNext : schema)),
+            },
+            tables: applySchemaRename(state.tables, normalizedCurrent, normalizedNext),
+            lastSavedAt: nowIso(),
+          }
+        })
+
+        return renamed
+      },
+      deleteSchema: (schemaName) => {
+        let removed = false
+
+        set((state) => {
+          const normalized = normalizeSchemaName(schemaName)
+
+          if (state.database.schemas.length <= 1) {
+            return state
+          }
+
+          if (!state.database.schemas.some((schema) => schema.toLowerCase() === normalized.toLowerCase())) {
+            return state
+          }
+
+          removed = true
+
+          const remainingSchemas = state.database.schemas.filter((schema) => schema.toLowerCase() !== normalized.toLowerCase())
+          const fallbackSchema = remainingSchemas[0] ?? 'public'
+
+          return {
+            database: {
+              ...state.database,
+              schemas: remainingSchemas,
+            },
+            tables: state.tables.map((table) => {
+              if (table.schema.toLowerCase() !== normalized.toLowerCase()) {
+                return table
+              }
+
+              return {
+                ...table,
+                schema: fallbackSchema,
+              }
+            }),
+            lastSavedAt: nowIso(),
+          }
+        })
+
+        return removed
+      },
+      addExtension: (extensionName) => {
+        let added = false
+
+        set((state) => {
+          const normalized = normalizeExtensionName(extensionName)
+          if (!normalized) {
+            return state
+          }
+
+          const exists = state.database.extensions.some((extension) => extension.toLowerCase() === normalized.toLowerCase())
+          if (exists) {
+            return state
+          }
+
+          added = true
+
+          return {
+            database: {
+              ...state.database,
+              extensions: [...state.database.extensions, normalized],
+            },
+            lastSavedAt: nowIso(),
+          }
+        })
+
+        return added
+      },
+      removeExtension: (extensionName) => {
+        set((state) => ({
+          database: {
+            ...state.database,
+            extensions: state.database.extensions.filter(
+              (extension) => extension.toLowerCase() !== normalizeExtensionName(extensionName).toLowerCase(),
+            ),
+          },
+          lastSavedAt: nowIso(),
+        }))
+      },
       addTable: () => {
         set((state) => {
-          const draft = createDefaultTable(state.tables.length + 1)
+          const preferredSchema = state.database.schemas[0] ?? 'public'
+          const draft = createDefaultTable(state.tables.length + 1, preferredSchema)
           draft.name = buildUniqueTableName(state.tables)
 
           return {
@@ -103,19 +356,32 @@ export const useSchemaStore = create<SchemaStore>()(
         })
       },
       updateTable: (tableId, patch) => {
-        set((state) => ({
-          tables: state.tables.map((table) => {
-            if (table.id !== tableId) {
-              return table
-            }
+        set((state) => {
+          const nextSchema = patch.schema ? normalizeSchemaName(patch.schema) : undefined
+          const nextDatabaseSchemas =
+            nextSchema && !state.database.schemas.some((schema) => schema.toLowerCase() === nextSchema.toLowerCase())
+              ? [...state.database.schemas, nextSchema]
+              : state.database.schemas
 
-            return {
-              ...table,
-              ...patch,
-            }
-          }),
-          lastSavedAt: nowIso(),
-        }))
+          return {
+            database: {
+              ...state.database,
+              schemas: nextDatabaseSchemas,
+            },
+            tables: state.tables.map((table) => {
+              if (table.id !== tableId) {
+                return table
+              }
+
+              return {
+                ...table,
+                ...patch,
+                schema: nextSchema ?? table.schema,
+              }
+            }),
+            lastSavedAt: nowIso(),
+          }
+        })
       },
       deleteTable: (tableId) => {
         set((state) => {
@@ -128,6 +394,7 @@ export const useSchemaStore = create<SchemaStore>()(
             state.selectedTableId === tableId ? (nextTables.length > 0 ? nextTables[0].id : null) : state.selectedTableId
 
           return {
+            database: sanitizeDatabase(state.database, nextTables),
             tables: nextTables,
             relations: nextRelations,
             selectedTableId,
@@ -283,7 +550,7 @@ export const useSchemaStore = create<SchemaStore>()(
       importSql: (sql) => {
         const result = parseSqlSchema(sql)
 
-        if (result.tables.length === 0) {
+        if (result.parsedEntities === 0) {
           set({
             importWarnings: result.warnings,
           })
@@ -291,6 +558,7 @@ export const useSchemaStore = create<SchemaStore>()(
         }
 
         set({
+          database: sanitizeDatabase(result.database, result.tables),
           tables: result.tables,
           relations: result.relations,
           selectedTableId: result.tables[0]?.id ?? null,
@@ -300,8 +568,9 @@ export const useSchemaStore = create<SchemaStore>()(
 
         return true
       },
-      replaceProject: (tables, relations) => {
+      replaceProject: (database, tables, relations) => {
         set({
+          database: sanitizeDatabase(database, tables),
           tables,
           relations,
           selectedTableId: tables[0]?.id ?? null,
@@ -311,6 +580,7 @@ export const useSchemaStore = create<SchemaStore>()(
       },
       clearProject: () => {
         set({
+          database: createDefaultDatabase(),
           tables: [],
           relations: [],
           selectedTableId: null,
@@ -326,16 +596,19 @@ export const useSchemaStore = create<SchemaStore>()(
       name: STORAGE_KEY,
       storage: createJSONStorage(() => localStorage),
       partialize: (state) => ({
+        database: state.database,
         tables: state.tables,
         relations: state.relations,
         selectedTableId: state.selectedTableId,
       }),
       merge: (persistedState, currentState) => {
         const parsed = persistedState as Partial<SchemaStore>
+        const persistedTables = parsed.tables ?? currentState.tables
 
         return {
           ...currentState,
-          tables: parsed.tables ?? currentState.tables,
+          database: sanitizeDatabase(parsed.database ?? currentState.database, persistedTables),
+          tables: persistedTables,
           relations: parsed.relations ?? currentState.relations,
           selectedTableId: parsed.selectedTableId ?? currentState.selectedTableId,
           importWarnings: [],

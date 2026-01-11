@@ -1,0 +1,76 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.panel {
+  min-height: 0;
+}
+
+.metaGrid {
+  display: grid;
+  gap: 0.45rem;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+
+  input {
+    @include m.input-base;
+  }
+}
+
+.section {
+  display: grid;
+  gap: 0.42rem;
+}
+
+.sectionHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+
+  h4 {
+    margin: 0;
+    font-size: 0.78rem;
+    font-family: t.$font-heading;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: t.$color-text-soft;
+  }
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.3rem;
+  }
+}
+
+.tagList {
+  display: grid;
+  gap: 0.35rem;
+}
+
+.tagRow {
+  border: 1px solid t.$color-border;
+  background: t.$color-row-alt-bg;
+  border-radius: t.$radius-sm;
+  padding: 0.38rem;
+  display: flex;
+  align-items: center;
+  gap: 0.32rem;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.78rem;
+    margin-right: auto;
+  }
+}
+
+.empty {
+  margin: 0;
+  font-size: 0.76rem;
+  color: t.$color-text-soft;
+}
+
+@media (max-width: 1180px) {
+  .metaGrid {
+    grid-template-columns: 1fr;
+  }
+}

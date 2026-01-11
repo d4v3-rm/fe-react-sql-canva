@@ -1,5 +1,5 @@
-import { createDefaultColumn } from '@/domain/defaults'
-import type { ColumnModel, ForeignKeyAction, RelationModel, SqlImportResult, TableModel } from '@/domain/schema'
+import { createDefaultColumn, createDefaultDatabase } from '@/domain/defaults'
+import type { ColumnModel, DatabaseModel, ForeignKeyAction, RelationModel, SqlImportResult, TableModel } from '@/domain/schema'
 import { createId } from '@/lib/id'
 import { normalizeIdentifier } from '@/lib/sql/identifiers'
 import { normalizeDataType } from '@/lib/sql/types'
@@ -18,6 +18,11 @@ interface ParsedTableRef {
   schema: string
   name: string
   key: string
+}
+
+interface ParsedDatabaseMeta {
+  databasePatch: Partial<DatabaseModel>
+  parsedCount: number
 }
 
 const ACTIONS: ForeignKeyAction[] = ['NO ACTION', 'CASCADE', 'SET NULL', 'RESTRICT', 'SET DEFAULT']
@@ -84,6 +89,44 @@ function splitTopLevelByComma(text: string): string[] {
   return chunks
 }
 
+function dedupeInsensitive(values: string[]): string[] {
+  const seen = new Set<string>()
+  const deduped: string[] = []
+
+  values.forEach((value) => {
+    const normalized = value.trim()
+    if (!normalized) {
+      return
+    }
+
+    const lower = normalized.toLowerCase()
+    if (seen.has(lower)) {
+      return
+    }
+
+    seen.add(lower)
+    deduped.push(normalized)
+  })
+
+  return deduped
+}
+
+function normalizeName(raw: string): string {
+  const normalized = raw
+    .trim()
+    .replace(/\s+/g, '_')
+    .replace(/[^a-zA-Z0-9_]/g, '_')
+    .replace(/_{2,}/g, '_')
+    .replace(/^_+|_+$/g, '')
+    .toLowerCase()
+
+  return normalized
+}
+
+function normalizeSchemaName(raw: string): string {
+  return normalizeName(raw) || 'public'
+}
+
 function parseTableRef(rawIdentifier: string): ParsedTableRef {
   const tokens = rawIdentifier
     .split('.')
@@ -130,6 +173,78 @@ function splitTypeAndConstraints(raw: string): { typeSql: string; constraintsSql
   return {
     typeSql: raw.slice(0, match.index).trim(),
     constraintsSql: raw.slice(match.index).trim(),
+  }
+}
+
+function parseDatabaseMeta(cleanedSql: string): ParsedDatabaseMeta {
+  const databasePattern = /CREATE\s+DATABASE\s+(?:IF\s+NOT\s+EXISTS\s+)?("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)([\s\S]*?);/i
+  const match = cleanedSql.match(databasePattern)
+
+  if (!match) {
+    return {
+      databasePatch: {},
+      parsedCount: 0,
+    }
+  }
+
+  const options = match[2] ?? ''
+  const ownerMatch = options.match(/OWNER\s*=\s*("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)/i)
+  const encodingMatch =
+    options.match(/ENCODING\s*=\s*'([^']+)'/i) ?? options.match(/ENCODING\s*=\s*("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)/i)
+  const collateMatch =
+    options.match(/LC_COLLATE\s*=\s*'([^']+)'/i) ?? options.match(/LC_COLLATE\s*=\s*("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$.-]*)/i)
+  const cTypeMatch =
+    options.match(/LC_CTYPE\s*=\s*'([^']+)'/i) ?? options.match(/LC_CTYPE\s*=\s*("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$.-]*)/i)
+  const templateMatch = options.match(/TEMPLATE\s*=\s*("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)/i)
+
+  return {
+    databasePatch: {
+      name: normalizeName(normalizeIdentifier(match[1])) || createDefaultDatabase().name,
+      owner: ownerMatch ? normalizeName(normalizeIdentifier(ownerMatch[1])) : undefined,
+      encoding: encodingMatch ? normalizeIdentifier(encodingMatch[1]).replace(/^'|'$/g, '') : undefined,
+      lcCollate: collateMatch ? normalizeIdentifier(collateMatch[1]).replace(/^'|'$/g, '') : undefined,
+      lcCType: cTypeMatch ? normalizeIdentifier(cTypeMatch[1]).replace(/^'|'$/g, '') : undefined,
+      template: templateMatch ? normalizeName(normalizeIdentifier(templateMatch[1])) : undefined,
+    },
+    parsedCount: 1,
+  }
+}
+
+function parseSchemaDefinitions(cleanedSql: string): { schemas: string[]; parsedCount: number } {
+  const schemas: string[] = []
+  const schemaPattern =
+    /CREATE\s+SCHEMA\s+(?:IF\s+NOT\s+EXISTS\s+)?("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\s+AUTHORIZATION\s+(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?\s*;/gi
+
+  let match = schemaPattern.exec(cleanedSql)
+  while (match) {
+    schemas.push(normalizeSchemaName(normalizeIdentifier(match[1])))
+    match = schemaPattern.exec(cleanedSql)
+  }
+
+  return {
+    schemas: dedupeInsensitive(schemas),
+    parsedCount: schemas.length,
+  }
+}
+
+function parseExtensions(cleanedSql: string): { extensions: string[]; parsedCount: number } {
+  const extensions: string[] = []
+  const extensionPattern =
+    /CREATE\s+EXTENSION\s+(?:IF\s+NOT\s+EXISTS\s+)?("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\s+WITH\s+SCHEMA\s+(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?\s*;/gi
+
+  let match = extensionPattern.exec(cleanedSql)
+  while (match) {
+    const parsed = normalizeName(normalizeIdentifier(match[1]))
+    if (parsed) {
+      extensions.push(parsed)
+    }
+
+    match = extensionPattern.exec(cleanedSql)
+  }
+
+  return {
+    extensions: dedupeInsensitive(extensions),
+    parsedCount: extensions.length,
   }
 }
 
@@ -385,20 +500,54 @@ function materializeRelations(
   return relations
 }
 
+function buildImportedDatabase(
+  dbPatch: Partial<DatabaseModel>,
+  schemas: string[],
+  extensions: string[],
+  tables: TableModel[],
+): DatabaseModel {
+  const fallback = createDefaultDatabase()
+  const tableSchemas = tables.map((table) => normalizeSchemaName(table.schema))
+  const mergedSchemas = dedupeInsensitive(['public', ...schemas, ...tableSchemas])
+
+  return {
+    ...fallback,
+    ...dbPatch,
+    name: normalizeName(dbPatch.name ?? fallback.name) || fallback.name,
+    owner: normalizeName(dbPatch.owner ?? fallback.owner) || fallback.owner,
+    template: normalizeName(dbPatch.template ?? fallback.template) || fallback.template,
+    encoding: dbPatch.encoding?.trim() || fallback.encoding,
+    lcCollate: dbPatch.lcCollate?.trim() || fallback.lcCollate,
+    lcCType: dbPatch.lcCType?.trim() || fallback.lcCType,
+    schemas: mergedSchemas.length > 0 ? mergedSchemas : ['public'],
+    extensions: dedupeInsensitive(extensions),
+  }
+}
+
 export function parseSqlSchema(sql: string): SqlImportResult {
   const cleaned = stripComments(sql)
 
+  const parsedDb = parseDatabaseMeta(cleaned)
+  const parsedSchemas = parseSchemaDefinitions(cleaned)
+  const parsedExtensions = parseExtensions(cleaned)
+
   const { tables, rawRelations: createTableRelations, warnings } = parseCreateTableStatements(cleaned)
   const alterRelations = parseAlterTableRelations(cleaned)
-  const relations = materializeRelations(tables, [...createTableRelations, ...alterRelations], warnings)
+  const relationSeeds = [...createTableRelations, ...alterRelations]
+  const relations = materializeRelations(tables, relationSeeds, warnings)
 
-  if (tables.length === 0) {
-    warnings.push('Nessuna istruzione CREATE TABLE valida trovata nel file SQL.')
+  const parsedEntities =
+    parsedDb.parsedCount + parsedSchemas.parsedCount + parsedExtensions.parsedCount + tables.length + relationSeeds.length
+
+  if (parsedEntities === 0) {
+    warnings.push('Nessuna istruzione SQL compatibile trovata nel file.')
   }
 
   return {
+    database: buildImportedDatabase(parsedDb.databasePatch, parsedSchemas.schemas, parsedExtensions.extensions, tables),
     tables,
     relations,
     warnings,
+    parsedEntities,
   }
 }

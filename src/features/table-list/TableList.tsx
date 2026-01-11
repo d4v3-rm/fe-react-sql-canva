@@ -10,13 +10,18 @@ import { useSchemaStore } from '@/store/schemaStore'
 import styles from './TableList.module.scss'
 
 export function TableList() {
+  const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
   const selectedTableId = useSchemaStore((state) => state.selectedTableId)
   const selectTable = useSchemaStore((state) => state.selectTable)
   const deleteTable = useSchemaStore((state) => state.deleteTable)
 
   return (
-    <Card className={styles.tableList} title="Tabelle" subtitle="Gestisci schema e nomi tabella.">
+    <Card
+      className={styles.tableList}
+      title="Tabelle"
+      subtitle={`${database.schemas.length} schemi | ${tables.length} tabelle in ${database.name}`}
+    >
       {tables.length === 0 ? (
         <EmptyState title="Nessuna tabella" body="Aggiungi una nuova tabella dalla toolbar per iniziare." />
       ) : (
