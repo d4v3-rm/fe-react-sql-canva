@@ -1,0 +1,177 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.explorer {
+  min-height: 0;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 0.45rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.26rem;
+    flex: 0 0 auto;
+  }
+}
+
+.searchField {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  flex: 1 1 auto;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  padding: 0.42rem 0.5rem;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+
+  input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: t.$color-text;
+    font-size: 0.78rem;
+  }
+}
+
+.databaseRoot {
+  width: 100%;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-row-alt-bg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.5rem 0.56rem;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, transform t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+    transform: translateY(-1px);
+  }
+}
+
+.selectedRoot {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.rootInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.82rem;
+    font-family: t.$font-heading;
+  }
+}
+
+.tree {
+  display: grid;
+  gap: 0.48rem;
+  overflow: auto;
+  max-height: calc(100vh - 370px);
+  padding-right: 0.1rem;
+  @include m.slim-scrollbar;
+}
+
+.schemaBlock {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  overflow: hidden;
+
+  > header {
+    padding: 0.42rem 0.46rem;
+    border-bottom: 1px solid t.$color-border;
+    background: linear-gradient(120deg, t.$color-pane-header-start, t.$color-pane-header-end);
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.schemaInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: t.$color-text-soft;
+  }
+}
+
+.emptySchema {
+  margin: 0;
+  padding: 0.5rem;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+}
+
+.tableRows {
+  display: grid;
+}
+
+.tableRow {
+  border: none;
+  width: 100%;
+  background: transparent;
+  border-top: 1px solid t.$color-divider-soft;
+  padding: 0.4rem 0.45rem;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.36rem;
+  text-align: left;
+  cursor: pointer;
+
+  &:hover {
+    background: t.$color-row-alt-bg;
+  }
+}
+
+.selectedTable {
+  background: t.$color-primary-soft;
+}
+
+.tableInfo {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: t.$color-text;
+
+  span {
+    @include m.text-ellipsis;
+    font-size: 0.77rem;
+    font-weight: 650;
+  }
+}
+
+.tableActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24rem;
+}

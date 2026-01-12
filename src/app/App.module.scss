@@ -140,21 +140,12 @@
   overflow: hidden;
 }
 
-.leftPaneContent {
+.scrollPaneContent {
   display: grid;
-  gap: 0.72rem;
+  gap: 0.62rem;
   align-content: start;
   overflow: auto;
-  padding: 0.6rem;
-  @include m.slim-scrollbar;
-}
-
-.rightPaneContent {
-  display: grid;
-  gap: 0.72rem;
-  align-content: start;
-  overflow: auto;
-  padding: 0.6rem;
+  padding: 0.56rem;
   @include m.slim-scrollbar;
 }
 

@@ -3,10 +3,8 @@ import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
 import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
-import { DatabaseModelPanel } from '@/features/database-model/DatabaseModelPanel'
-import { SqlPreview } from '@/features/sql-preview/SqlPreview'
-import { TableEditor } from '@/features/table-editor/TableEditor'
-import { TableList } from '@/features/table-list/TableList'
+import { DatabaseExplorer } from '@/features/explorer/DatabaseExplorer'
+import { InspectorPanel } from '@/features/inspector/InspectorPanel'
 import { Toolbar } from '@/features/toolbar/Toolbar'
 import { generateProjectSql } from '@/lib/sql/generateSql'
 import { useLayoutStore, type PaneId } from '@/store/layoutStore'
@@ -29,14 +27,14 @@ function clamp(value: number, min: number, max: number): number {
 
 function paneTitle(pane: PaneId): string {
   if (pane === 'left') {
-    return 'Database'
+    return 'Explorer'
   }
 
   if (pane === 'center') {
     return 'Canvas'
   }
 
-  return 'Editor'
+  return 'Inspector'
 }
 
 export default function App() {
@@ -198,11 +196,10 @@ export default function App() {
               </div>
 
               {leftCollapsed ? (
-                <div className={styles.collapsedLabel}>DB</div>
+                <div className={styles.collapsedLabel}>EXP</div>
               ) : (
-                <div className={clsx(styles.paneContent, styles.leftPaneContent)}>
-                  <DatabaseModelPanel />
-                  <TableList />
+                <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
+                  <DatabaseExplorer />
                 </div>
               )}
             </div>
@@ -255,11 +252,10 @@ export default function App() {
               </div>
 
               {rightCollapsed ? (
-                <div className={styles.collapsedLabel}>EDT</div>
+                <div className={styles.collapsedLabel}>INS</div>
               ) : (
-                <div className={clsx(styles.paneContent, styles.rightPaneContent)}>
-                  <TableEditor />
-                  <SqlPreview sql={sqlScript} />
+                <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
+                  <InspectorPanel sqlScript={sqlScript} />
                 </div>
               )}
             </div>

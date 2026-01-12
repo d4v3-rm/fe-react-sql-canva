@@ -1,0 +1,61 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.inspector {
+  min-height: 0;
+  display: grid;
+  gap: 0.62rem;
+  align-content: start;
+}
+
+.tabsCard {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+}
+
+.tabButtons {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+.tabButton {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.42rem;
+  font-size: 0.74rem;
+  font-family: t.$font-heading;
+  font-weight: 640;
+  letter-spacing: 0.02em;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+  }
+}
+
+.activeTab {
+  border-color: t.$color-primary;
+  color: t.$color-text;
+  background: t.$color-primary-soft;
+}
+
+.tabContent {
+  min-height: 0;
+  display: grid;
+  gap: 0.62rem;
+}
+
+@media (max-width: 1180px) {
+  .tabButtons {
+    grid-template-columns: 1fr;
+  }
+}

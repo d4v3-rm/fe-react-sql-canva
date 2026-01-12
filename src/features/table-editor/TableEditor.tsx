@@ -54,7 +54,11 @@ function typePatch(column: ColumnModel, nextType: DataType): Partial<ColumnModel
   return patch
 }
 
-export function TableEditor() {
+interface TableEditorProps {
+  showRelations?: boolean
+}
+
+export function TableEditor({ showRelations = true }: TableEditorProps) {
   const selectedTable = useSelectedTable()
   const databaseSchemas = useSchemaStore((state) => state.database.schemas)
   const updateTable = useSchemaStore((state) => state.updateTable)
@@ -217,7 +221,7 @@ export function TableEditor() {
         </div>
       </Card>
 
-      <RelationManager tableId={selectedTable.id} />
+      {showRelations ? <RelationManager tableId={selectedTable.id} /> : null}
     </div>
   )
 }

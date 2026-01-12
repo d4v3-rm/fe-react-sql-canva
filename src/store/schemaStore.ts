@@ -44,6 +44,7 @@ interface SchemaStore {
   addExtension: (extensionName: string) => boolean
   removeExtension: (extensionName: string) => void
   addTable: () => void
+  addTableInSchema: (schemaName: string) => void
   updateTable: (tableId: string, patch: Partial<Pick<TableModel, 'schema' | 'name'>>) => void
   deleteTable: (tableId: string) => void
   addColumn: (tableId: string) => void
@@ -348,6 +349,27 @@ export const useSchemaStore = create<SchemaStore>()(
           draft.name = buildUniqueTableName(state.tables)
 
           return {
+            tables: [...state.tables, draft],
+            selectedTableId: draft.id,
+            importWarnings: [],
+            lastSavedAt: nowIso(),
+          }
+        })
+      },
+      addTableInSchema: (schemaName) => {
+        set((state) => {
+          const preferredSchema = normalizeSchemaName(schemaName)
+          const draft = createDefaultTable(state.tables.length + 1, preferredSchema)
+          draft.name = buildUniqueTableName(state.tables)
+
+          const schemaExists = state.database.schemas.some((schema) => schema.toLowerCase() === preferredSchema.toLowerCase())
+          const nextSchemas = schemaExists ? state.database.schemas : [...state.database.schemas, preferredSchema]
+
+          return {
+            database: {
+              ...state.database,
+              schemas: nextSchemas,
+            },
             tables: [...state.tables, draft],
             selectedTableId: draft.id,
             importWarnings: [],
