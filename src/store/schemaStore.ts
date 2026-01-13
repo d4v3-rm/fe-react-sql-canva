@@ -9,6 +9,7 @@ import {
   createDefaultTable,
 } from '@/domain/defaults'
 import type { ColumnModel, DatabaseModel, ForeignKeyAction, RelationModel, TableModel } from '@/domain/schema'
+import { createId } from '@/lib/id'
 import { ensureUniqueName, findTableById } from '@/lib/schemaHelpers'
 import { parseSqlSchema } from '@/lib/sql/parseSql'
 
@@ -45,6 +46,9 @@ interface SchemaStore {
   removeExtension: (extensionName: string) => void
   addTable: () => void
   addTableInSchema: (schemaName: string) => void
+  renameTable: (tableId: string, nextName: string) => boolean
+  duplicateTable: (tableId: string) => void
+  moveTableToSchema: (tableId: string, schemaName: string) => void
   updateTable: (tableId: string, patch: Partial<Pick<TableModel, 'schema' | 'name'>>) => void
   deleteTable: (tableId: string) => void
   addColumn: (tableId: string) => void
@@ -155,6 +159,13 @@ function buildUniqueTableName(existingTables: TableModel[]): string {
   )
 }
 
+function buildUniqueTableNameInSchema(existingTables: TableModel[], schemaName: string, baseName: string): string {
+  return ensureUniqueName(
+    baseName,
+    existingTables.filter((table) => table.schema === schemaName).map((table) => table.name),
+  )
+}
+
 function buildUniqueColumnName(table: TableModel): string {
   return ensureUniqueName(
     'column_1',
@@ -180,6 +191,13 @@ function applySchemaRename(tables: TableModel[], currentSchema: string, nextSche
       schema: nextSchema,
     }
   })
+}
+
+function cloneColumns(columns: ColumnModel[]): ColumnModel[] {
+  return columns.map((column) => ({
+    ...column,
+    id: createId('col'),
+  }))
 }
 
 const initialDatabase = createDefaultDatabase()
@@ -373,6 +391,103 @@ export const useSchemaStore = create<SchemaStore>()(
             tables: [...state.tables, draft],
             selectedTableId: draft.id,
             importWarnings: [],
+            lastSavedAt: nowIso(),
+          }
+        })
+      },
+      renameTable: (tableId, nextName) => {
+        let renamed = false
+
+        set((state) => {
+          const normalizedName = normalizeEntityName(nextName)
+          if (!normalizedName) {
+            return state
+          }
+
+          const tableToRename = state.tables.find((table) => table.id === tableId)
+          if (!tableToRename) {
+            return state
+          }
+
+          const duplicatedInSchema = state.tables.some(
+            (table) => table.id !== tableId && table.schema === tableToRename.schema && table.name === normalizedName,
+          )
+          if (duplicatedInSchema) {
+            return state
+          }
+
+          renamed = true
+
+          return {
+            tables: state.tables.map((table) => {
+              if (table.id !== tableId) {
+                return table
+              }
+
+              return {
+                ...table,
+                name: normalizedName,
+              }
+            }),
+            lastSavedAt: nowIso(),
+          }
+        })
+
+        return renamed
+      },
+      duplicateTable: (tableId) => {
+        set((state) => {
+          const source = state.tables.find((table) => table.id === tableId)
+          if (!source) {
+            return state
+          }
+
+          const duplicatedName = buildUniqueTableNameInSchema(state.tables, source.schema, `${source.name}_copy`)
+          const duplicatedTable: TableModel = {
+            ...source,
+            id: createId('tbl'),
+            name: duplicatedName,
+            columns: cloneColumns(source.columns),
+            position: {
+              x: source.position.x + 48,
+              y: source.position.y + 48,
+            },
+          }
+
+          return {
+            tables: [...state.tables, duplicatedTable],
+            selectedTableId: duplicatedTable.id,
+            lastSavedAt: nowIso(),
+          }
+        })
+      },
+      moveTableToSchema: (tableId, schemaName) => {
+        set((state) => {
+          const normalizedSchema = normalizeSchemaName(schemaName)
+          const source = state.tables.find((table) => table.id === tableId)
+          if (!source) {
+            return state
+          }
+
+          const movedName = buildUniqueTableNameInSchema(state.tables.filter((table) => table.id !== tableId), normalizedSchema, source.name)
+          const schemaExists = state.database.schemas.some((schema) => schema.toLowerCase() === normalizedSchema.toLowerCase())
+
+          return {
+            database: {
+              ...state.database,
+              schemas: schemaExists ? state.database.schemas : [...state.database.schemas, normalizedSchema],
+            },
+            tables: state.tables.map((table) => {
+              if (table.id !== tableId) {
+                return table
+              }
+
+              return {
+                ...table,
+                schema: normalizedSchema,
+                name: movedName,
+              }
+            }),
             lastSavedAt: nowIso(),
           }
         })

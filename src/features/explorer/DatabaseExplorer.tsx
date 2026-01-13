@@ -1,6 +1,6 @@
-import clsx from 'clsx'
-import { Database, FolderTree, Plus, Search, Table2, Trash2 } from 'lucide-react'
-import { useMemo, useState } from 'react'
+﻿import clsx from 'clsx'
+import { ArrowRightLeft, Copy, Database, FolderTree, MoreHorizontal, Pencil, Plus, Search, Table2, Trash2 } from 'lucide-react'
+import { useMemo, useState, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -10,14 +10,16 @@ import { useSchemaStore } from '@/store/schemaStore'
 
 import styles from './DatabaseExplorer.module.scss'
 
+interface ExplorerTable {
+  id: string
+  name: string
+  schema: string
+  columnCount: number
+}
+
 interface SchemaGroup {
   schema: string
-  tables: Array<{
-    id: string
-    name: string
-    schema: string
-    columnCount: number
-  }>
+  tables: ExplorerTable[]
 }
 
 function sortByName<T extends { name: string }>(items: T[]): T[] {
@@ -30,6 +32,9 @@ function sortBySchema(items: SchemaGroup[]): SchemaGroup[] {
 
 export function DatabaseExplorer() {
   const [query, setQuery] = useState('')
+  const [draggingTableId, setDraggingTableId] = useState<string | null>(null)
+  const [dropSchema, setDropSchema] = useState<string | null>(null)
+  const [openMenuTableId, setOpenMenuTableId] = useState<string | null>(null)
 
   const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
@@ -38,14 +43,19 @@ export function DatabaseExplorer() {
   const addTable = useSchemaStore((state) => state.addTable)
   const addTableInSchema = useSchemaStore((state) => state.addTableInSchema)
   const deleteTable = useSchemaStore((state) => state.deleteTable)
+  const renameTable = useSchemaStore((state) => state.renameTable)
+  const duplicateTable = useSchemaStore((state) => state.duplicateTable)
+  const moveTableToSchema = useSchemaStore((state) => state.moveTableToSchema)
 
   const normalizedQuery = query.trim().toLowerCase()
+
+  const tableMap = useMemo(() => new Map(tables.map((table) => [table.id, table])), [tables])
 
   const schemaGroups = useMemo<SchemaGroup[]>(() => {
     const tableBySchema = new Map<string, SchemaGroup['tables']>()
 
     sortByName(tables).forEach((table) => {
-      const tableEntry = {
+      const tableEntry: ExplorerTable = {
         id: table.id,
         name: table.name,
         schema: table.schema,
@@ -80,6 +90,126 @@ export function DatabaseExplorer() {
       .filter((group) => group.tables.length > 0 || group.schema.toLowerCase().includes(normalizedQuery))
   }, [normalizedQuery, schemaGroups])
 
+  function closeContextMenu() {
+    setOpenMenuTableId(null)
+  }
+
+  function handleRenameTable(tableId: string) {
+    closeContextMenu()
+
+    const table = tableMap.get(tableId)
+    if (!table) {
+      return
+    }
+
+    const nextName = window.prompt('Nuovo nome tabella', table.name)
+    if (!nextName || nextName === table.name) {
+      return
+    }
+
+    const success = renameTable(tableId, nextName)
+    if (!success) {
+      window.alert('Impossibile rinominare: esiste già una tabella con questo nome nello stesso schema.')
+    }
+  }
+
+  function handleDuplicateTable(tableId: string) {
+    closeContextMenu()
+    duplicateTable(tableId)
+  }
+
+  function handleMoveTable(tableId: string) {
+    closeContextMenu()
+
+    const table = tableMap.get(tableId)
+    if (!table) {
+      return
+    }
+
+    const nextSchema = window.prompt(
+      `Sposta tabella nello schema (disponibili: ${database.schemas.join(', ')})`,
+      table.schema,
+    )
+
+    if (!nextSchema || nextSchema.trim() === table.schema) {
+      return
+    }
+
+    moveTableToSchema(tableId, nextSchema)
+  }
+
+  function handleDeleteTable(tableId: string) {
+    closeContextMenu()
+
+    const table = tableMap.get(tableId)
+    const confirmed = window.confirm(`Eliminare la tabella ${table?.schema}.${table?.name}?`)
+    if (confirmed) {
+      deleteTable(tableId)
+    }
+  }
+
+  function handleTableDragStart(tableId: string, event: DragEvent<HTMLDivElement>) {
+    event.dataTransfer.setData('application/x-sql-canvas-table', tableId)
+    event.dataTransfer.effectAllowed = 'move'
+    setDraggingTableId(tableId)
+    setOpenMenuTableId(null)
+  }
+
+  function handleSchemaDragOver(schemaName: string, event: DragEvent<HTMLElement>) {
+    if (!draggingTableId) {
+      return
+    }
+
+    const draggedTable = tableMap.get(draggingTableId)
+    if (!draggedTable || draggedTable.schema === schemaName) {
+      return
+    }
+
+    event.preventDefault()
+    event.dataTransfer.dropEffect = 'move'
+    setDropSchema(schemaName)
+  }
+
+  function handleSchemaDragLeave(schemaName: string, event: DragEvent<HTMLElement>) {
+    const currentTarget = event.currentTarget
+    const nextTarget = event.relatedTarget
+
+    if (nextTarget instanceof Node && currentTarget.contains(nextTarget)) {
+      return
+    }
+
+    if (dropSchema === schemaName) {
+      setDropSchema(null)
+    }
+  }
+
+  function handleSchemaDrop(schemaName: string, event: DragEvent<HTMLElement>) {
+    event.preventDefault()
+
+    const transferredTableId = event.dataTransfer.getData('application/x-sql-canvas-table')
+    const tableId = transferredTableId || draggingTableId
+    if (!tableId) {
+      setDropSchema(null)
+      return
+    }
+
+    const draggedTable = tableMap.get(tableId)
+    if (!draggedTable || draggedTable.schema === schemaName) {
+      setDropSchema(null)
+      setDraggingTableId(null)
+      return
+    }
+
+    moveTableToSchema(tableId, schemaName)
+    setDropSchema(null)
+    setDraggingTableId(null)
+  }
+
+  function handleTableDragEnd() {
+    setDraggingTableId(null)
+    setDropSchema(null)
+  }
+
   return (
     <Card className={styles.explorer} title="Database Explorer" subtitle="Naviga database, schemi e tabelle in modo gerarchico.">
       <div className={styles.topRow}>
@@ -100,7 +230,10 @@ export function DatabaseExplorer() {
 
       <button
         className={clsx(styles.databaseRoot, selectedTableId === null && styles.selectedRoot)}
-        onClick={() => selectTable(null)}
+        onClick={() => {
+          selectTable(null)
+          closeContextMenu()
+        }}
         type="button"
       >
         <div className={styles.rootInfo}>
@@ -115,7 +248,13 @@ export function DatabaseExplorer() {
       ) : (
         <div className={styles.tree}>
           {filteredGroups.map((group) => (
-            <section key={group.schema} className={styles.schemaBlock}>
+            <section
+              key={group.schema}
+              className={clsx(styles.schemaBlock, dropSchema === group.schema && styles.schemaDropTarget)}
+              onDragOver={(event) => handleSchemaDragOver(group.schema, event)}
+              onDragLeave={(event) => handleSchemaDragLeave(group.schema, event)}
+              onDrop={(event) => handleSchemaDrop(group.schema, event)}
+            >
               <header>
                 <div className={styles.schemaInfo}>
                   <FolderTree size={14} />
@@ -129,35 +268,75 @@ export function DatabaseExplorer() {
               </header>
 
               {group.tables.length === 0 ? (
-                <p className={styles.emptySchema}>Nessuna tabella nello schema.</p>
+                <p className={styles.emptySchema}>Trascina qui una tabella oppure creane una nuova.</p>
               ) : (
                 <div className={styles.tableRows}>
                   {group.tables.map((table) => (
-                    <button
+                    <div
                       key={table.id}
-                      className={clsx(styles.tableRow, selectedTableId === table.id && styles.selectedTable)}
-                      onClick={() => selectTable(table.id)}
-                      type="button"
+                      className={clsx(
+                        styles.tableRow,
+                        selectedTableId === table.id && styles.selectedTable,
+                        draggingTableId === table.id && styles.draggingTable,
+                      )}
+                      draggable
+                      onDragStart={(event) => handleTableDragStart(table.id, event)}
+                      onDragEnd={handleTableDragEnd}
+                      onContextMenu={(event) => {
+                        event.preventDefault()
+                        selectTable(table.id)
+                        setOpenMenuTableId(table.id)
+                      }}
                     >
-                      <div className={styles.tableInfo}>
-                        <Table2 size={13} />
-                        <span>{table.name}</span>
-                      </div>
+                      <button
+                        className={styles.tableSelect}
+                        onClick={() => {
+                          selectTable(table.id)
+                          closeContextMenu()
+                        }}
+                        type="button"
+                      >
+                        <div className={styles.tableInfo}>
+                          <Table2 size={13} />
+                          <span>{table.name}</span>
+                        </div>
+                      </button>
 
                       <div className={styles.tableActions}>
                         <Badge>{table.columnCount}</Badge>
-                        <Button
-                          variant="danger"
-                          compact
+                        <button
+                          className={styles.menuTrigger}
                           onClick={(event) => {
                             event.stopPropagation()
-                            deleteTable(table.id)
+                            setOpenMenuTableId((current) => (current === table.id ? null : table.id))
                           }}
+                          type="button"
                         >
-                          <Trash2 size={11} />
-                        </Button>
+                          <MoreHorizontal size={13} />
+                        </button>
+
+                        {openMenuTableId === table.id ? (
+                          <div className={styles.contextMenu}>
+                            <button onClick={() => handleRenameTable(table.id)} type="button">
+                              <Pencil size={12} />
+                              Rinomina
+                            </button>
+                            <button onClick={() => handleDuplicateTable(table.id)} type="button">
+                              <Copy size={12} />
+                              Duplica
+                            </button>
+                            <button onClick={() => handleMoveTable(table.id)} type="button">
+                              <ArrowRightLeft size={12} />
+                              Sposta
+                            </button>
+                            <button className={styles.dangerAction} onClick={() => handleDeleteTable(table.id)} type="button">
+                              <Trash2 size={12} />
+                              Elimina
+                            </button>
+                          </div>
+                        ) : null}
                       </div>
-                    </button>
+                    </div>
                   ))}
                 </div>
               )}
