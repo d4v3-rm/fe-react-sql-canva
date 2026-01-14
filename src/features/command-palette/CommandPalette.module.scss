@@ -1,0 +1,122 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 120;
+  background: color-mix(in srgb, t.$color-bg 66%, black 34%);
+  display: grid;
+  place-items: start center;
+  padding: 8vh 1rem 1rem;
+}
+
+.palette {
+  width: min(760px, 100%);
+  border: 1px solid t.$color-border;
+  background: t.$color-surface;
+  border-radius: t.$radius-lg;
+  box-shadow: t.$shadow-soft;
+  display: grid;
+  gap: 0.6rem;
+  padding: 0.6rem;
+}
+
+.searchInput {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.45rem;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface-soft;
+  padding: 0.52rem 0.6rem;
+  color: t.$color-text-soft;
+
+  input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: t.$color-text;
+    font-size: 0.84rem;
+  }
+
+  kbd {
+    border: 1px solid t.$color-border;
+    border-radius: 6px;
+    padding: 0.12rem 0.3rem;
+    font-size: 0.67rem;
+    color: t.$color-text-soft;
+    background: t.$color-surface;
+  }
+}
+
+.list {
+  display: grid;
+  gap: 0.25rem;
+  max-height: min(65vh, 580px);
+  overflow: auto;
+  @include m.slim-scrollbar;
+}
+
+.item {
+  border: 1px solid transparent;
+  border-radius: t.$radius-md;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  display: flex;
+  align-items: center;
+  gap: 0.52rem;
+  padding: 0.46rem;
+  cursor: pointer;
+
+  &:hover {
+    background: t.$color-row-alt-bg;
+  }
+}
+
+.active {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.icon {
+  width: 28px;
+  height: 28px;
+  border-radius: 8px;
+  background: t.$color-surface-soft;
+  border: 1px solid t.$color-border;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: t.$color-primary;
+  flex: 0 0 auto;
+}
+
+.meta {
+  display: grid;
+  gap: 0.1rem;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.8rem;
+    color: t.$color-text;
+  }
+
+  small {
+    @include m.text-ellipsis;
+    font-size: 0.72rem;
+    color: t.$color-text-soft;
+  }
+}
+
+.empty {
+  margin: 0;
+  padding: 0.8rem;
+  text-align: center;
+  color: t.$color-text-soft;
+  font-size: 0.8rem;
+}
+

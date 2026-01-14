@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import clsx from 'clsx'
-import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Save, SunMedium } from 'lucide-react'
+import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Save, Search, SunMedium } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -12,9 +12,10 @@ import styles from './Toolbar.module.scss'
 
 interface ToolbarProps {
   sqlScript: string
+  onOpenCommandPalette: () => void
 }
 
-export function Toolbar({ sqlScript }: ToolbarProps) {
+export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
   const [importing, setImporting] = useState(false)
 
@@ -102,6 +103,10 @@ export function Toolbar({ sqlScript }: ToolbarProps) {
         <Button onClick={handleCopySql}>
           <Copy size={15} />
           {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
+        </Button>
+        <Button variant="ghost" onClick={onOpenCommandPalette} title="Apri command palette (Ctrl+K)">
+          <Search size={15} />
+          Comandi
         </Button>
         <Button variant="ghost" onClick={handleResetProject}>
           <RotateCcw size={15} />

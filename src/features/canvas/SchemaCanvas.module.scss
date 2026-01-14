@@ -8,9 +8,26 @@
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
   overflow: hidden;
+  position: relative;
   height: calc(100vh - 270px);
   min-height: 420px;
   background: linear-gradient(180deg, t.$color-canvas-bg-start, t.$color-canvas-bg-end);
+}
+
+.canvasActions {
+  position: absolute;
+  top: 0.48rem;
+  left: 0.48rem;
+  z-index: 4;
+  display: inline-flex;
+  gap: 0.32rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    backdrop-filter: blur(4px);
+  }
 }
 
 .minimap {

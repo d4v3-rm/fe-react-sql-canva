@@ -11,6 +11,7 @@ import {
 import type { ColumnModel, DatabaseModel, ForeignKeyAction, RelationModel, TableModel } from '@/domain/schema'
 import { createId } from '@/lib/id'
 import { ensureUniqueName, findTableById } from '@/lib/schemaHelpers'
+import { getTemplateById } from '@/lib/templates/databaseTemplates'
 import { parseSqlSchema } from '@/lib/sql/parseSql'
 
 const STORAGE_KEY = 'sql-canvas-project-v1'
@@ -59,6 +60,7 @@ interface SchemaStore {
   deleteRelation: (relationId: string) => void
   setTablePosition: (tableId: string, x: number, y: number) => void
   importSql: (sql: string) => boolean
+  applyTemplate: (templateId: string) => boolean
   replaceProject: (database: DatabaseModel, tables: TableModel[], relations: RelationModel[]) => void
   clearProject: () => void
   clearWarnings: () => void
@@ -691,6 +693,28 @@ export const useSchemaStore = create<SchemaStore>()(
           set({
             importWarnings: result.warnings,
           })
+          return false
+        }
+
+        set({
+          database: sanitizeDatabase(result.database, result.tables),
+          tables: result.tables,
+          relations: result.relations,
+          selectedTableId: result.tables[0]?.id ?? null,
+          importWarnings: result.warnings,
+          lastSavedAt: nowIso(),
+        })
+
+        return true
+      },
+      applyTemplate: (templateId) => {
+        const template = getTemplateById(templateId)
+        if (!template) {
+          return false
+        }
+
+        const result = parseSqlSchema(template.sql)
+        if (result.parsedEntities === 0) {
           return false
         }
 

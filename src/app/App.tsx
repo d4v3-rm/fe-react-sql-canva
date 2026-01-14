@@ -1,8 +1,9 @@
 import clsx from 'clsx'
 import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
-import { useEffect, useMemo, useRef, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
+import { CommandPalette } from '@/features/command-palette/CommandPalette'
 import { DatabaseExplorer } from '@/features/explorer/DatabaseExplorer'
 import { InspectorPanel } from '@/features/inspector/InspectorPanel'
 import { Toolbar } from '@/features/toolbar/Toolbar'
@@ -38,6 +39,8 @@ function paneTitle(pane: PaneId): string {
 }
 
 export default function App() {
+  const [isCommandPaletteOpen, setIsCommandPaletteOpen] = useState(false)
+
   const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
   const relations = useSchemaStore((state) => state.relations)
@@ -78,6 +81,21 @@ export default function App() {
   useEffect(() => {
     document.documentElement.setAttribute('data-theme', theme)
   }, [theme])
+
+  useEffect(() => {
+    const onKeyDown = (event: KeyboardEvent) => {
+      const isCommandShortcut = (event.ctrlKey || event.metaKey) && event.key.toLowerCase() === 'k'
+      if (!isCommandShortcut) {
+        return
+      }
+
+      event.preventDefault()
+      setIsCommandPaletteOpen(true)
+    }
+
+    window.addEventListener('keydown', onKeyDown)
+    return () => window.removeEventListener('keydown', onKeyDown)
+  }, [])
 
   const layoutStyle: CSSProperties = {
     '--left-pane-width': `${leftPaneWidth}px`,
@@ -184,7 +202,7 @@ export default function App() {
 
   return (
     <div className={styles.page}>
-      <Toolbar sqlScript={sqlScript} />
+      <Toolbar sqlScript={sqlScript} onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
 
       <main ref={layoutRef} className={styles.layout} style={layoutStyle}>
         {showLeftPane ? (
@@ -262,6 +280,8 @@ export default function App() {
           </aside>
         ) : null}
       </main>
+
+      <CommandPalette isOpen={isCommandPaletteOpen} onClose={() => setIsCommandPaletteOpen(false)} />
     </div>
   )
 }
