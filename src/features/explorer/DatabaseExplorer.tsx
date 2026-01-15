@@ -1,5 +1,5 @@
 ﻿import clsx from 'clsx'
-import { ArrowRightLeft, Copy, Database, FolderTree, MoreHorizontal, Pencil, Plus, Search, Table2, Trash2 } from 'lucide-react'
+import { ArrowRightLeft, Copy, Database, FolderPlus, FolderTree, MoreHorizontal, Pencil, Plus, Search, Table2, Trash2 } from 'lucide-react'
 import { useMemo, useState, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
@@ -41,6 +41,7 @@ export function DatabaseExplorer() {
   const selectedTableId = useSchemaStore((state) => state.selectedTableId)
   const selectTable = useSchemaStore((state) => state.selectTable)
   const addTable = useSchemaStore((state) => state.addTable)
+  const addSchema = useSchemaStore((state) => state.addSchema)
   const addTableInSchema = useSchemaStore((state) => state.addTableInSchema)
   const deleteTable = useSchemaStore((state) => state.deleteTable)
   const renameTable = useSchemaStore((state) => state.renameTable)
@@ -148,6 +149,19 @@ export function DatabaseExplorer() {
     }
   }
 
+  function handleAddSchema() {
+    const suggestedSchema = `schema_${database.schemas.length + 1}`
+    const nextSchema = window.prompt('Nome nuovo schema PostgreSQL', suggestedSchema)
+    if (!nextSchema) {
+      return
+    }
+
+    const success = addSchema(nextSchema)
+    if (!success) {
+      window.alert('Schema gia esistente o nome non valido.')
+    }
+  }
+
   function handleTableDragStart(tableId: string, event: DragEvent<HTMLDivElement>) {
     event.dataTransfer.setData('application/x-sql-canvas-table', tableId)
     event.dataTransfer.effectAllowed = 'move'
@@ -222,10 +236,17 @@ export function DatabaseExplorer() {
           />
         </label>
 
-        <Button compact onClick={addTable}>
-          <Plus size={12} />
-          Tabella
-        </Button>
+        <div className={styles.topActions}>
+          <Button compact variant="ghost" onClick={handleAddSchema}>
+            <FolderPlus size={12} />
+            Schema
+          </Button>
+
+          <Button compact onClick={addTable}>
+            <Plus size={12} />
+            Tabella
+          </Button>
+        </div>
       </div>
 
       <button

@@ -1,10 +1,11 @@
 import { useEffect, useMemo, useRef } from 'react'
-import { Focus, Plus, ScanSearch } from 'lucide-react'
+import { Focus, LayoutTemplate, Plus, ScanSearch } from 'lucide-react'
 import { Background, Controls, MiniMap, ReactFlow, type Edge, type NodeTypes, type ReactFlowInstance } from '@xyflow/react'
 
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
 import { useSchemaStore } from '@/store/schemaStore'
 import { useThemeStore } from '@/store/themeStore'
@@ -31,6 +32,7 @@ export function SchemaCanvas() {
   const selectTable = useSchemaStore((state) => state.selectTable)
   const setTablePosition = useSchemaStore((state) => state.setTablePosition)
   const addTableInSchema = useSchemaStore((state) => state.addTableInSchema)
+  const applyTemplate = useSchemaStore((state) => state.applyTemplate)
   const theme = useThemeStore((state) => state.theme)
   const fitRequestToken = useCanvasViewStore((state) => state.fitRequestToken)
   const centerRequestToken = useCanvasViewStore((state) => state.centerRequestToken)
@@ -146,7 +148,38 @@ export function SchemaCanvas() {
         <EmptyState
           title="Canvas vuoto"
           body="Crea almeno una tabella per iniziare a modellare lo schema PostgreSQL in vista grafica."
-        />
+        >
+          <div className={styles.quickStart}>
+            <Button onClick={() => addTableInSchema('public')}>
+              <Plus size={12} />
+              Nuova tabella
+            </Button>
+
+            <div className={styles.quickTemplates}>
+              {PROJECT_TEMPLATES.map((template) => (
+                <Button
+                  key={template.id}
+                  variant="ghost"
+                  compact
+                  onClick={() => {
+                    const confirmed = window.confirm(
+                      `Applicare il template "${template.name}"? Sovrascrivera il progetto corrente.`,
+                    )
+
+                    if (!confirmed) {
+                      return
+                    }
+
+                    applyTemplate(template.id)
+                  }}
+                >
+                  <LayoutTemplate size={12} />
+                  {template.name}
+                </Button>
+              ))}
+            </div>
+          </div>
+        </EmptyState>
       ) : (
         <div className={styles.canvasWrapper}>
           <div className={styles.canvasActions}>

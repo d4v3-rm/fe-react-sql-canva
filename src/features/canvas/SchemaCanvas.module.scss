@@ -4,6 +4,20 @@
   min-height: 100%;
 }
 
+.quickStart {
+  margin-top: 0.7rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.48rem;
+}
+
+.quickTemplates {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.34rem;
+}
+
 .canvasWrapper {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;

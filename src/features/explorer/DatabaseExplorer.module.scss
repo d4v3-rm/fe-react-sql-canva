@@ -18,6 +18,13 @@
   }
 }
 
+.topActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex: 0 0 auto;
+}
+
 .searchField {
   display: inline-flex;
   align-items: center;
@@ -247,4 +254,15 @@
 
 .dangerAction {
   color: t.$color-danger !important;
+}
+
+@media (max-width: 1280px) {
+  .topRow {
+    flex-wrap: wrap;
+  }
+
+  .topActions {
+    width: 100%;
+    justify-content: flex-start;
+  }
 }
