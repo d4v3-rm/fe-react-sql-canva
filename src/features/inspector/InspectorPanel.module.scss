@@ -34,6 +34,9 @@
   font-family: t.$font-heading;
   font-weight: 640;
   letter-spacing: 0.02em;
+  min-width: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
   cursor: pointer;
   transition: border-color t.$transition-fast, background-color t.$transition-fast;
 
@@ -52,6 +55,10 @@
   min-height: 0;
   display: grid;
   gap: 0.62rem;
+
+  > * {
+    min-width: 0;
+  }
 }
 
 @media (max-width: 1180px) {

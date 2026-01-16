@@ -11,6 +11,8 @@
     'meta actions';
   gap: 0.34rem 0.7rem;
   align-items: center;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .identity {
@@ -55,6 +57,7 @@
   justify-content: flex-end;
   align-self: end;
   gap: 0.36rem;
+  min-width: 0;
 
   button {
     display: inline-flex;

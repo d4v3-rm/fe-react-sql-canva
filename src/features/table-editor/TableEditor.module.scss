@@ -20,6 +20,7 @@
   display: flex;
   justify-content: space-between;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.6rem;
 
   h4 {
@@ -37,7 +38,8 @@
 }
 
 .columnsWrap {
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-height: 360px;
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
@@ -46,7 +48,8 @@
   table {
     width: 100%;
     border-collapse: collapse;
-    min-width: 780px;
+    min-width: 0;
+    table-layout: fixed;
   }
 
   th {
@@ -64,19 +67,21 @@
     padding: 0.35rem;
     vertical-align: middle;
     border-bottom: 1px solid t.$color-divider-soft;
+    overflow-wrap: anywhere;
   }
 
   input,
   select {
     @include m.input-base;
-    min-width: 90px;
+    min-width: 0;
   }
 }
 
 .flags {
   display: grid;
-  grid-template-columns: repeat(2, auto);
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 0.2rem 0.4rem;
+  min-width: 0;
 
   label {
     display: inline-flex;
@@ -85,11 +90,69 @@
     color: t.$color-text-soft;
     font-size: 0.72rem;
     font-weight: 600;
+    min-width: 0;
+    overflow-wrap: anywhere;
   }
 }
 
 @media (max-width: 1180px) {
   .metaGrid {
     grid-template-columns: 1fr;
+  }
+}
+
+@media (max-width: 940px) {
+  .columnsWrap {
+    max-height: none;
+    border: none;
+    background: transparent;
+    overflow: visible;
+
+    table,
+    tbody {
+      display: block;
+      width: 100%;
+    }
+
+    thead {
+      display: none;
+    }
+
+    tr {
+      display: grid;
+      gap: 0.45rem;
+      border: 1px solid t.$color-border;
+      border-radius: t.$radius-md;
+      background: t.$color-row-alt-bg;
+      padding: 0.56rem;
+      margin-bottom: 0.45rem;
+    }
+
+    td {
+      border: none;
+      padding: 0;
+      display: grid;
+      grid-template-columns: 90px minmax(0, 1fr);
+      align-items: center;
+      gap: 0.42rem;
+
+      &::before {
+        content: attr(data-label);
+        color: t.$color-text-soft;
+        font-family: t.$font-heading;
+        font-size: 0.67rem;
+        letter-spacing: 0.04em;
+        text-transform: uppercase;
+      }
+    }
+
+    td:last-child {
+      grid-template-columns: 1fr;
+      justify-items: end;
+
+      &::before {
+        content: none;
+      }
+    }
   }
 }

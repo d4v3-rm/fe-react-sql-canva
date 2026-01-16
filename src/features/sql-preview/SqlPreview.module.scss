@@ -32,11 +32,13 @@
   display: flex;
   flex-wrap: wrap;
   gap: 0.45rem;
+  min-width: 0;
 
   button {
     display: inline-flex;
     align-items: center;
     gap: 0.35rem;
+    min-width: 0;
   }
 }
 
@@ -76,6 +78,7 @@
 .editArea textarea {
   min-height: 210px;
   max-height: 340px;
+  max-width: 100%;
   resize: vertical;
   @include m.input-base;
   font-family: 'Cascadia Code', 'Consolas', monospace;
@@ -85,12 +88,16 @@
 .sqlBlock {
   margin: 0;
   max-height: 230px;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   background: t.$color-code-bg;
   border-radius: t.$radius-md;
   color: t.$color-code-text;
   padding: 0.8rem;
   font-size: 0.74rem;
   line-height: 1.5;
+  white-space: pre-wrap;
+  word-break: break-word;
+  overflow-wrap: anywhere;
   @include m.slim-scrollbar;
 }

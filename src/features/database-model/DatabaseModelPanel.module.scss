@@ -24,6 +24,7 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
+  flex-wrap: wrap;
   gap: 0.5rem;
 
   h4 {
@@ -54,12 +55,15 @@
   padding: 0.38rem;
   display: flex;
   align-items: center;
+  flex-wrap: wrap;
   gap: 0.32rem;
+  min-width: 0;
 
   strong {
     @include m.text-ellipsis;
     font-size: 0.78rem;
     margin-right: auto;
+    min-width: 0;
   }
 }
 

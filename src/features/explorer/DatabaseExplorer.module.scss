@@ -3,12 +3,15 @@
 
 .explorer {
   min-height: 0;
+  min-width: 0;
+  overflow-x: clip;
 }
 
 .topRow {
   display: flex;
   align-items: center;
   gap: 0.45rem;
+  min-width: 0;
 
   button {
     display: inline-flex;
@@ -35,6 +38,7 @@
   padding: 0.42rem 0.5rem;
   background: t.$color-surface-soft;
   color: t.$color-text-soft;
+  min-width: 0;
 
   input {
     border: none;
@@ -58,6 +62,7 @@
   padding: 0.5rem 0.56rem;
   cursor: pointer;
   transition: border-color t.$transition-fast, transform t.$transition-fast;
+  min-width: 0;
 
   &:hover {
     border-color: t.$color-primary;
@@ -86,7 +91,8 @@
 .tree {
   display: grid;
   gap: 0.48rem;
-  overflow: auto;
+  overflow-y: auto;
+  overflow-x: hidden;
   max-height: calc(100vh - 370px);
   padding-right: 0.1rem;
   @include m.slim-scrollbar;
@@ -107,6 +113,7 @@
     align-items: center;
     justify-content: space-between;
     gap: 0.4rem;
+    min-width: 0;
 
     button {
       display: inline-flex;
@@ -156,6 +163,7 @@
   gap: 0.36rem;
   padding: 0.12rem 0.26rem;
   background: transparent;
+  min-width: 0;
 
   &:hover {
     background: t.$color-row-alt-bg;
@@ -230,6 +238,7 @@
   border-radius: t.$radius-sm;
   box-shadow: t.$shadow-soft;
   min-width: 132px;
+  max-width: min(220px, calc(100vw - 2rem));
   padding: 0.2rem;
   display: grid;
   gap: 0.14rem;

@@ -132,13 +132,13 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
 
                 return (
                   <tr key={column.id}>
-                    <td>
+                    <td data-label="Nome">
                       <input
                         value={column.name}
                         onChange={(event) => updateColumn(selectedTable.id, column.id, { name: event.target.value })}
                       />
                     </td>
-                    <td>
+                    <td data-label="Tipo">
                       <select
                         value={column.type}
                         onChange={(event) => updateColumn(selectedTable.id, column.id, typePatch(column, event.target.value as DataType))}
@@ -150,28 +150,28 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                         ))}
                       </select>
                     </td>
-                    <td>
+                    <td data-label="Len">
                       <input
                         disabled={!isLengthEnabled}
                         value={column.length ?? ''}
                         onChange={(event) => updateColumn(selectedTable.id, column.id, { length: parseNumeric(event.target.value) })}
                       />
                     </td>
-                    <td>
+                    <td data-label="Scale">
                       <input
                         disabled={!isScaleEnabled}
                         value={column.scale ?? ''}
                         onChange={(event) => updateColumn(selectedTable.id, column.id, { scale: parseNumeric(event.target.value) })}
                       />
                     </td>
-                    <td>
+                    <td data-label="Default">
                       <input
                         value={column.defaultValue}
                         onChange={(event) => updateColumn(selectedTable.id, column.id, { defaultValue: event.target.value })}
                         placeholder="NOW()"
                       />
                     </td>
-                    <td>
+                    <td data-label="Flags">
                       <div className={styles.flags}>
                         <label>
                           <input
@@ -208,7 +208,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                         </label>
                       </div>
                     </td>
-                    <td>
+                    <td data-label="Azioni">
                       <Button variant="danger" compact onClick={() => deleteColumn(selectedTable.id, column.id)}>
                         <Trash2 size={12} />
                       </Button>
