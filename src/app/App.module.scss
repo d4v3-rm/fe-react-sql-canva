@@ -63,7 +63,7 @@
   display: grid;
   grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
-  background: linear-gradient(180deg, t.$color-pane-bg-start 0%, t.$color-pane-bg-end 100%);
+  background: t.$color-pane-bg-start;
 }
 
 .paneHeader {
@@ -73,7 +73,7 @@
   gap: 0.5rem;
   padding: 0.45rem 0.56rem;
   border-bottom: 1px solid t.$color-border;
-  background: linear-gradient(120deg, t.$color-pane-header-start, t.$color-pane-header-end);
+  background: t.$color-pane-header-start;
 }
 
 .collapsedHeader {
@@ -109,15 +109,7 @@
   align-items: center;
   justify-content: center;
   cursor: pointer;
-  transition: transform t.$transition-fast, opacity t.$transition-fast;
-
-  &:hover {
-    transform: translateY(-1px);
-  }
-
-  &:active {
-    transform: translateY(0);
-  }
+  transition: opacity t.$transition-fast, background-color t.$transition-fast, border-color t.$transition-fast;
 }
 
 .collapsedPane .windowButton {

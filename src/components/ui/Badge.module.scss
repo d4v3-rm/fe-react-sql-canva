@@ -4,7 +4,8 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
-  border-radius: 999px;
+  border-radius: t.$radius-sm;
+  border: 1px solid transparent;
   font-size: 0.68rem;
   font-weight: 700;
   letter-spacing: 0.04em;
@@ -15,14 +16,17 @@
 .neutral {
   color: t.$color-text-soft;
   background: t.$color-neutral-soft;
+  border-color: t.$color-border;
 }
 
 .warning {
   color: t.$color-warning;
   background: t.$color-warning-soft;
+  border-color: t.$color-warning-border;
 }
 
 .success {
   color: t.$color-success;
   background: t.$color-success-soft;
+  border-color: t.$color-success-border;
 }

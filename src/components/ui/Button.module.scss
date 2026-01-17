@@ -1,13 +1,13 @@
 @use '../../styles/tokens' as t;
 
 .button {
-  border: 1px solid transparent;
+  border: 1px solid t.$color-border-strong;
   border-radius: t.$radius-sm;
   font-family: t.$font-heading;
   font-size: 0.8rem;
   font-weight: 630;
   padding: 0.52rem 0.85rem;
-  transition: transform t.$transition-fast, background-color t.$transition-fast, border-color t.$transition-fast;
+  transition: background-color t.$transition-fast, border-color t.$transition-fast, color t.$transition-fast;
   cursor: pointer;
 
   &:disabled {
@@ -15,9 +15,6 @@
     cursor: not-allowed;
   }
 
-  &:not(:disabled):hover {
-    transform: translateY(-1px);
-  }
 }
 
 .compact {
@@ -28,6 +25,7 @@
 .primary {
   background: t.$color-primary;
   color: white;
+  border-color: t.$color-primary;
 
   &:not(:disabled):hover {
     background: t.$color-primary-strong;
@@ -37,11 +35,11 @@
 .secondary {
   background: t.$color-secondary-bg;
   color: t.$color-text;
-  border-color: t.$color-border;
+  border-color: t.$color-border-strong;
 }
 
 .ghost {
-  background: transparent;
+  background: t.$color-surface;
   color: t.$color-text-soft;
   border-color: t.$color-border;
 }

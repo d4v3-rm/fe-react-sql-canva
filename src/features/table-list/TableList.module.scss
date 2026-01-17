@@ -26,11 +26,11 @@
   min-width: 0;
   text-align: left;
   cursor: pointer;
-  transition: border-color t.$transition-fast, transform t.$transition-fast;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
 
   &:hover {
     border-color: t.$color-primary;
-    transform: translateX(2px);
+    background: t.$color-surface-soft;
   }
 }
 

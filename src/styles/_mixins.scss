@@ -2,9 +2,8 @@
 
 @mixin panel {
   background: t.$color-surface;
-  border: 1px solid t.$color-border;
-  border-radius: t.$radius-lg;
-  box-shadow: t.$shadow-card;
+  border: 1px solid t.$color-border-strong;
+  border-radius: t.$radius-md;
 }
 
 @mixin section-title {
@@ -24,12 +23,12 @@
   font-family: t.$font-body;
   font-size: 0.88rem;
   padding: 0.45rem 0.6rem;
-  transition: border-color t.$transition-fast, box-shadow t.$transition-fast;
+  transition: border-color t.$transition-fast, outline-color t.$transition-fast;
 
   &:focus {
     border-color: t.$color-primary;
-    box-shadow: 0 0 0 3px t.$color-focus-ring;
-    outline: none;
+    outline: 2px solid t.$color-focus-ring;
+    outline-offset: 0;
   }
 }
 

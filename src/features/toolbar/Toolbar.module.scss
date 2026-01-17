@@ -46,8 +46,7 @@
   align-items: center;
   justify-content: center;
   color: white;
-  background: linear-gradient(135deg, t.$color-primary, t.$color-logo-end);
-  box-shadow: t.$shadow-soft;
+  background: t.$color-primary;
 }
 
 .actions {

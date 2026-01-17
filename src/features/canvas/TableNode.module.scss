@@ -6,14 +6,13 @@
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
   background: t.$color-surface;
-  box-shadow: t.$shadow-soft;
   overflow: hidden;
   cursor: pointer;
-  transition: border-color t.$transition-fast, transform t.$transition-fast;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
 
   &:hover {
     border-color: t.$color-primary;
-    transform: translateY(-1px);
+    background: t.$color-surface-soft;
   }
 
   header {
@@ -22,7 +21,7 @@
     gap: 0.6rem;
     align-items: baseline;
     padding: 0.52rem 0.6rem;
-    background: linear-gradient(120deg, t.$color-pane-header-start, t.$color-pane-header-end);
+    background: t.$color-pane-header-start;
 
     strong {
       font-family: t.$font-heading;
@@ -63,7 +62,7 @@
 
 .selected {
   border-color: t.$color-primary;
-  box-shadow: t.$shadow-soft;
+  background: t.$color-primary-soft;
 }
 
 .handle {

@@ -13,10 +13,9 @@
 
 .palette {
   width: min(760px, 100%);
-  border: 1px solid t.$color-border;
+  border: 1px solid t.$color-border-strong;
   background: t.$color-surface;
   border-radius: t.$radius-lg;
-  box-shadow: t.$shadow-soft;
   display: grid;
   gap: 0.6rem;
   padding: 0.6rem;
@@ -119,4 +118,3 @@
   color: t.$color-text-soft;
   font-size: 0.8rem;
 }
-
