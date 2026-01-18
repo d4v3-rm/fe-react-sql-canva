@@ -14,9 +14,9 @@ import { useThemeStore } from '@/store/themeStore'
 
 import styles from './App.module.scss'
 
-const MIN_LEFT_PANE_WIDTH = 220
-const MIN_RIGHT_PANE_WIDTH = 320
-const MIN_CENTER_PANE_WIDTH = 420
+const MIN_LEFT_PANE_WIDTH = 180
+const MIN_RIGHT_PANE_WIDTH = 220
+const MIN_CENTER_PANE_WIDTH = 300
 const TOTAL_SPLITTER_WIDTH = 20
 const MOBILE_BREAKPOINT = 1100
 
