@@ -21,21 +21,21 @@
 
 .leftPane {
   width: var(--left-pane-width);
-  min-width: 180px;
+  min-width: 160px;
   max-width: 520px;
   flex: 0 0 var(--left-pane-width);
   min-height: 0;
 }
 
 .centerPane {
-  min-width: 300px;
+  min-width: 260px;
   flex: 1 1 auto;
   min-height: 0;
 }
 
 .rightPane {
   width: var(--right-pane-width);
-  min-width: 220px;
+  min-width: 180px;
   max-width: 620px;
   flex: 0 0 var(--right-pane-width);
   min-height: 0;
@@ -196,7 +196,7 @@
   }
 }
 
-@media (max-width: 1100px) {
+@media (max-width: 860px) {
   .layout {
     display: grid;
     grid-template-columns: 1fr;

@@ -112,112 +112,107 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
           </Button>
         </div>
 
-        <div className={styles.columnsWrap}>
-          <table>
-            <thead>
-              <tr>
-                <th>Nome</th>
-                <th>Tipo</th>
-                <th>Len</th>
-                <th>Scale</th>
-                <th>Default</th>
-                <th>Flags</th>
-                <th></th>
-              </tr>
-            </thead>
-            <tbody>
-              {selectedTable.columns.map((column) => {
-                const isLengthEnabled = column.type === 'varchar' || column.type === 'numeric'
-                const isScaleEnabled = column.type === 'numeric'
+        <div className={styles.columnsList}>
+          {selectedTable.columns.map((column, index) => {
+            const isLengthEnabled = column.type === 'varchar' || column.type === 'numeric'
+            const isScaleEnabled = column.type === 'numeric'
 
-                return (
-                  <tr key={column.id}>
-                    <td data-label="Nome">
-                      <input
-                        value={column.name}
-                        onChange={(event) => updateColumn(selectedTable.id, column.id, { name: event.target.value })}
-                      />
-                    </td>
-                    <td data-label="Tipo">
-                      <select
-                        value={column.type}
-                        onChange={(event) => updateColumn(selectedTable.id, column.id, typePatch(column, event.target.value as DataType))}
-                      >
-                        {DATA_TYPES.map((type) => (
-                          <option key={type} value={type}>
-                            {type}
-                          </option>
-                        ))}
-                      </select>
-                    </td>
-                    <td data-label="Len">
-                      <input
-                        disabled={!isLengthEnabled}
-                        value={column.length ?? ''}
-                        onChange={(event) => updateColumn(selectedTable.id, column.id, { length: parseNumeric(event.target.value) })}
-                      />
-                    </td>
-                    <td data-label="Scale">
-                      <input
-                        disabled={!isScaleEnabled}
-                        value={column.scale ?? ''}
-                        onChange={(event) => updateColumn(selectedTable.id, column.id, { scale: parseNumeric(event.target.value) })}
-                      />
-                    </td>
-                    <td data-label="Default">
-                      <input
-                        value={column.defaultValue}
-                        onChange={(event) => updateColumn(selectedTable.id, column.id, { defaultValue: event.target.value })}
-                        placeholder="NOW()"
-                      />
-                    </td>
-                    <td data-label="Flags">
-                      <div className={styles.flags}>
-                        <label>
-                          <input
-                            checked={column.nullable}
-                            onChange={(event) => updateColumn(selectedTable.id, column.id, { nullable: event.target.checked })}
-                            type="checkbox"
-                          />
-                          Null
-                        </label>
-                        <label>
-                          <input
-                            checked={column.isPrimary}
-                            onChange={(event) => updateColumn(selectedTable.id, column.id, { isPrimary: event.target.checked })}
-                            type="checkbox"
-                          />
-                          PK
-                        </label>
-                        <label>
-                          <input
-                            checked={column.isUnique}
-                            onChange={(event) => updateColumn(selectedTable.id, column.id, { isUnique: event.target.checked })}
-                            type="checkbox"
-                          />
-                          UQ
-                        </label>
-                        <label>
-                          <input
-                            checked={column.autoIncrement}
-                            onChange={(event) => updateColumn(selectedTable.id, column.id, { autoIncrement: event.target.checked })}
-                            type="checkbox"
-                            disabled={column.type !== 'serial' && column.type !== 'bigserial'}
-                          />
-                          AI
-                        </label>
-                      </div>
-                    </td>
-                    <td data-label="Azioni">
-                      <Button variant="danger" compact onClick={() => deleteColumn(selectedTable.id, column.id)}>
-                        <Trash2 size={12} />
-                      </Button>
-                    </td>
-                  </tr>
-                )
-              })}
-            </tbody>
-          </table>
+            return (
+              <article key={column.id} className={styles.columnCard}>
+                <div className={styles.columnCardHeader}>
+                  <strong>Colonna {index + 1}</strong>
+                  <Button variant="danger" compact onClick={() => deleteColumn(selectedTable.id, column.id)}>
+                    <Trash2 size={12} />
+                  </Button>
+                </div>
+
+                <div className={styles.columnGrid}>
+                  <Field label="Nome">
+                    <input
+                      value={column.name}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { name: event.target.value })}
+                    />
+                  </Field>
+
+                  <Field label="Tipo">
+                    <select
+                      value={column.type}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, typePatch(column, event.target.value as DataType))}
+                    >
+                      {DATA_TYPES.map((type) => (
+                        <option key={type} value={type}>
+                          {type}
+                        </option>
+                      ))}
+                    </select>
+                  </Field>
+
+                  <Field label="Length">
+                    <input
+                      disabled={!isLengthEnabled}
+                      value={column.length ?? ''}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { length: parseNumeric(event.target.value) })}
+                    />
+                  </Field>
+
+                  <Field label="Scale">
+                    <input
+                      disabled={!isScaleEnabled}
+                      value={column.scale ?? ''}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { scale: parseNumeric(event.target.value) })}
+                    />
+                  </Field>
+
+                  <Field label="Default">
+                    <input
+                      value={column.defaultValue}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { defaultValue: event.target.value })}
+                      placeholder="NOW()"
+                    />
+                  </Field>
+                </div>
+
+                <div className={styles.flags}>
+                  <label>
+                    <input
+                      checked={column.nullable}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { nullable: event.target.checked })}
+                      type="checkbox"
+                    />
+                    Nullable
+                  </label>
+
+                  <label>
+                    <input
+                      checked={column.isPrimary}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { isPrimary: event.target.checked })}
+                      type="checkbox"
+                    />
+                    Primary Key
+                  </label>
+
+                  <label>
+                    <input
+                      checked={column.isUnique}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { isUnique: event.target.checked })}
+                      type="checkbox"
+                    />
+                    Unique
+                  </label>
+
+                  <label>
+                    <input
+                      checked={column.autoIncrement}
+                      onChange={(event) => updateColumn(selectedTable.id, column.id, { autoIncrement: event.target.checked })}
+                      type="checkbox"
+                      disabled={column.type !== 'serial' && column.type !== 'bigserial'}
+                    />
+                    Auto Increment
+                  </label>
+                </div>
+              </article>
+            )
+          })}
         </div>
       </Card>
 
