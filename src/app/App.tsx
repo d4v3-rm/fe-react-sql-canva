@@ -214,7 +214,9 @@ export default function App() {
               </div>
 
               {leftCollapsed ? (
-                <div className={styles.collapsedLabel}>EXP</div>
+                <div className={styles.collapsedLabel} title={paneTitle('left')}>
+                  <span className={styles.collapsedLabelText}>{paneTitle('left')}</span>
+                </div>
               ) : (
                 <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
                   <DatabaseExplorer />
@@ -245,7 +247,15 @@ export default function App() {
                 {renderPaneButtons('center', centerCollapsed)}
               </div>
 
-              {centerCollapsed ? <div className={styles.collapsedLabel}>CNV</div> : <div className={styles.paneContent}><SchemaCanvas /></div>}
+              {centerCollapsed ? (
+                <div className={styles.collapsedLabel} title={paneTitle('center')}>
+                  <span className={styles.collapsedLabelText}>{paneTitle('center')}</span>
+                </div>
+              ) : (
+                <div className={styles.paneContent}>
+                  <SchemaCanvas />
+                </div>
+              )}
             </div>
           </section>
         ) : null}
@@ -270,7 +280,9 @@ export default function App() {
               </div>
 
               {rightCollapsed ? (
-                <div className={styles.collapsedLabel}>INS</div>
+                <div className={styles.collapsedLabel} title={paneTitle('right')}>
+                  <span className={styles.collapsedLabelText}>{paneTitle('right')}</span>
+                </div>
               ) : (
                 <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
                   <InspectorPanel sqlScript={sqlScript} />

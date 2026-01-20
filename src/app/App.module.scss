@@ -156,12 +156,21 @@
   display: inline-flex;
   align-items: center;
   justify-content: center;
+  overflow: visible;
   color: t.$color-text-soft;
+  padding: 0.4rem 0.2rem;
+}
+
+.collapsedLabelText {
+  display: inline-block;
+  max-width: none;
   font-family: t.$font-heading;
   letter-spacing: 0.08em;
-  font-size: 0.7rem;
-  writing-mode: vertical-rl;
-  text-orientation: mixed;
+  font-size: 0.72rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  transform-origin: center;
 }
 
 .splitter {
@@ -223,8 +232,12 @@
   }
 
   .collapsedLabel {
-    writing-mode: horizontal-tb;
-    text-orientation: initial;
     padding: 1rem;
+  }
+
+  .collapsedLabelText {
+    transform: none;
+    white-space: normal;
+    text-align: center;
   }
 }
