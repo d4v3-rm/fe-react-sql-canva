@@ -2,6 +2,11 @@
 
 .canvasCard {
   min-height: 100%;
+  padding: 0.24rem 0.22rem 0.12rem;
+}
+
+.canvasCard > header {
+  padding-inline: 0.18rem;
 }
 
 .quickStart {
