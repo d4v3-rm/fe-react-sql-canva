@@ -174,24 +174,31 @@
 }
 
 .splitter {
-  flex: 0 0 10px;
+  flex: 0 0 14px;
+  width: 14px;
   border-radius: 999px;
   cursor: col-resize;
   position: relative;
-  background: transparent;
-  transition: background-color t.$transition-fast;
+  background: t.$color-surface-soft;
+  border: 1px solid t.$color-border;
+  transition: background-color t.$transition-fast, border-color t.$transition-fast;
+  touch-action: none;
 
   &::before {
     content: '';
     position: absolute;
     inset: 0;
     margin: auto;
-    width: 4px;
+    width: 5px;
     height: 84px;
     border-radius: 999px;
     background: t.$color-border-strong;
-    opacity: 0.6;
+    opacity: 0.82;
     transition: background-color t.$transition-fast, opacity t.$transition-fast;
+  }
+
+  &:hover {
+    border-color: t.$color-primary;
   }
 
   &:hover::before {

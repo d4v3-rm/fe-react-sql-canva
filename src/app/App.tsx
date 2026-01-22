@@ -18,7 +18,6 @@ const MIN_LEFT_PANE_WIDTH = 160
 const MIN_RIGHT_PANE_WIDTH = 180
 const MIN_CENTER_PANE_WIDTH = 260
 const TOTAL_SPLITTER_WIDTH = 20
-const MOBILE_BREAKPOINT = 860
 
 type ResizeTarget = 'left' | 'right'
 
@@ -108,11 +107,11 @@ export default function App() {
   }
 
   function startResize(target: ResizeTarget, event: ReactPointerEvent<HTMLDivElement>) {
-    if (window.innerWidth <= MOBILE_BREAKPOINT || maximizedPane !== null) {
+    if (maximizedPane !== null) {
       return
     }
 
-    if ((target === 'left' && (leftCollapsed || centerCollapsed)) || (target === 'right' && (rightCollapsed || centerCollapsed))) {
+    if ((target === 'left' && leftCollapsed) || (target === 'right' && rightCollapsed)) {
       return
     }
 
@@ -197,8 +196,8 @@ export default function App() {
   const showLeftPane = maximizedPane === null || maximizedPane === 'left'
   const showCenterPane = maximizedPane === null || maximizedPane === 'center'
   const showRightPane = maximizedPane === null || maximizedPane === 'right'
-  const showLeftSplitter = maximizedPane === null && showLeftPane && showCenterPane && !leftCollapsed && !centerCollapsed
-  const showRightSplitter = maximizedPane === null && showRightPane && showCenterPane && !rightCollapsed && !centerCollapsed
+  const showLeftSplitter = maximizedPane === null && showLeftPane && showCenterPane && !leftCollapsed
+  const showRightSplitter = maximizedPane === null && showRightPane && showCenterPane && !rightCollapsed
 
   return (
     <div className={styles.page}>
