@@ -2,8 +2,8 @@
 @use '../../styles/tokens' as t;
 
 .toolbar {
-  @include m.panel;
-  padding: 0.62rem 0.82rem;
+  padding: 0.12rem 0 0.64rem;
+  border-bottom: 1px solid t.$color-divider-soft;
   display: grid;
   grid-template-columns: minmax(0, 1fr) auto;
   grid-template-areas:
