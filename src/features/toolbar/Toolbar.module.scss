@@ -55,16 +55,28 @@
   flex-wrap: wrap;
   justify-content: flex-end;
   align-self: end;
-  gap: 0.36rem;
+  gap: 0.34rem;
   min-width: 0;
+}
 
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.38rem;
-    padding: 0.4rem 0.62rem;
-    font-size: 0.74rem;
-  }
+.actionGroup {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.26rem;
+  padding: 0.18rem;
+  border: 1px solid t.$color-divider-soft;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface;
+  min-width: 0;
+  flex-wrap: wrap;
+}
+
+.actionGroup button {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.38rem;
+  padding: 0.38rem 0.6rem;
+  font-size: 0.74rem;
 }
 
 .themeSwitch {
@@ -151,5 +163,11 @@
   .actions {
     justify-content: flex-start;
     align-self: stretch;
+    gap: 0.3rem;
+  }
+
+  .actionGroup {
+    width: 100%;
+    justify-content: flex-start;
   }
 }

@@ -88,43 +88,51 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
       </div>
 
       <div className={styles.actions}>
-        <Button variant="primary" onClick={addTable}>
-          <Plus size={15} />
-          Nuova tabella
-        </Button>
-        <Button onClick={handleOpenImportDialog} disabled={importing}>
-          <FileUp size={15} />
-          Importa SQL
-        </Button>
-        <Button onClick={handleExportSql}>
-          <Download size={15} />
-          Esporta SQL
-        </Button>
-        <Button onClick={handleCopySql}>
-          <Copy size={15} />
-          {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
-        </Button>
-        <Button variant="ghost" onClick={onOpenCommandPalette} title="Apri command palette (Ctrl+K)">
-          <Search size={15} />
-          Comandi
-        </Button>
-        <Button variant="ghost" onClick={handleResetProject}>
-          <RotateCcw size={15} />
-          Nuovo progetto
-        </Button>
-        <button
-          className={clsx(styles.themeSwitch, theme === 'dark' && styles.themeSwitchDark)}
-          onClick={toggleTheme}
-          title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
-          type="button"
-        >
-          <span className={styles.switchTrack}>
-            <span className={clsx(styles.switchThumb, theme === 'dark' && styles.switchThumbDark)}>
-              {theme === 'dark' ? <MoonStar size={11} /> : <SunMedium size={11} />}
+        <div className={styles.actionGroup}>
+          <Button variant="primary" onClick={addTable}>
+            <Plus size={15} />
+            Nuova tabella
+          </Button>
+        </div>
+
+        <div className={styles.actionGroup}>
+          <Button onClick={handleOpenImportDialog} disabled={importing}>
+            <FileUp size={15} />
+            Importa SQL
+          </Button>
+          <Button onClick={handleExportSql}>
+            <Download size={15} />
+            Esporta SQL
+          </Button>
+          <Button onClick={handleCopySql}>
+            <Copy size={15} />
+            {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
+          </Button>
+        </div>
+
+        <div className={styles.actionGroup}>
+          <Button variant="ghost" onClick={onOpenCommandPalette} title="Apri command palette (Ctrl+K)">
+            <Search size={15} />
+            Comandi
+          </Button>
+          <Button variant="ghost" onClick={handleResetProject}>
+            <RotateCcw size={15} />
+            Nuovo progetto
+          </Button>
+          <button
+            className={clsx(styles.themeSwitch, theme === 'dark' && styles.themeSwitchDark)}
+            onClick={toggleTheme}
+            title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
+            type="button"
+          >
+            <span className={styles.switchTrack}>
+              <span className={clsx(styles.switchThumb, theme === 'dark' && styles.switchThumbDark)}>
+                {theme === 'dark' ? <MoonStar size={11} /> : <SunMedium size={11} />}
+              </span>
             </span>
-          </span>
-          <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
-        </button>
+            <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+          </button>
+        </div>
       </div>
 
       <div className={styles.meta}>
