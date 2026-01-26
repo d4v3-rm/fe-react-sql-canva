@@ -28,39 +28,7 @@
   gap: 0.45rem;
 }
 
-.controls {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-  min-width: 0;
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.35rem;
-    min-width: 0;
-  }
-}
-
-.liveSyncToggle {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  border: 1px solid t.$color-border;
-  border-radius: t.$radius-sm;
-  background: t.$color-row-alt-bg;
-  padding: 0.35rem 0.55rem;
-  font-size: 0.75rem;
-  color: t.$color-text-soft;
-  font-weight: 650;
-
-  input {
-    margin: 0;
-  }
-}
-
-.editArea,
-.previewArea {
+.editArea {
   display: grid;
   gap: 0.34rem;
 
@@ -76,28 +44,12 @@
 }
 
 .editArea textarea {
-  min-height: 210px;
-  max-height: 340px;
+  min-height: 360px;
+  max-height: 62vh;
   max-width: 100%;
   resize: vertical;
   @include m.input-base;
   font-family: 'Cascadia Code', 'Consolas', monospace;
   line-height: 1.45;
-}
-
-.sqlBlock {
-  margin: 0;
-  max-height: 230px;
-  overflow-y: auto;
-  overflow-x: hidden;
-  background: t.$color-code-bg;
-  border-radius: t.$radius-md;
-  color: t.$color-code-text;
-  padding: 0.8rem;
   font-size: 0.74rem;
-  line-height: 1.5;
-  white-space: pre-wrap;
-  word-break: break-word;
-  overflow-wrap: anywhere;
-  @include m.slim-scrollbar;
 }

@@ -1,8 +1,7 @@
-import { useEffect, useState } from 'react'
-import { AlertTriangle, RefreshCcw, Sparkles, Upload } from 'lucide-react'
+import { useEffect, useRef, useState } from 'react'
+import { AlertTriangle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -12,51 +11,52 @@ interface SqlPreviewProps {
   sql: string
 }
 
-type ApplyState = 'idle' | 'ok' | 'error'
-
 export function SqlPreview({ sql }: SqlPreviewProps) {
   const warnings = useSchemaStore((state) => state.importWarnings)
   const importSql = useSchemaStore((state) => state.importSql)
-  const clearWarnings = useSchemaStore((state) => state.clearWarnings)
 
   const [editableSql, setEditableSql] = useState(sql)
-  const [isDraft, setIsDraft] = useState(false)
-  const [liveSync, setLiveSync] = useState(false)
-  const [applyState, setApplyState] = useState<ApplyState>('idle')
-  const editorSql = isDraft ? editableSql : sql
+  const [syncError, setSyncError] = useState(false)
+  const lastModelSqlRef = useRef(sql)
 
   useEffect(() => {
-    if (!liveSync || !isDraft) {
+    if (sql === lastModelSqlRef.current) {
       return
     }
 
+    lastModelSqlRef.current = sql
+
     const timer = window.setTimeout(() => {
-      const success = importSql(editorSql)
-      setApplyState(success ? 'ok' : 'error')
-    }, 650)
+      setEditableSql(sql)
+      setSyncError(false)
+    }, 0)
 
     return () => {
       window.clearTimeout(timer)
     }
-  }, [liveSync, isDraft, editorSql, importSql])
+  }, [sql])
 
-  function applyEditorToModel() {
-    const success = importSql(editorSql)
-    setApplyState(success ? 'ok' : 'error')
-
-    if (success) {
-      setIsDraft(false)
+  useEffect(() => {
+    if (editableSql === sql) {
+      return
     }
-  }
 
-  function syncEditorFromModel() {
-    setIsDraft(false)
-    setApplyState('idle')
-    clearWarnings()
-  }
+    const timer = window.setTimeout(() => {
+      const success = importSql(editableSql)
+      setSyncError(!success)
+    }, 420)
+
+    return () => {
+      window.clearTimeout(timer)
+    }
+  }, [editableSql, importSql, sql])
+
+  const isSynced = editableSql === sql
+  const isSyncing = editableSql !== sql && !syncError
+  const hasSyncError = editableSql !== sql && syncError
 
   return (
-    <Card title="SQL Workspace" subtitle="Modifica SQL manualmente e sincronizza il modello visuale.">
+    <Card title="SQL Editor" subtitle="Sincronizzazione automatica con il canvas (GUI <-> SQL).">
       {warnings.length > 0 ? (
         <div className={styles.warningBox}>
           <Badge tone="warning">
@@ -72,45 +72,21 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
       ) : null}
 
       <div className={styles.statusRow}>
-        {isDraft ? <Badge tone="warning">Bozza SQL non applicata</Badge> : <Badge tone="success">SQL sincronizzato</Badge>}
-        {applyState === 'ok' ? <Badge tone="success">Parsing SQL OK</Badge> : null}
-        {applyState === 'error' ? <Badge tone="warning">SQL non applicabile</Badge> : null}
-      </div>
-
-      <div className={styles.controls}>
-        <Button onClick={applyEditorToModel}>
-          <Upload size={14} />
-          Applica SQL al modello
-        </Button>
-        <Button variant="ghost" onClick={syncEditorFromModel}>
-          <RefreshCcw size={14} />
-          Sincronizza da modello
-        </Button>
-        <label className={styles.liveSyncToggle}>
-          <input checked={liveSync} onChange={(event) => setLiveSync(event.target.checked)} type="checkbox" />
-          Sync live SQL {'->'} GUI
-        </label>
+        {isSyncing ? <Badge tone="neutral">Sincronizzazione in corso...</Badge> : null}
+        {isSynced ? <Badge tone="success">Sincronizzato</Badge> : null}
+        {hasSyncError ? <Badge tone="warning">SQL non valido</Badge> : null}
       </div>
 
       <div className={styles.editArea}>
         <h4>Editor SQL</h4>
         <textarea
-          value={editorSql}
+          value={editableSql}
           onChange={(event) => {
             setEditableSql(event.target.value)
-            setIsDraft(true)
-            setApplyState('idle')
+            setSyncError(false)
           }}
           spellCheck={false}
         />
-      </div>
-
-      <div className={styles.previewArea}>
-        <h4>
-          <Sparkles size={14} />
-          SQL corrente dal modello
-        </h4>
-        <pre className={styles.sqlBlock}>{sql}</pre>
       </div>
     </Card>
   )
