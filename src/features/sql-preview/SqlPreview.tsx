@@ -51,7 +51,6 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
     }
   }, [editableSql, importSql, sql])
 
-  const isSynced = editableSql === sql
   const isSyncing = editableSql !== sql && !syncError
   const hasSyncError = editableSql !== sql && syncError
 
@@ -73,7 +72,6 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
 
       <div className={styles.statusRow}>
         {isSyncing ? <Badge tone="neutral">Sincronizzazione in corso...</Badge> : null}
-        {isSynced ? <Badge tone="success">Sincronizzato</Badge> : null}
         {hasSyncError ? <Badge tone="warning">SQL non valido</Badge> : null}
       </div>
 
