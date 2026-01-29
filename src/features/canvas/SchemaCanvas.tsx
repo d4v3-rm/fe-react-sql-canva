@@ -25,6 +25,26 @@ function relationLabel(sourceName?: string, targetName?: string): string {
   return `${sourceName} -> ${targetName}`
 }
 
+function relationPalette(theme: 'light' | 'dark') {
+  if (theme === 'dark') {
+    return {
+      stroke: '#8d9eb8',
+      strokeActive: '#35c2ca',
+      label: '#ecf2ff',
+      labelBg: '#121a28',
+      labelBorder: '#41516c',
+    }
+  }
+
+  return {
+    stroke: '#5f6f85',
+    strokeActive: '#0a7f86',
+    label: '#1f2938',
+    labelBg: '#ffffff',
+    labelBorder: '#b8c4d8',
+  }
+}
+
 export function SchemaCanvas() {
   const tables = useSchemaStore((state) => state.tables)
   const relations = useSchemaStore((state) => state.relations)
@@ -57,6 +77,8 @@ export function SchemaCanvas() {
   )
 
   const edges: Edge[] = useMemo(() => {
+    const palette = relationPalette(theme)
+
     return relations
       .map((relation) => {
         const sourceTable = tables.find((table) => table.id === relation.sourceTableId)
@@ -68,6 +90,10 @@ export function SchemaCanvas() {
 
         const sourceColumn = sourceTable.columns.find((column) => column.id === relation.sourceColumnId)
         const targetColumn = targetTable.columns.find((column) => column.id === relation.targetColumnId)
+        const isActive = Boolean(
+          selectedTableId && (sourceTable.id === selectedTableId || targetTable.id === selectedTableId),
+        )
+        const edgeStroke = isActive ? palette.strokeActive : palette.stroke
 
         return {
           id: relation.id,
@@ -79,20 +105,30 @@ export function SchemaCanvas() {
           animated: false,
           markerEnd: {
             type: 'arrowclosed',
+            color: edgeStroke,
           },
           style: {
-            strokeWidth: 1.5,
-            stroke: theme === 'dark' ? '#44bcc3' : '#0f8a8d',
+            strokeWidth: isActive ? 2 : 1.4,
+            stroke: edgeStroke,
+            strokeLinecap: 'round',
+            strokeLinejoin: 'round',
           },
           labelStyle: {
-            fill: theme === 'dark' ? '#e6edff' : '#1f2a44',
+            fill: palette.label,
             fontSize: 11,
             fontWeight: 600,
+          },
+          labelBgPadding: [6, 3],
+          labelBgBorderRadius: 6,
+          labelBgStyle: {
+            fill: palette.labelBg,
+            stroke: palette.labelBorder,
+            strokeWidth: 1,
           },
         } as Edge
       })
       .filter((edge): edge is Edge => edge !== null)
-  }, [relations, tables, theme])
+  }, [relations, selectedTableId, tables, theme])
 
   useEffect(() => {
     if (!flowRef.current) {
