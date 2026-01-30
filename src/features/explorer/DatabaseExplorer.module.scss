@@ -5,6 +5,14 @@
   min-height: 0;
   min-width: 0;
   overflow-x: clip;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.explorerIntro {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
 }
 
 .topRow {

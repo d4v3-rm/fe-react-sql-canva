@@ -12,6 +12,30 @@
   position: sticky;
   top: 0;
   z-index: 2;
+  display: grid;
+  gap: 0.42rem;
+  padding: 0.2rem 0.2rem 0.3rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+  background: t.$color-pane-bg-start;
+}
+
+.tabsMeta {
+  display: grid;
+  gap: 0.14rem;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    @include m.section-title;
+    font-size: 0.84rem;
+  }
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.73rem;
+    overflow-wrap: anywhere;
+  }
 }
 
 .tabButtons {
@@ -59,6 +83,13 @@
   > * {
     min-width: 0;
   }
+}
+
+.emptyPanel {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  padding: 0.56rem;
 }
 
 @media (max-width: 1180px) {

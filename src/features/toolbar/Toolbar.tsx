@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import clsx from 'clsx'
-import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Save, Search, SunMedium } from 'lucide-react'
+import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Search, SunMedium } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -83,8 +83,10 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
         <div className={styles.logoTile}>
           <DatabaseZap size={18} strokeWidth={2.1} />
         </div>
-        <h1>SQL Canvas Modeler</h1>
-        <span>{database.name} | {database.schemas.length} schemi</span>
+        <div className={styles.identityText}>
+          <h1>SQL Canvas Modeler</h1>
+          <span>{database.name} | {database.schemas.length} schemi</span>
+        </div>
       </div>
 
       <div className={styles.actions}>
@@ -142,15 +144,11 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
             </button>
           </div>
         </div>
-      </div>
 
-      <div className={styles.meta}>
-        <Badge tone="success">
-          <Save size={12} />
-          Auto-save locale
-        </Badge>
-        {warnings.length > 0 ? <Badge tone="warning">Warning import: {warnings.length}</Badge> : null}
-        <span>Ultimo salvataggio: {new Date(lastSavedAt).toLocaleString('it-IT')}</span>
+        <div className={styles.meta}>
+          {warnings.length > 0 ? <Badge tone="warning">Warning import: {warnings.length}</Badge> : null}
+          <span>Auto-save locale | {new Date(lastSavedAt).toLocaleString('it-IT')}</span>
+        </div>
       </div>
 
       <input

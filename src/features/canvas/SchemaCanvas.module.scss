@@ -1,12 +1,19 @@
 @use '../../styles/tokens' as t;
 
-.canvasCard {
+.canvasRoot {
   min-height: 100%;
-  padding: 0.24rem 0.22rem 0.12rem;
+  height: 100%;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 0.2rem 0.2rem 0.12rem;
 }
 
-.canvasCard > header {
-  padding-inline: 0.18rem;
+.canvasIntro {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+  padding-inline: 0.04rem;
 }
 
 .quickStart {
@@ -28,8 +35,8 @@
   border-radius: t.$radius-md;
   overflow: hidden;
   position: relative;
-  height: calc(100vh - 270px);
-  min-height: 420px;
+  min-height: 320px;
+  height: 100%;
   background: t.$color-canvas-bg-start;
 }
 
@@ -45,7 +52,6 @@
     display: inline-flex;
     align-items: center;
     gap: 0.28rem;
-    backdrop-filter: blur(4px);
   }
 }
 

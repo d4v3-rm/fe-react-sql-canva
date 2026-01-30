@@ -3,7 +3,6 @@ import { Focus, LayoutTemplate, Plus, ScanSearch } from 'lucide-react'
 import { Background, Controls, MiniMap, ReactFlow, type Edge, type NodeTypes, type ReactFlowInstance } from '@xyflow/react'
 
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
@@ -179,7 +178,8 @@ export function SchemaCanvas() {
   }
 
   return (
-    <Card className={styles.canvasCard} title="Canvas Relazionale" subtitle="Trascina le tabelle e visualizza i collegamenti foreign key.">
+    <section className={styles.canvasRoot}>
+      <p className={styles.canvasIntro}>Trascina le tabelle e visualizza i collegamenti foreign key.</p>
       {tables.length === 0 ? (
         <EmptyState
           title="Canvas vuoto"
@@ -254,6 +254,6 @@ export function SchemaCanvas() {
           </ReactFlow>
         </div>
       )}
-    </Card>
+    </section>
   )
 }

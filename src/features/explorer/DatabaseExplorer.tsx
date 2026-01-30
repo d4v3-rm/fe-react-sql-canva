@@ -4,7 +4,6 @@ import { useMemo, useState, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
-import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -225,7 +224,8 @@ export function DatabaseExplorer() {
   }
 
   return (
-    <Card className={styles.explorer} title="Database Explorer" subtitle="Naviga database, schemi e tabelle in modo gerarchico.">
+    <section className={styles.explorer}>
+      <p className={styles.explorerIntro}>Naviga database, schemi e tabelle in modo gerarchico.</p>
       <div className={styles.topRow}>
         <label className={styles.searchField}>
           <Search size={14} />
@@ -365,6 +365,6 @@ export function DatabaseExplorer() {
           ))}
         </div>
       )}
-    </Card>
+    </section>
   )
 }

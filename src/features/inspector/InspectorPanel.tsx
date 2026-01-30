@@ -2,7 +2,6 @@ import clsx from 'clsx'
 import { Binary, Network, PanelsTopLeft } from 'lucide-react'
 import { useMemo, useState } from 'react'
 
-import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { DatabaseModelPanel } from '@/features/database-model/DatabaseModelPanel'
 import { SqlPreview } from '@/features/sql-preview/SqlPreview'
@@ -35,7 +34,12 @@ export function InspectorPanel({ sqlScript }: InspectorPanelProps) {
 
   return (
     <div className={styles.inspector}>
-      <Card className={styles.tabsCard} title="Inspector" subtitle={subtitle}>
+      <section className={styles.tabsCard}>
+        <div className={styles.tabsMeta}>
+          <h3>Inspector</h3>
+          <p>{subtitle}</p>
+        </div>
+
         <div className={styles.tabButtons}>
           <button
             className={clsx(styles.tabButton, activeTab === 'structure' && styles.activeTab)}
@@ -64,7 +68,7 @@ export function InspectorPanel({ sqlScript }: InspectorPanelProps) {
             SQL
           </button>
         </div>
-      </Card>
+      </section>
 
       <section className={styles.tabContent}>
         {activeTab === 'structure' ? (
@@ -79,12 +83,12 @@ export function InspectorPanel({ sqlScript }: InspectorPanelProps) {
           selectedTable ? (
             <RelationManager tableId={selectedTable.id} />
           ) : (
-            <Card title="Relazioni" subtitle="Seleziona una tabella per gestire FK e constraint.">
+            <section className={styles.emptyPanel}>
               <EmptyState
                 title="Nessuna tabella selezionata"
                 body="Apri una tabella dall'explorer o dal canvas per creare e modificare relazioni."
               />
-            </Card>
+            </section>
           )
         ) : null}
 
