@@ -22,25 +22,8 @@
   }
 }
 
-.statusRow {
-  display: flex;
-  flex-wrap: wrap;
-  gap: 0.45rem;
-}
-
 .editArea {
   display: grid;
-  gap: 0.34rem;
-
-  h4 {
-    margin: 0;
-    font-family: t.$font-heading;
-    font-size: 0.77rem;
-    color: t.$color-text;
-    display: inline-flex;
-    align-items: center;
-    gap: 0.32rem;
-  }
 }
 
 .editArea textarea {

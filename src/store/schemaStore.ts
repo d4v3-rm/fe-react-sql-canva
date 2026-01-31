@@ -195,6 +195,109 @@ function applySchemaRename(tables: TableModel[], currentSchema: string, nextSche
   })
 }
 
+function tableLookupKey(schema: string, name: string): string {
+  return `${normalizeSchemaName(schema)}.${normalizeEntityName(name)}`.toLowerCase()
+}
+
+function columnLookupKey(name: string): string {
+  return normalizeEntityName(name).toLowerCase()
+}
+
+function relationLookupKey(sourceTableId: string, sourceColumnId: string, targetTableId: string, targetColumnId: string): string {
+  return `${sourceTableId}:${sourceColumnId}:${targetTableId}:${targetColumnId}`
+}
+
+function mergeImportedProject(
+  currentTables: TableModel[],
+  currentRelations: RelationModel[],
+  currentSelectedTableId: string | null,
+  importedTables: TableModel[],
+  importedRelations: RelationModel[],
+): { tables: TableModel[]; relations: RelationModel[]; selectedTableId: string | null } {
+  const currentTableByKey = new Map(currentTables.map((table) => [tableLookupKey(table.schema, table.name), table]))
+  const currentRelationByKey = new Map(
+    currentRelations.map((relation) => [
+      relationLookupKey(relation.sourceTableId, relation.sourceColumnId, relation.targetTableId, relation.targetColumnId),
+      relation,
+    ]),
+  )
+
+  const tableIdMap = new Map<string, string>()
+  const columnIdMap = new Map<string, string>()
+
+  const mergedTables = importedTables.map((importedTable) => {
+    const existingTable = currentTableByKey.get(tableLookupKey(importedTable.schema, importedTable.name))
+    if (!existingTable) {
+      tableIdMap.set(importedTable.id, importedTable.id)
+      importedTable.columns.forEach((column) => {
+        columnIdMap.set(`${importedTable.id}:${column.id}`, column.id)
+      })
+      return importedTable
+    }
+
+    const existingColumnByKey = new Map(existingTable.columns.map((column) => [columnLookupKey(column.name), column]))
+
+    const mergedColumns = importedTable.columns.map((column) => {
+      const existingColumn = existingColumnByKey.get(columnLookupKey(column.name))
+      const nextColumn = existingColumn
+        ? {
+            ...column,
+            id: existingColumn.id,
+          }
+        : column
+
+      columnIdMap.set(`${importedTable.id}:${column.id}`, nextColumn.id)
+      return nextColumn
+    })
+
+    const mergedTable: TableModel = {
+      ...importedTable,
+      id: existingTable.id,
+      position: existingTable.position,
+      columns: mergedColumns,
+    }
+
+    tableIdMap.set(importedTable.id, mergedTable.id)
+    return mergedTable
+  })
+
+  const mergedRelations = importedRelations
+    .map((relation) => {
+      const sourceTableId = tableIdMap.get(relation.sourceTableId) ?? relation.sourceTableId
+      const targetTableId = tableIdMap.get(relation.targetTableId) ?? relation.targetTableId
+      const sourceColumnId =
+        columnIdMap.get(`${relation.sourceTableId}:${relation.sourceColumnId}`) ?? relation.sourceColumnId
+      const targetColumnId =
+        columnIdMap.get(`${relation.targetTableId}:${relation.targetColumnId}`) ?? relation.targetColumnId
+
+      const key = relationLookupKey(sourceTableId, sourceColumnId, targetTableId, targetColumnId)
+      const existingRelation = currentRelationByKey.get(key)
+
+      return {
+        ...relation,
+        id: existingRelation?.id ?? relation.id,
+        sourceTableId,
+        sourceColumnId,
+        targetTableId,
+        targetColumnId,
+      }
+    })
+    .filter((relation, index, list) => list.findIndex((item) => item.id === relation.id) === index)
+
+  const selectedTable = currentSelectedTableId ? currentTables.find((table) => table.id === currentSelectedTableId) : null
+  const selectedKey = selectedTable ? tableLookupKey(selectedTable.schema, selectedTable.name) : null
+  const nextSelectedTableId =
+    (selectedKey ? mergedTables.find((table) => tableLookupKey(table.schema, table.name) === selectedKey)?.id : null) ??
+    mergedTables[0]?.id ??
+    null
+
+  return {
+    tables: mergedTables,
+    relations: mergedRelations,
+    selectedTableId: nextSelectedTableId,
+  }
+}
+
 function cloneColumns(columns: ColumnModel[]): ColumnModel[] {
   return columns.map((column) => ({
     ...column,
@@ -696,11 +799,20 @@ export const useSchemaStore = create<SchemaStore>()(
           return false
         }
 
+        const currentState = useSchemaStore.getState()
+        const merged = mergeImportedProject(
+          currentState.tables,
+          currentState.relations,
+          currentState.selectedTableId,
+          result.tables,
+          result.relations,
+        )
+
         set({
-          database: sanitizeDatabase(result.database, result.tables),
-          tables: result.tables,
-          relations: result.relations,
-          selectedTableId: result.tables[0]?.id ?? null,
+          database: sanitizeDatabase(result.database, merged.tables),
+          tables: merged.tables,
+          relations: merged.relations,
+          selectedTableId: merged.selectedTableId,
           importWarnings: result.warnings,
           lastSavedAt: nowIso(),
         })

@@ -51,7 +51,6 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
     }
   }, [editableSql, importSql, sql])
 
-  const isSyncing = editableSql !== sql && !syncError
   const hasSyncError = editableSql !== sql && syncError
 
   return (
@@ -70,13 +69,9 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
         </div>
       ) : null}
 
-      <div className={styles.statusRow}>
-        {isSyncing ? <Badge tone="neutral">Sincronizzazione in corso...</Badge> : null}
-        {hasSyncError ? <Badge tone="warning">SQL non valido</Badge> : null}
-      </div>
+      {hasSyncError ? <Badge tone="warning">SQL non valido</Badge> : null}
 
       <div className={styles.editArea}>
-        <h4>Editor SQL</h4>
         <textarea
           value={editableSql}
           onChange={(event) => {
