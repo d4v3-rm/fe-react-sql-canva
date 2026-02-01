@@ -3,6 +3,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { useDialog } from '@/components/ui/dialog/useDialog'
 import { Field } from '@/components/ui/Field'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -17,43 +18,98 @@ export function DatabaseModelPanel() {
   const deleteSchema = useSchemaStore((state) => state.deleteSchema)
   const addExtension = useSchemaStore((state) => state.addExtension)
   const removeExtension = useSchemaStore((state) => state.removeExtension)
+  const { alert, confirm, prompt } = useDialog()
 
   function createSchema() {
-    const raw = window.prompt('Nome nuovo schema PostgreSQL')
-    if (!raw) {
-      return
-    }
+    void (async () => {
+      const raw = await prompt({
+        title: 'Nuovo schema PostgreSQL',
+        placeholder: 'public',
+        confirmLabel: 'Crea schema',
+      })
 
-    addSchema(raw)
+      if (!raw || raw.trim() === '') {
+        return
+      }
+
+      const success = addSchema(raw)
+      if (success) {
+        return
+      }
+
+      await alert({
+        title: 'Schema non valido',
+        message: 'Schema gia esistente o nome non valido.',
+      })
+    })()
   }
 
   function editSchema(schemaName: string) {
-    const next = window.prompt('Rinomina schema', schemaName)
-    if (!next || next === schemaName) {
-      return
-    }
+    void (async () => {
+      const next = await prompt({
+        title: `Rinomina schema ${schemaName}`,
+        defaultValue: schemaName,
+        confirmLabel: 'Rinomina',
+      })
 
-    renameSchema(schemaName, next)
+      if (!next || next.trim() === '' || next === schemaName) {
+        return
+      }
+
+      const success = renameSchema(schemaName, next)
+      if (success) {
+        return
+      }
+
+      await alert({
+        title: 'Rinomina non disponibile',
+        message: 'Verifica che il nuovo nome sia valido e non duplicato.',
+      })
+    })()
   }
 
   function removeSchema(schemaName: string) {
-    const linkedTables = tables.filter((table) => table.schema === schemaName).length
-    const confirmed = window.confirm(
-      `Eliminare schema "${schemaName}"? ${linkedTables > 0 ? `Le ${linkedTables} tabelle collegate verranno riallocate su uno schema di fallback.` : ''}`,
-    )
+    void (async () => {
+      const linkedTables = tables.filter((table) => table.schema === schemaName).length
+      const confirmed = await confirm({
+        title: `Eliminare schema "${schemaName}"`,
+        message:
+          linkedTables > 0
+            ? `Le ${linkedTables} tabelle collegate verranno riallocate su uno schema di fallback.`
+            : 'Lo schema verra rimosso dal database.',
+        confirmLabel: 'Elimina schema',
+        tone: 'danger',
+      })
 
-    if (confirmed) {
-      deleteSchema(schemaName)
-    }
+      if (confirmed) {
+        deleteSchema(schemaName)
+      }
+    })()
   }
 
   function createExtension() {
-    const raw = window.prompt('Nome extension PostgreSQL (es. pgcrypto)')
-    if (!raw) {
-      return
-    }
+    void (async () => {
+      const raw = await prompt({
+        title: 'Nuova extension PostgreSQL',
+        message: 'Esempio: pgcrypto',
+        placeholder: 'pgcrypto',
+        confirmLabel: 'Aggiungi extension',
+      })
 
-    addExtension(raw)
+      if (!raw || raw.trim() === '') {
+        return
+      }
+
+      const success = addExtension(raw)
+      if (success) {
+        return
+      }
+
+      await alert({
+        title: 'Extension non valida',
+        message: 'Estensione gia esistente o nome non valido.',
+      })
+    })()
   }
 
   return (

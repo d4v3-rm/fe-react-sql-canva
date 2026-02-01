@@ -4,6 +4,7 @@ import { useMemo, useState, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { useDialog } from '@/components/ui/dialog/useDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -46,6 +47,7 @@ export function DatabaseExplorer() {
   const renameTable = useSchemaStore((state) => state.renameTable)
   const duplicateTable = useSchemaStore((state) => state.duplicateTable)
   const moveTableToSchema = useSchemaStore((state) => state.moveTableToSchema)
+  const { alert, confirm, prompt } = useDialog()
 
   const normalizedQuery = query.trim().toLowerCase()
 
@@ -97,20 +99,35 @@ export function DatabaseExplorer() {
   function handleRenameTable(tableId: string) {
     closeContextMenu()
 
-    const table = tableMap.get(tableId)
-    if (!table) {
-      return
-    }
+    void (async () => {
+      const table = tableMap.get(tableId)
+      if (!table) {
+        return
+      }
 
-    const nextName = window.prompt('Nuovo nome tabella', table.name)
-    if (!nextName || nextName === table.name) {
-      return
-    }
+      const nextName = await prompt({
+        title: `Rinomina ${table.schema}.${table.name}`,
+        message: 'Inserisci il nuovo nome della tabella.',
+        defaultValue: table.name,
+        placeholder: 'users',
+        confirmLabel: 'Rinomina',
+      })
 
-    const success = renameTable(tableId, nextName)
-    if (!success) {
-      window.alert('Impossibile rinominare: esiste già una tabella con questo nome nello stesso schema.')
-    }
+      if (!nextName || nextName.trim() === '' || nextName === table.name) {
+        return
+      }
+
+      const success = renameTable(tableId, nextName)
+      if (success) {
+        return
+      }
+
+      await alert({
+        title: 'Rinomina non disponibile',
+        message: 'Esiste gia una tabella con questo nome nello stesso schema.',
+        confirmLabel: 'Chiudi',
+      })
+    })()
   }
 
   function handleDuplicateTable(tableId: string) {
@@ -121,44 +138,71 @@ export function DatabaseExplorer() {
   function handleMoveTable(tableId: string) {
     closeContextMenu()
 
-    const table = tableMap.get(tableId)
-    if (!table) {
-      return
-    }
+    void (async () => {
+      const table = tableMap.get(tableId)
+      if (!table) {
+        return
+      }
 
-    const nextSchema = window.prompt(
-      `Sposta tabella nello schema (disponibili: ${database.schemas.join(', ')})`,
-      table.schema,
-    )
+      const nextSchema = await prompt({
+        title: `Sposta ${table.name} in un altro schema`,
+        message: `Schemi disponibili: ${database.schemas.join(', ')}`,
+        defaultValue: table.schema,
+        placeholder: 'public',
+        confirmLabel: 'Sposta',
+      })
 
-    if (!nextSchema || nextSchema.trim() === table.schema) {
-      return
-    }
+      if (!nextSchema || nextSchema.trim() === '' || nextSchema.trim() === table.schema) {
+        return
+      }
 
-    moveTableToSchema(tableId, nextSchema)
+      moveTableToSchema(tableId, nextSchema)
+    })()
   }
 
   function handleDeleteTable(tableId: string) {
     closeContextMenu()
 
-    const table = tableMap.get(tableId)
-    const confirmed = window.confirm(`Eliminare la tabella ${table?.schema}.${table?.name}?`)
-    if (confirmed) {
-      deleteTable(tableId)
-    }
+    void (async () => {
+      const table = tableMap.get(tableId)
+      const confirmed = await confirm({
+        title: 'Elimina tabella',
+        message: `Eliminare la tabella ${table?.schema}.${table?.name}?`,
+        confirmLabel: 'Elimina',
+        tone: 'danger',
+      })
+
+      if (confirmed) {
+        deleteTable(tableId)
+      }
+    })()
   }
 
   function handleAddSchema() {
-    const suggestedSchema = `schema_${database.schemas.length + 1}`
-    const nextSchema = window.prompt('Nome nuovo schema PostgreSQL', suggestedSchema)
-    if (!nextSchema) {
-      return
-    }
+    void (async () => {
+      const suggestedSchema = `schema_${database.schemas.length + 1}`
+      const nextSchema = await prompt({
+        title: 'Nuovo schema PostgreSQL',
+        defaultValue: suggestedSchema,
+        placeholder: 'public',
+        confirmLabel: 'Crea schema',
+      })
 
-    const success = addSchema(nextSchema)
-    if (!success) {
-      window.alert('Schema gia esistente o nome non valido.')
-    }
+      if (!nextSchema || nextSchema.trim() === '') {
+        return
+      }
+
+      const success = addSchema(nextSchema)
+      if (success) {
+        return
+      }
+
+      await alert({
+        title: 'Schema non valido',
+        message: 'Schema gia esistente o nome non valido.',
+        confirmLabel: 'Chiudi',
+      })
+    })()
   }
 
   function handleTableDragStart(tableId: string, event: DragEvent<HTMLDivElement>) {

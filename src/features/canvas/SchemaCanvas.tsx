@@ -3,6 +3,7 @@ import { Focus, LayoutTemplate, Plus, ScanSearch } from 'lucide-react'
 import { Background, Controls, MiniMap, ReactFlow, type Edge, type NodeTypes, type ReactFlowInstance } from '@xyflow/react'
 
 import { Button } from '@/components/ui/Button'
+import { useDialog } from '@/components/ui/dialog/useDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
@@ -57,6 +58,7 @@ export function SchemaCanvas() {
   const centerRequestToken = useCanvasViewStore((state) => state.centerRequestToken)
   const requestFitView = useCanvasViewStore((state) => state.requestFitView)
   const requestCenterSelected = useCanvasViewStore((state) => state.requestCenterSelected)
+  const { confirm } = useDialog()
 
   const flowRef = useRef<ReactFlowInstance<TableFlowNode, Edge> | null>(null)
 
@@ -177,6 +179,21 @@ export function SchemaCanvas() {
     }, 60)
   }
 
+  async function handleApplyTemplate(templateId: string, templateName: string) {
+    const approved = await confirm({
+      title: `Applicare template "${templateName}"`,
+      message: 'Il progetto corrente verra sovrascritto.',
+      confirmLabel: 'Applica template',
+      tone: 'danger',
+    })
+
+    if (!approved) {
+      return
+    }
+
+    applyTemplate(templateId)
+  }
+
   return (
     <section className={styles.canvasRoot}>
       <p className={styles.canvasIntro}>Trascina le tabelle e visualizza i collegamenti foreign key.</p>
@@ -197,17 +214,7 @@ export function SchemaCanvas() {
                   key={template.id}
                   variant="ghost"
                   compact
-                  onClick={() => {
-                    const confirmed = window.confirm(
-                      `Applicare il template "${template.name}"? Sovrascrivera il progetto corrente.`,
-                    )
-
-                    if (!confirmed) {
-                      return
-                    }
-
-                    applyTemplate(template.id)
-                  }}
+                  onClick={() => void handleApplyTemplate(template.id, template.name)}
                 >
                   <LayoutTemplate size={12} />
                   {template.name}

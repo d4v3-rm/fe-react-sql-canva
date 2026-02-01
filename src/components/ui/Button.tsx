@@ -1,4 +1,4 @@
-import type { ButtonHTMLAttributes, PropsWithChildren } from 'react'
+import { forwardRef, type ButtonHTMLAttributes, type PropsWithChildren } from 'react'
 import clsx from 'clsx'
 
 import styles from './Button.module.scss'
@@ -10,9 +10,13 @@ interface ButtonProps extends ButtonHTMLAttributes<HTMLButtonElement> {
   compact?: boolean
 }
 
-export function Button({ children, variant = 'secondary', compact = false, className, ...props }: PropsWithChildren<ButtonProps>) {
+export const Button = forwardRef<HTMLButtonElement, PropsWithChildren<ButtonProps>>(function Button(
+  { children, variant = 'secondary', compact = false, className, ...props },
+  ref,
+) {
   return (
     <button
+      ref={ref}
       className={clsx(styles.button, styles[variant], compact && styles.compact, className)}
       type={props.type ?? 'button'}
       {...props}
@@ -20,4 +24,4 @@ export function Button({ children, variant = 'secondary', compact = false, class
       {children}
     </button>
   )
-}
+})
