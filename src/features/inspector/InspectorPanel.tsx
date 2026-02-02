@@ -1,12 +1,13 @@
 import clsx from 'clsx'
 import { Binary, Network, PanelsTopLeft } from 'lucide-react'
-import { useMemo, useState } from 'react'
+import { useMemo } from 'react'
 
 import { EmptyState } from '@/components/ui/EmptyState'
 import { DatabaseModelPanel } from '@/features/database-model/DatabaseModelPanel'
 import { SqlPreview } from '@/features/sql-preview/SqlPreview'
 import { RelationManager } from '@/features/table-editor/RelationManager'
 import { TableEditor } from '@/features/table-editor/TableEditor'
+import { useInspectorStore } from '@/store/inspectorStore'
 import { useSelectedTable, useSchemaStore } from '@/store/schemaStore'
 
 import styles from './InspectorPanel.module.scss'
@@ -15,10 +16,9 @@ interface InspectorPanelProps {
   sqlScript: string
 }
 
-type InspectorTab = 'structure' | 'relations' | 'sql'
-
 export function InspectorPanel({ sqlScript }: InspectorPanelProps) {
-  const [activeTab, setActiveTab] = useState<InspectorTab>('structure')
+  const activeTab = useInspectorStore((state) => state.activeTab)
+  const setActiveTab = useInspectorStore((state) => state.setActiveTab)
 
   const selectedTable = useSelectedTable()
   const database = useSchemaStore((state) => state.database)

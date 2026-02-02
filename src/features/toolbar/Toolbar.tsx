@@ -4,7 +4,9 @@ import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Search,
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { useDialog } from '@/components/ui/dialog/useDialog'
 import { readTextFile, downloadTextFile } from '@/lib/file/textFile'
+import type { LayoutPreset, QuickLayoutPreset } from '@/store/layoutStore'
 import { useSchemaStore } from '@/store/schemaStore'
 import { useThemeStore } from '@/store/themeStore'
 
@@ -13,9 +15,18 @@ import styles from './Toolbar.module.scss'
 interface ToolbarProps {
   sqlScript: string
   onOpenCommandPalette: () => void
+  activeLayoutPreset: LayoutPreset
+  onApplyLayoutPreset: (preset: QuickLayoutPreset) => void
 }
 
-export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
+const LAYOUT_PRESETS: { id: QuickLayoutPreset; label: string }[] = [
+  { id: 'balanced', label: 'Bilanciato' },
+  { id: 'focus_canvas', label: 'Canvas' },
+  { id: 'focus_inspector', label: 'Inspector' },
+  { id: 'focus_sql', label: 'SQL' },
+]
+
+export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, onApplyLayoutPreset }: ToolbarProps) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
   const [importing, setImporting] = useState(false)
 
@@ -30,6 +41,7 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
   const database = useSchemaStore((state) => state.database)
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
+  const { confirm } = useDialog()
 
   async function handleCopySql() {
     try {
@@ -70,8 +82,14 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
     }
   }
 
-  function handleResetProject() {
-    const confirmed = window.confirm('Vuoi davvero creare un progetto vuoto? I dati correnti saranno rimossi.')
+  async function handleResetProject() {
+    const confirmed = await confirm({
+      title: 'Nuovo progetto vuoto',
+      message: 'Vuoi davvero creare un progetto vuoto? I dati correnti saranno rimossi.',
+      confirmLabel: 'Crea progetto',
+      tone: 'danger',
+    })
+
     if (confirmed) {
       clearProject()
     }
@@ -119,13 +137,29 @@ export function Toolbar({ sqlScript, onOpenCommandPalette }: ToolbarProps) {
         </div>
 
         <div className={styles.actionGroup}>
+          <span className={styles.groupLabel}>Layout</span>
+          <div className={styles.groupButtons}>
+            {LAYOUT_PRESETS.map((preset) => (
+              <button
+                key={preset.id}
+                className={clsx(styles.layoutPresetButton, activeLayoutPreset === preset.id && styles.layoutPresetButtonActive)}
+                onClick={() => onApplyLayoutPreset(preset.id)}
+                type="button"
+              >
+                {preset.label}
+              </button>
+            ))}
+          </div>
+        </div>
+
+        <div className={styles.actionGroup}>
           <span className={styles.groupLabel}>Workspace</span>
           <div className={styles.groupButtons}>
             <Button variant="ghost" onClick={onOpenCommandPalette} title="Apri command palette (Ctrl+K)">
               <Search size={15} />
               Comandi
             </Button>
-            <Button variant="ghost" onClick={handleResetProject}>
+            <Button variant="ghost" onClick={() => void handleResetProject()}>
               <RotateCcw size={15} />
               Nuovo progetto
             </Button>

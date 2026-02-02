@@ -8,7 +8,8 @@ import { DatabaseExplorer } from '@/features/explorer/DatabaseExplorer'
 import { InspectorPanel } from '@/features/inspector/InspectorPanel'
 import { Toolbar } from '@/features/toolbar/Toolbar'
 import { generateProjectSql } from '@/lib/sql/generateSql'
-import { useLayoutStore, type PaneId } from '@/store/layoutStore'
+import { useInspectorStore } from '@/store/inspectorStore'
+import { useLayoutStore, type PaneId, type QuickLayoutPreset } from '@/store/layoutStore'
 import { useSchemaStore } from '@/store/schemaStore'
 import { useThemeStore } from '@/store/themeStore'
 
@@ -51,6 +52,7 @@ export default function App() {
   const centerCollapsed = useLayoutStore((state) => state.centerCollapsed)
   const rightCollapsed = useLayoutStore((state) => state.rightCollapsed)
   const maximizedPane = useLayoutStore((state) => state.maximizedPane)
+  const activeLayoutPreset = useLayoutStore((state) => state.activePreset)
 
   const setLeftPaneWidth = useLayoutStore((state) => state.setLeftPaneWidth)
   const setRightPaneWidth = useLayoutStore((state) => state.setRightPaneWidth)
@@ -58,6 +60,8 @@ export default function App() {
   const togglePaneCollapsed = useLayoutStore((state) => state.togglePaneCollapsed)
   const togglePaneMaximized = useLayoutStore((state) => state.togglePaneMaximized)
   const resetPaneWidths = useLayoutStore((state) => state.resetPaneWidths)
+  const applyLayoutPreset = useLayoutStore((state) => state.applyPreset)
+  const setInspectorTab = useInspectorStore((state) => state.setActiveTab)
 
   const layoutRef = useRef<HTMLElement | null>(null)
   const dragStateRef = useRef<{
@@ -193,6 +197,18 @@ export default function App() {
     )
   }
 
+  function handleApplyLayoutPreset(preset: QuickLayoutPreset) {
+    if (preset === 'focus_sql') {
+      setInspectorTab('sql')
+    }
+
+    if (preset === 'focus_inspector') {
+      setInspectorTab('structure')
+    }
+
+    applyLayoutPreset(preset)
+  }
+
   const showLeftPane = maximizedPane === null || maximizedPane === 'left'
   const showCenterPane = maximizedPane === null || maximizedPane === 'center'
   const showRightPane = maximizedPane === null || maximizedPane === 'right'
@@ -201,7 +217,12 @@ export default function App() {
 
   return (
     <div className={styles.page}>
-      <Toolbar sqlScript={sqlScript} onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
+      <Toolbar
+        sqlScript={sqlScript}
+        activeLayoutPreset={activeLayoutPreset}
+        onApplyLayoutPreset={handleApplyLayoutPreset}
+        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
+      />
 
       <main ref={layoutRef} className={styles.layout} style={layoutStyle}>
         {showLeftPane ? (

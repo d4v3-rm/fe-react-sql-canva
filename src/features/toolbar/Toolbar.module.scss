@@ -101,6 +101,32 @@
   font-size: 0.74rem;
 }
 
+.groupButtons .layoutPresetButton {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface;
+  color: t.$color-text-soft;
+  font-family: t.$font-heading;
+  font-size: 0.68rem;
+  font-weight: 650;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  padding: 0.3rem 0.44rem;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast, color t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+    color: t.$color-text;
+  }
+}
+
+.groupButtons .layoutPresetButtonActive {
+  border-color: t.$color-primary;
+  color: t.$color-text;
+  background: t.$color-primary-soft;
+}
+
 .themeSwitch {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;

@@ -1,9 +1,12 @@
-﻿import clsx from 'clsx'
-import { Binary, Database, FolderPlus, LayoutTemplate, Search, SunMoon, Telescope } from 'lucide-react'
+import clsx from 'clsx'
+import { Binary, Database, FolderPlus, LayoutTemplate, PanelsTopLeft, Search, SunMoon, Telescope } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
+import { useDialog } from '@/components/ui/dialog/useDialog'
 import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
+import { useInspectorStore } from '@/store/inspectorStore'
+import { useLayoutStore } from '@/store/layoutStore'
 import { useSchemaStore } from '@/store/schemaStore'
 import { useThemeStore } from '@/store/themeStore'
 
@@ -20,7 +23,7 @@ interface CommandAction {
   description: string
   keywords: string[]
   icon: React.ReactNode
-  run: () => void
+  run: () => void | Promise<void>
 }
 
 export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
@@ -33,7 +36,10 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
   const clearProject = useSchemaStore((state) => state.clearProject)
   const requestFitView = useCanvasViewStore((state) => state.requestFitView)
   const requestCenterSelected = useCanvasViewStore((state) => state.requestCenterSelected)
+  const applyLayoutPreset = useLayoutStore((state) => state.applyPreset)
+  const setInspectorTab = useInspectorStore((state) => state.setActiveTab)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
+  const { alert, confirm, prompt } = useDialog()
 
   const actions = useMemo<CommandAction[]>(
     () => [
@@ -51,13 +57,65 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         description: 'Aggiunge uno schema PostgreSQL al database.',
         keywords: ['schema', 'create', 'db'],
         icon: <FolderPlus size={14} />,
-        run: () => {
-          const nextSchema = window.prompt('Nome nuovo schema')
-          if (!nextSchema) {
-            return
-          }
+        run: () =>
+          (async () => {
+            const nextSchema = await prompt({
+              title: 'Nuovo schema',
+              placeholder: 'public',
+              confirmLabel: 'Crea schema',
+            })
 
-          addSchema(nextSchema)
+            if (!nextSchema || nextSchema.trim() === '') {
+              return
+            }
+
+            const success = addSchema(nextSchema)
+            if (success) {
+              return
+            }
+
+            await alert({
+              title: 'Schema non valido',
+              message: 'Schema gia esistente o nome non valido.',
+            })
+          })(),
+      },
+      {
+        id: 'layout-balanced',
+        label: 'Layout: bilanciato',
+        description: 'Ripristina il layout standard a tre pannelli.',
+        keywords: ['layout', 'balanced', 'default', 'reset'],
+        icon: <PanelsTopLeft size={14} />,
+        run: () => applyLayoutPreset('balanced'),
+      },
+      {
+        id: 'layout-canvas',
+        label: 'Layout: focus canvas',
+        description: 'Massimizza il canvas relazionale.',
+        keywords: ['layout', 'canvas', 'focus'],
+        icon: <PanelsTopLeft size={14} />,
+        run: () => applyLayoutPreset('focus_canvas'),
+      },
+      {
+        id: 'layout-inspector',
+        label: 'Layout: focus inspector',
+        description: 'Massimizza il pannello inspector.',
+        keywords: ['layout', 'inspector', 'focus'],
+        icon: <PanelsTopLeft size={14} />,
+        run: () => {
+          setInspectorTab('structure')
+          applyLayoutPreset('focus_inspector')
+        },
+      },
+      {
+        id: 'layout-sql',
+        label: 'Layout: focus sql',
+        description: 'Massimizza inspector e apre l editor SQL.',
+        keywords: ['layout', 'sql', 'focus', 'editor'],
+        icon: <PanelsTopLeft size={14} />,
+        run: () => {
+          setInspectorTab('sql')
+          applyLayoutPreset('focus_sql')
         },
       },
       {
@@ -90,12 +148,19 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         description: 'Resetta interamente il progetto corrente.',
         keywords: ['reset', 'clear', 'project'],
         icon: <Binary size={14} />,
-        run: () => {
-          const confirmed = window.confirm('Creare un nuovo progetto vuoto?')
-          if (confirmed) {
-            clearProject()
-          }
-        },
+        run: () =>
+          (async () => {
+            const approved = await confirm({
+              title: 'Nuovo progetto vuoto',
+              message: 'Creare un nuovo progetto vuoto? I dati correnti saranno rimossi.',
+              confirmLabel: 'Crea progetto',
+              tone: 'danger',
+            })
+
+            if (approved) {
+              clearProject()
+            }
+          })(),
       },
       ...PROJECT_TEMPLATES.map<CommandAction>((template) => ({
         id: `template-${template.id}`,
@@ -103,17 +168,37 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         description: template.description,
         keywords: ['template', template.id, template.name.toLowerCase()],
         icon: <LayoutTemplate size={14} />,
-        run: () => {
-          const confirmed = window.confirm(`Applicare il template "${template.name}"? Sovrascrivera il progetto corrente.`)
-          if (!confirmed) {
-            return
-          }
+        run: () =>
+          (async () => {
+            const approved = await confirm({
+              title: `Applicare template "${template.name}"`,
+              message: 'Il progetto corrente verra sovrascritto.',
+              confirmLabel: 'Applica template',
+              tone: 'danger',
+            })
 
-          applyTemplate(template.id)
-        },
+            if (!approved) {
+              return
+            }
+
+            applyTemplate(template.id)
+          })(),
       })),
     ],
-    [addSchema, addTable, applyTemplate, clearProject, requestCenterSelected, requestFitView, toggleTheme],
+    [
+      addSchema,
+      addTable,
+      alert,
+      applyLayoutPreset,
+      applyTemplate,
+      clearProject,
+      confirm,
+      prompt,
+      requestCenterSelected,
+      requestFitView,
+      setInspectorTab,
+      toggleTheme,
+    ],
   )
 
   const filteredActions = useMemo(() => {
@@ -142,6 +227,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     setActiveIndex(0)
     onClose()
   }, [onClose])
+
+  const executeAction = useCallback(
+    (action: CommandAction) => {
+      handleClose()
+      window.setTimeout(() => {
+        void action.run()
+      }, 0)
+    },
+    [handleClose],
+  )
 
   useEffect(() => {
     if (!isOpen) {
@@ -176,14 +271,13 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         }
 
         event.preventDefault()
-        action.run()
-        handleClose()
+        executeAction(action)
       }
     }
 
     window.addEventListener('keydown', handler)
     return () => window.removeEventListener('keydown', handler)
-  }, [filteredActions, handleClose, isOpen, safeActiveIndex])
+  }, [executeAction, filteredActions, handleClose, isOpen, safeActiveIndex])
 
   if (!isOpen) {
     return null
@@ -215,10 +309,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
                 key={action.id}
                 className={clsx(styles.item, index === safeActiveIndex && styles.active)}
                 onMouseEnter={() => setActiveIndex(index)}
-                onClick={() => {
-                  action.run()
-                  handleClose()
-                }}
+                onClick={() => executeAction(action)}
                 type="button"
               >
                 <span className={styles.icon}>{action.icon}</span>
@@ -234,6 +325,3 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     </div>
   )
 }
-
-
-

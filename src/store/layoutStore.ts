@@ -7,6 +7,8 @@ const DEFAULT_LEFT_PANE_WIDTH = 260
 const DEFAULT_RIGHT_PANE_WIDTH = 400
 
 export type PaneId = 'left' | 'center' | 'right'
+export type QuickLayoutPreset = 'balanced' | 'focus_canvas' | 'focus_inspector' | 'focus_sql'
+export type LayoutPreset = QuickLayoutPreset | 'custom'
 
 interface LayoutStore {
   leftPaneWidth: number
@@ -15,6 +17,7 @@ interface LayoutStore {
   centerCollapsed: boolean
   rightCollapsed: boolean
   maximizedPane: PaneId | null
+  activePreset: LayoutPreset
   setLeftPaneWidth: (width: number) => void
   setRightPaneWidth: (width: number) => void
   togglePaneCollapsed: (pane: PaneId) => void
@@ -22,6 +25,7 @@ interface LayoutStore {
   togglePaneMaximized: (pane: PaneId) => void
   clearMaximizedPane: () => void
   resetPaneWidths: () => void
+  applyPreset: (preset: QuickLayoutPreset) => void
 }
 
 export const useLayoutStore = create<LayoutStore>()(
@@ -33,11 +37,12 @@ export const useLayoutStore = create<LayoutStore>()(
       centerCollapsed: false,
       rightCollapsed: false,
       maximizedPane: null,
+      activePreset: 'balanced',
       setLeftPaneWidth: (width) => {
-        set({ leftPaneWidth: width })
+        set({ leftPaneWidth: width, activePreset: 'custom' })
       },
       setRightPaneWidth: (width) => {
-        set({ rightPaneWidth: width })
+        set({ rightPaneWidth: width, activePreset: 'custom' })
       },
       togglePaneCollapsed: (pane) => {
         set((state) => {
@@ -45,6 +50,7 @@ export const useLayoutStore = create<LayoutStore>()(
             return {
               leftCollapsed: !state.leftCollapsed,
               maximizedPane: state.maximizedPane === 'left' ? null : state.maximizedPane,
+              activePreset: 'custom',
             }
           }
 
@@ -52,12 +58,14 @@ export const useLayoutStore = create<LayoutStore>()(
             return {
               centerCollapsed: !state.centerCollapsed,
               maximizedPane: state.maximizedPane === 'center' ? null : state.maximizedPane,
+              activePreset: 'custom',
             }
           }
 
           return {
             rightCollapsed: !state.rightCollapsed,
             maximizedPane: state.maximizedPane === 'right' ? null : state.maximizedPane,
+            activePreset: 'custom',
           }
         })
       },
@@ -67,6 +75,7 @@ export const useLayoutStore = create<LayoutStore>()(
             return {
               leftCollapsed: collapsed,
               maximizedPane: state.maximizedPane === 'left' && collapsed ? null : state.maximizedPane,
+              activePreset: 'custom',
             }
           }
 
@@ -74,12 +83,14 @@ export const useLayoutStore = create<LayoutStore>()(
             return {
               centerCollapsed: collapsed,
               maximizedPane: state.maximizedPane === 'center' && collapsed ? null : state.maximizedPane,
+              activePreset: 'custom',
             }
           }
 
           return {
             rightCollapsed: collapsed,
             maximizedPane: state.maximizedPane === 'right' && collapsed ? null : state.maximizedPane,
+            activePreset: 'custom',
           }
         })
       },
@@ -92,16 +103,51 @@ export const useLayoutStore = create<LayoutStore>()(
             leftCollapsed: pane === 'left' ? false : state.leftCollapsed,
             centerCollapsed: pane === 'center' ? false : state.centerCollapsed,
             rightCollapsed: pane === 'right' ? false : state.rightCollapsed,
+            activePreset: 'custom',
           }
         })
       },
       clearMaximizedPane: () => {
-        set({ maximizedPane: null })
+        set({ maximizedPane: null, activePreset: 'custom' })
       },
       resetPaneWidths: () => {
         set({
           leftPaneWidth: DEFAULT_LEFT_PANE_WIDTH,
           rightPaneWidth: DEFAULT_RIGHT_PANE_WIDTH,
+          activePreset: 'custom',
+        })
+      },
+      applyPreset: (preset) => {
+        if (preset === 'balanced') {
+          set({
+            leftPaneWidth: DEFAULT_LEFT_PANE_WIDTH,
+            rightPaneWidth: DEFAULT_RIGHT_PANE_WIDTH,
+            leftCollapsed: false,
+            centerCollapsed: false,
+            rightCollapsed: false,
+            maximizedPane: null,
+            activePreset: preset,
+          })
+          return
+        }
+
+        if (preset === 'focus_canvas') {
+          set({
+            leftCollapsed: false,
+            centerCollapsed: false,
+            rightCollapsed: false,
+            maximizedPane: 'center',
+            activePreset: preset,
+          })
+          return
+        }
+
+        set({
+          leftCollapsed: false,
+          centerCollapsed: false,
+          rightCollapsed: false,
+          maximizedPane: 'right',
+          activePreset: preset,
         })
       },
     }),
@@ -115,6 +161,7 @@ export const useLayoutStore = create<LayoutStore>()(
         centerCollapsed: state.centerCollapsed,
         rightCollapsed: state.rightCollapsed,
         maximizedPane: state.maximizedPane,
+        activePreset: state.activePreset,
       }),
     },
   ),
