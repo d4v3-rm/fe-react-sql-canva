@@ -4,9 +4,9 @@
   border: 1px solid t.$color-border-strong;
   border-radius: t.$radius-sm;
   font-family: t.$font-heading;
-  font-size: 0.8rem;
-  font-weight: 630;
-  padding: 0.52rem 0.85rem;
+  font-size: 0.78rem;
+  font-weight: 620;
+  padding: 0.48rem 0.8rem;
   transition: background-color t.$transition-fast, border-color t.$transition-fast, color t.$transition-fast;
   cursor: pointer;
 
@@ -18,8 +18,8 @@
 }
 
 .compact {
-  padding: 0.34rem 0.58rem;
-  font-size: 0.73rem;
+  padding: 0.3rem 0.52rem;
+  font-size: 0.71rem;
 }
 
 .primary {

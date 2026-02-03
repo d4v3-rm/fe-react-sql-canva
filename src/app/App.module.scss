@@ -215,7 +215,7 @@
   .layout {
     display: grid;
     grid-template-columns: 1fr;
-    gap: 0.72rem;
+    gap: 0.56rem;
   }
 
   .splitter {
@@ -234,7 +234,7 @@
   }
 
   .paneWindow {
-    min-height: 220px;
+    min-height: 200px;
   }
 
   .collapsedLabel {

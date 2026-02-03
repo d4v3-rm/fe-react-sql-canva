@@ -8,7 +8,7 @@
 
 .metaGrid {
   display: grid;
-  gap: 0.5rem;
+  gap: 0.44rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
 
   input {
@@ -38,11 +38,11 @@
 }
 
 .columnsList {
-  max-height: 420px;
+  max-height: min(52vh, 420px);
   overflow-y: auto;
   overflow-x: hidden;
   display: grid;
-  gap: 0.52rem;
+  gap: 0.44rem;
   @include m.slim-scrollbar;
 }
 
@@ -50,9 +50,9 @@
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
   background: t.$color-row-alt-bg;
-  padding: 0.58rem;
+  padding: 0.5rem;
   display: grid;
-  gap: 0.52rem;
+  gap: 0.45rem;
   min-width: 0;
 }
 
@@ -73,7 +73,7 @@
 
 .columnGrid {
   display: grid;
-  gap: 0.45rem;
+  gap: 0.4rem;
   grid-template-columns: repeat(2, minmax(0, 1fr));
   min-width: 0;
 

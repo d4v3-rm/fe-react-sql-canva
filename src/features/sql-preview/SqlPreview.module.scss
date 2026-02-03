@@ -5,9 +5,9 @@
   border: 1px solid t.$color-warning-border;
   background: t.$color-warning-soft;
   border-radius: t.$radius-md;
-  padding: 0.55rem;
+  padding: 0.5rem;
   display: grid;
-  gap: 0.45rem;
+  gap: 0.36rem;
 
   ul {
     margin: 0;
@@ -27,8 +27,8 @@
 }
 
 .editArea textarea {
-  min-height: 360px;
-  max-height: 62vh;
+  min-height: clamp(220px, 42vh, 340px);
+  max-height: 68vh;
   max-width: 100%;
   resize: vertical;
   @include m.input-base;
