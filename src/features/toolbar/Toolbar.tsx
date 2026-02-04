@@ -1,6 +1,6 @@
 import { useRef, useState } from 'react'
 import clsx from 'clsx'
-import { Copy, DatabaseZap, Download, FileUp, MoonStar, Plus, RotateCcw, Search, SunMedium } from 'lucide-react'
+import { Copy, DatabaseZap, Download, FileUp, MoonStar, MoreHorizontal, Plus, RotateCcw, Search, SunMedium } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -31,6 +31,7 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
   const [importing, setImporting] = useState(false)
 
   const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const moreMenuRef = useRef<HTMLDetailsElement | null>(null)
 
   const addTable = useSchemaStore((state) => state.addTable)
   const clearProject = useSchemaStore((state) => state.clearProject)
@@ -42,6 +43,10 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
   const theme = useThemeStore((state) => state.theme)
   const toggleTheme = useThemeStore((state) => state.toggleTheme)
   const { confirm } = useDialog()
+
+  function closeMoreMenu() {
+    moreMenuRef.current?.removeAttribute('open')
+  }
 
   async function handleCopySql() {
     try {
@@ -99,90 +104,96 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
     <header className={styles.toolbar}>
       <div className={styles.identity}>
         <div className={styles.logoTile}>
-          <DatabaseZap size={18} strokeWidth={2.1} />
+          <DatabaseZap size={14} strokeWidth={2.2} />
         </div>
         <div className={styles.identityText}>
-          <h1>SQL Canvas Modeler</h1>
-          <span>{database.name} | {database.schemas.length} schemi</span>
+          <h1>SQL Canvas</h1>
+          <span>{database.name}</span>
         </div>
       </div>
 
       <div className={styles.actions}>
-        <div className={styles.actionGroup}>
-          <span className={styles.groupLabel}>Struttura</span>
-          <div className={styles.groupButtons}>
-            <Button variant="primary" onClick={addTable}>
-              <Plus size={15} />
-              Nuova tabella
-            </Button>
-          </div>
-        </div>
+        <Button variant="primary" compact onClick={addTable} className={styles.primaryAction}>
+          <Plus size={13} />
+          Tabella
+        </Button>
 
-        <div className={styles.actionGroup}>
-          <span className={styles.groupLabel}>SQL</span>
-          <div className={styles.groupButtons}>
-            <Button onClick={handleOpenImportDialog} disabled={importing}>
-              <FileUp size={15} />
-              Importa SQL
-            </Button>
-            <Button onClick={handleExportSql}>
-              <Download size={15} />
-              Esporta SQL
-            </Button>
-            <Button onClick={handleCopySql}>
-              <Copy size={15} />
-              {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
-            </Button>
-          </div>
-        </div>
+        <button className={styles.iconButton} onClick={handleOpenImportDialog} disabled={importing} title="Importa SQL" type="button">
+          <FileUp size={14} />
+        </button>
 
-        <div className={styles.actionGroup}>
-          <span className={styles.groupLabel}>Layout</span>
-          <div className={styles.groupButtons}>
-            {LAYOUT_PRESETS.map((preset) => (
-              <button
-                key={preset.id}
-                className={clsx(styles.layoutPresetButton, activeLayoutPreset === preset.id && styles.layoutPresetButtonActive)}
-                onClick={() => onApplyLayoutPreset(preset.id)}
-                type="button"
-              >
-                {preset.label}
-              </button>
-            ))}
-          </div>
-        </div>
+        <button className={styles.iconButton} onClick={handleExportSql} title="Esporta SQL" type="button">
+          <Download size={14} />
+        </button>
 
-        <div className={styles.actionGroup}>
-          <span className={styles.groupLabel}>Workspace</span>
-          <div className={styles.groupButtons}>
-            <Button variant="ghost" onClick={onOpenCommandPalette} title="Apri command palette (Ctrl+K)">
-              <Search size={15} />
-              Comandi
-            </Button>
-            <Button variant="ghost" onClick={() => void handleResetProject()}>
-              <RotateCcw size={15} />
-              Nuovo progetto
-            </Button>
+        <button
+          className={styles.iconButton}
+          onClick={onOpenCommandPalette}
+          title="Apri command palette (Ctrl+K)"
+          type="button"
+        >
+          <Search size={14} />
+        </button>
+
+        <button
+          className={clsx(styles.iconButton, styles.themeButton, theme === 'dark' && styles.themeButtonDark)}
+          onClick={toggleTheme}
+          title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
+          type="button"
+        >
+          {theme === 'dark' ? <MoonStar size={14} /> : <SunMedium size={14} />}
+        </button>
+
+        {warnings.length > 0 ? <Badge tone="warning">Import: {warnings.length}</Badge> : null}
+
+        <details ref={moreMenuRef} className={styles.moreMenu}>
+          <summary className={styles.iconButton} title="Altre azioni">
+            <MoreHorizontal size={14} />
+          </summary>
+          <div className={styles.morePanel}>
+            <div className={styles.presetRow}>
+              {LAYOUT_PRESETS.map((preset) => (
+                <button
+                  key={preset.id}
+                  className={clsx(styles.layoutPresetButton, activeLayoutPreset === preset.id && styles.layoutPresetButtonActive)}
+                  onClick={() => {
+                    onApplyLayoutPreset(preset.id)
+                    closeMoreMenu()
+                  }}
+                  type="button"
+                >
+                  {preset.label}
+                </button>
+              ))}
+            </div>
+
             <button
-              className={clsx(styles.themeSwitch, theme === 'dark' && styles.themeSwitchDark)}
-              onClick={toggleTheme}
-              title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
+              className={styles.menuAction}
+              onClick={() => {
+                void handleCopySql()
+                closeMoreMenu()
+              }}
               type="button"
             >
-              <span className={styles.switchTrack}>
-                <span className={clsx(styles.switchThumb, theme === 'dark' && styles.switchThumbDark)}>
-                  {theme === 'dark' ? <MoonStar size={11} /> : <SunMedium size={11} />}
-                </span>
-              </span>
-              <span>{theme === 'dark' ? 'Dark' : 'Light'}</span>
+              <Copy size={14} />
+              {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
             </button>
-          </div>
-        </div>
 
-        <div className={styles.meta}>
-          {warnings.length > 0 ? <Badge tone="warning">Warning import: {warnings.length}</Badge> : null}
-          <span>Auto-save locale | {new Date(lastSavedAt).toLocaleString('it-IT')}</span>
-        </div>
+            <button
+              className={styles.menuAction}
+              onClick={() => {
+                void handleResetProject()
+                closeMoreMenu()
+              }}
+              type="button"
+            >
+              <RotateCcw size={14} />
+              Nuovo progetto
+            </button>
+
+            <p className={styles.menuMeta}>Ultimo save: {new Date(lastSavedAt).toLocaleTimeString('it-IT')}</p>
+          </div>
+        </details>
       </div>
 
       <input

@@ -2,118 +2,151 @@
 @use '../../styles/tokens' as t;
 
 .toolbar {
-  padding: 0.14rem 0 0.5rem;
-  border-bottom: 1px solid t.$color-divider-soft;
-  display: flex;
-  flex-wrap: wrap;
-  align-items: flex-end;
-  justify-content: space-between;
-  gap: 0.38rem 0.8rem;
   min-width: 0;
-  overflow-x: clip;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.08rem 0 0.32rem;
+  border-bottom: 1px solid t.$color-divider-soft;
 }
 
 .identity {
-  display: flex;
+  min-width: 0;
+  display: inline-flex;
   align-items: center;
-  gap: 0.52rem;
-  min-width: 0;
-  flex: 1 1 260px;
-}
-
-.identityText {
-  display: grid;
-  gap: 0.05rem;
-  min-width: 0;
-
-  h1 {
-    margin: 0;
-    font-family: t.$font-heading;
-    font-size: 0.96rem;
-    line-height: 1.15;
-  }
-
-  span {
-    @include m.text-ellipsis;
-    color: t.$color-text-soft;
-    font-size: 0.74rem;
-    font-weight: 600;
-    letter-spacing: 0.02em;
-  }
+  gap: 0.42rem;
+  flex: 1 1 auto;
 }
 
 .logoTile {
-  width: 1.72rem;
-  height: 1.72rem;
-  border-radius: 0.58rem;
+  width: 1.34rem;
+  height: 1.34rem;
+  border-radius: 0.42rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
   color: white;
   background: t.$color-primary;
-}
-
-.actions {
-  display: flex;
-  flex-wrap: wrap;
-  justify-content: flex-end;
-  align-items: flex-end;
-  gap: 0.26rem;
-  min-width: 0;
-  margin-left: auto;
-  flex: 1 1 520px;
-}
-
-.actionGroup {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.22rem;
-  padding: 0.12rem 0.16rem;
-  border-radius: 6px;
-  background: transparent;
-  min-width: 0;
-  border: 1px solid transparent;
-}
-
-.groupLabel {
-  color: t.$color-text-soft;
-  font-family: t.$font-heading;
-  font-size: 0.62rem;
-  font-weight: 700;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
-  padding-inline: 0.04rem;
   flex: 0 0 auto;
 }
 
-.groupButtons {
+.identityText {
+  min-width: 0;
   display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.22rem;
+  align-items: baseline;
+  gap: 0.36rem;
+
+  h1 {
+    margin: 0;
+    font-family: t.$font-heading;
+    font-size: 0.86rem;
+    line-height: 1.1;
+    letter-spacing: 0.02em;
+    white-space: nowrap;
+  }
+
+  span {
+    @include m.text-ellipsis;
+    font-size: 0.72rem;
+    color: t.$color-text-soft;
+    letter-spacing: 0.02em;
+    max-width: 260px;
+  }
 }
 
-.groupButtons button {
+.actions {
+  min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 0.34rem;
-  padding: 0.34rem 0.56rem;
-  font-size: 0.74rem;
+  justify-content: flex-end;
+  gap: 0.24rem;
+  flex: 0 1 auto;
 }
 
-.groupButtons .layoutPresetButton {
+.primaryAction {
+  min-height: 1.72rem;
+}
+
+.iconButton {
+  width: 1.72rem;
+  height: 1.72rem;
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;
   background: t.$color-surface;
   color: t.$color-text-soft;
-  font-family: t.$font-heading;
-  font-size: 0.68rem;
-  font-weight: 650;
-  letter-spacing: 0.04em;
-  text-transform: uppercase;
-  padding: 0.3rem 0.44rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
   cursor: pointer;
-  transition: border-color t.$transition-fast, background-color t.$transition-fast, color t.$transition-fast;
+  transition: border-color t.$transition-fast, color t.$transition-fast, background-color t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+    color: t.$color-text;
+  }
+
+  &:disabled {
+    opacity: 0.55;
+    cursor: not-allowed;
+  }
+}
+
+.themeButton {
+  color: t.$color-warning-strong;
+}
+
+.themeButtonDark {
+  color: t.$color-primary;
+  border-color: t.$color-border-strong;
+}
+
+.moreMenu {
+  position: relative;
+  display: inline-flex;
+
+  summary {
+    list-style: none;
+  }
+
+  summary::-webkit-details-marker {
+    display: none;
+  }
+}
+
+.morePanel {
+  position: absolute;
+  top: calc(100% + 0.3rem);
+  right: 0;
+  z-index: 12;
+  min-width: 230px;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  padding: 0.34rem;
+  display: grid;
+  gap: 0.32rem;
+}
+
+.presetRow {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.2rem;
+}
+
+.layoutPresetButton {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  font-family: t.$font-heading;
+  font-size: 0.65rem;
+  font-weight: 640;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+  padding: 0.22rem 0.36rem;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, color t.$transition-fast, background-color t.$transition-fast;
 
   &:hover {
     border-color: t.$color-primary;
@@ -121,67 +154,31 @@
   }
 }
 
-.groupButtons .layoutPresetButtonActive {
+.layoutPresetButtonActive {
   border-color: t.$color-primary;
   color: t.$color-text;
   background: t.$color-primary-soft;
 }
 
-.themeSwitch {
+.menuAction {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;
   background: t.$color-surface-soft;
   color: t.$color-text;
-  min-width: 92px;
-  justify-content: space-between;
-  gap: 0.4rem;
-}
-
-.switchTrack {
-  width: 32px;
-  height: 18px;
-  border-radius: 999px;
-  border: 1px solid t.$color-border;
-  background: t.$color-primary-soft;
+  min-height: 1.66rem;
   display: inline-flex;
   align-items: center;
-  padding: 1px;
+  gap: 0.34rem;
+  justify-content: flex-start;
+  padding: 0.28rem 0.44rem;
+  font-size: 0.73rem;
+  cursor: pointer;
 }
 
-.switchThumb {
-  width: 14px;
-  height: 14px;
-  border-radius: 50%;
-  background: t.$color-surface;
-  color: t.$color-primary;
-  display: inline-flex;
-  align-items: center;
-  justify-content: center;
-  transform: translateX(0);
-  transition: transform t.$transition-medium, background-color t.$transition-fast;
-}
-
-.switchThumbDark {
-  transform: translateX(14px);
-}
-
-.themeSwitchDark {
-  border-color: t.$color-border-strong;
-}
-
-.meta {
-  display: inline-flex;
-  flex-wrap: wrap;
-  align-items: center;
-  gap: 0.24rem;
-  min-width: 0;
-  margin-left: 0.1rem;
-
-  span {
-    color: t.$color-text-soft;
-    font-size: 0.72rem;
-    white-space: nowrap;
-  }
+.menuMeta {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.67rem;
 }
 
 .hiddenInput {
@@ -190,40 +187,35 @@
 
 @media (max-width: 980px) {
   .toolbar {
-    align-items: stretch;
+    padding-bottom: 0.26rem;
+    gap: 0.34rem;
   }
 
-  .identity {
-    align-items: center;
-    flex: 1 1 100%;
-
-    .identityText h1 {
-      font-size: 0.92rem;
-    }
-
-    .identityText span {
-      display: none;
-    }
+  .identityText span {
+    display: none;
   }
 
   .actions {
-    justify-content: flex-start;
-    align-self: stretch;
-    gap: 0.3rem;
-    flex: 1 1 100%;
-    margin-left: 0;
+    gap: 0.2rem;
   }
 
-  .actionGroup {
-    width: auto;
+  .primaryAction {
+    padding-inline: 0.5rem;
+  }
+}
+
+@media (max-width: 740px) {
+  .toolbar {
     flex-wrap: wrap;
+    align-items: center;
   }
 
-  .groupButtons {
+  .identity {
+    flex: 1 1 100%;
+  }
+
+  .actions {
+    flex: 1 1 100%;
     justify-content: flex-start;
-  }
-
-  .meta {
-    margin-left: 0;
   }
 }
