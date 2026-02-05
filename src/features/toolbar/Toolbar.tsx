@@ -104,7 +104,7 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
     <header className={styles.toolbar}>
       <div className={styles.identity}>
         <div className={styles.logoTile}>
-          <DatabaseZap size={14} strokeWidth={2.2} />
+          <DatabaseZap size={12} strokeWidth={2.2} />
         </div>
         <div className={styles.identityText}>
           <h1>SQL Canvas</h1>
@@ -114,16 +114,16 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
 
       <div className={styles.actions}>
         <Button variant="primary" compact onClick={addTable} className={styles.primaryAction}>
-          <Plus size={13} />
+          <Plus size={12} />
           Tabella
         </Button>
 
         <button className={styles.iconButton} onClick={handleOpenImportDialog} disabled={importing} title="Importa SQL" type="button">
-          <FileUp size={14} />
+          <FileUp size={12} />
         </button>
 
         <button className={styles.iconButton} onClick={handleExportSql} title="Esporta SQL" type="button">
-          <Download size={14} />
+          <Download size={12} />
         </button>
 
         <button
@@ -132,7 +132,7 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
           title="Apri command palette (Ctrl+K)"
           type="button"
         >
-          <Search size={14} />
+          <Search size={12} />
         </button>
 
         <button
@@ -141,14 +141,14 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
           title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
           type="button"
         >
-          {theme === 'dark' ? <MoonStar size={14} /> : <SunMedium size={14} />}
+          {theme === 'dark' ? <MoonStar size={12} /> : <SunMedium size={12} />}
         </button>
 
         {warnings.length > 0 ? <Badge tone="warning">Import: {warnings.length}</Badge> : null}
 
         <details ref={moreMenuRef} className={styles.moreMenu}>
           <summary className={styles.iconButton} title="Altre azioni">
-            <MoreHorizontal size={14} />
+            <MoreHorizontal size={12} />
           </summary>
           <div className={styles.morePanel}>
             <div className={styles.presetRow}>
