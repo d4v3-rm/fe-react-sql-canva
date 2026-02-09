@@ -3,7 +3,6 @@ import clsx from 'clsx'
 import { Copy, DatabaseZap, Download, FileUp, MoonStar, MoreHorizontal, Plus, RotateCcw, Search, SunMedium } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
-import { Button } from '@/components/ui/Button'
 import { useDialog } from '@/components/ui/dialog/useDialog'
 import { readTextFile, downloadTextFile } from '@/lib/file/textFile'
 import type { LayoutPreset, QuickLayoutPreset } from '@/store/layoutStore'
@@ -113,17 +112,16 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
       </div>
 
       <div className={styles.actions}>
-        <Button variant="primary" compact onClick={addTable} className={styles.primaryAction}>
-          <Plus size={13} />
-          Tabella
-        </Button>
+        <button className={clsx(styles.iconButton, styles.addButton)} onClick={addTable} title="Nuova tabella" type="button">
+          <Plus size={12} />
+        </button>
 
         <button className={styles.iconButton} onClick={handleOpenImportDialog} disabled={importing} title="Importa SQL" type="button">
-          <FileUp size={14} />
+          <FileUp size={12} />
         </button>
 
         <button className={styles.iconButton} onClick={handleExportSql} title="Esporta SQL" type="button">
-          <Download size={14} />
+          <Download size={12} />
         </button>
 
         <button
@@ -132,7 +130,7 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
           title="Apri command palette (Ctrl+K)"
           type="button"
         >
-          <Search size={14} />
+          <Search size={12} />
         </button>
 
         <button
@@ -141,14 +139,14 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
           title={theme === 'dark' ? 'Passa a tema chiaro' : 'Passa a tema scuro'}
           type="button"
         >
-          {theme === 'dark' ? <MoonStar size={14} /> : <SunMedium size={14} />}
+          {theme === 'dark' ? <MoonStar size={12} /> : <SunMedium size={12} />}
         </button>
 
-        {warnings.length > 0 ? <Badge tone="warning">Import: {warnings.length}</Badge> : null}
+        {warnings.length > 0 ? <Badge className={styles.warningBadge} tone="warning">Import: {warnings.length}</Badge> : null}
 
         <details ref={moreMenuRef} className={styles.moreMenu}>
           <summary className={styles.iconButton} title="Altre azioni">
-            <MoreHorizontal size={14} />
+            <MoreHorizontal size={12} />
           </summary>
           <div className={styles.morePanel}>
             <div className={styles.presetRow}>
