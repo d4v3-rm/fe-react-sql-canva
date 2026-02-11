@@ -1,4 +1,4 @@
-import { useRef, useState } from 'react'
+import { useEffect, useRef, useState } from 'react'
 import clsx from 'clsx'
 import { Copy, DatabaseZap, Download, FileUp, MoonStar, MoreHorizontal, Plus, RotateCcw, Search, SunMedium } from 'lucide-react'
 
@@ -28,9 +28,10 @@ const LAYOUT_PRESETS: { id: QuickLayoutPreset; label: string }[] = [
 export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, onApplyLayoutPreset }: ToolbarProps) {
   const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
   const [importing, setImporting] = useState(false)
+  const [isMoreOpen, setIsMoreOpen] = useState(false)
 
   const hiddenInputRef = useRef<HTMLInputElement>(null)
-  const moreMenuRef = useRef<HTMLDetailsElement | null>(null)
+  const moreMenuRef = useRef<HTMLDivElement | null>(null)
 
   const addTable = useSchemaStore((state) => state.addTable)
   const clearProject = useSchemaStore((state) => state.clearProject)
@@ -44,8 +45,40 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
   const { confirm } = useDialog()
 
   function closeMoreMenu() {
-    moreMenuRef.current?.removeAttribute('open')
+    setIsMoreOpen(false)
   }
+
+  useEffect(() => {
+    if (!isMoreOpen) {
+      return
+    }
+
+    const handlePointerDown = (event: PointerEvent) => {
+      const target = event.target
+      if (!(target instanceof Node)) {
+        return
+      }
+
+      if (moreMenuRef.current?.contains(target)) {
+        return
+      }
+
+      setIsMoreOpen(false)
+    }
+
+    const handleEscape = (event: KeyboardEvent) => {
+      if (event.key === 'Escape') {
+        setIsMoreOpen(false)
+      }
+    }
+
+    window.addEventListener('pointerdown', handlePointerDown)
+    window.addEventListener('keydown', handleEscape)
+    return () => {
+      window.removeEventListener('pointerdown', handlePointerDown)
+      window.removeEventListener('keydown', handleEscape)
+    }
+  }, [isMoreOpen])
 
   async function handleCopySql() {
     try {
@@ -101,19 +134,20 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
 
   return (
     <header className={styles.toolbar}>
-      <div className={styles.identity}>
-        <div className={styles.logoTile}>
+      <div className={styles.brand}>
+        <div className={styles.brandLogo}>
           <DatabaseZap size={13} strokeWidth={2.2} />
         </div>
-        <div className={styles.identityText}>
-          <h1>SQL Canvas</h1>
+        <div className={styles.brandText}>
+          <strong>SQL Canvas</strong>
           <span>{database.name}</span>
         </div>
       </div>
 
       <div className={styles.actions}>
-        <button className={clsx(styles.iconButton, styles.addButton)} onClick={addTable} title="Nuova tabella" type="button">
-          <Plus size={14} />
+        <button className={styles.actionButton} onClick={addTable} title="Nuova tabella" type="button">
+          <Plus size={13} />
+          Tabella
         </button>
 
         <button className={styles.iconButton} onClick={handleOpenImportDialog} disabled={importing} title="Importa SQL" type="button">
@@ -142,56 +176,66 @@ export function Toolbar({ sqlScript, onOpenCommandPalette, activeLayoutPreset, o
           {theme === 'dark' ? <MoonStar size={14} /> : <SunMedium size={14} />}
         </button>
 
-        {warnings.length > 0 ? <Badge className={styles.warningBadge} tone="warning">Import: {warnings.length}</Badge> : null}
+        {warnings.length > 0 ? <Badge className={styles.warningBadge} tone="warning">Import {warnings.length}</Badge> : null}
 
-        <details ref={moreMenuRef} className={styles.moreMenu}>
-          <summary className={styles.iconButton} title="Altre azioni">
+        <div ref={moreMenuRef} className={styles.moreMenu}>
+          <button
+            className={styles.iconButton}
+            onClick={() => setIsMoreOpen((current) => !current)}
+            title="Altre azioni"
+            type="button"
+          >
             <MoreHorizontal size={14} />
-          </summary>
-          <div className={styles.morePanel}>
-            <div className={styles.presetRow}>
-              {LAYOUT_PRESETS.map((preset) => (
-                <button
-                  key={preset.id}
-                  className={clsx(styles.layoutPresetButton, activeLayoutPreset === preset.id && styles.layoutPresetButtonActive)}
-                  onClick={() => {
-                    onApplyLayoutPreset(preset.id)
-                    closeMoreMenu()
-                  }}
-                  type="button"
-                >
-                  {preset.label}
-                </button>
-              ))}
+          </button>
+
+          {isMoreOpen ? (
+            <div className={styles.morePanel}>
+              <p className={styles.menuSectionTitle}>Layout</p>
+              <div className={styles.presetRow}>
+                {LAYOUT_PRESETS.map((preset) => (
+                  <button
+                    key={preset.id}
+                    className={clsx(styles.layoutPresetButton, activeLayoutPreset === preset.id && styles.layoutPresetButtonActive)}
+                    onClick={() => {
+                      onApplyLayoutPreset(preset.id)
+                      closeMoreMenu()
+                    }}
+                    type="button"
+                  >
+                    {preset.label}
+                  </button>
+                ))}
+              </div>
+
+              <p className={styles.menuSectionTitle}>Workspace</p>
+              <button
+                className={styles.menuAction}
+                onClick={() => {
+                  void handleCopySql()
+                  closeMoreMenu()
+                }}
+                type="button"
+              >
+                <Copy size={14} />
+                {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
+              </button>
+
+              <button
+                className={styles.menuAction}
+                onClick={() => {
+                  void handleResetProject()
+                  closeMoreMenu()
+                }}
+                type="button"
+              >
+                <RotateCcw size={14} />
+                Nuovo progetto
+              </button>
+
+              <p className={styles.menuMeta}>Ultimo save: {new Date(lastSavedAt).toLocaleTimeString('it-IT')}</p>
             </div>
-
-            <button
-              className={styles.menuAction}
-              onClick={() => {
-                void handleCopySql()
-                closeMoreMenu()
-              }}
-              type="button"
-            >
-              <Copy size={14} />
-              {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
-            </button>
-
-            <button
-              className={styles.menuAction}
-              onClick={() => {
-                void handleResetProject()
-                closeMoreMenu()
-              }}
-              type="button"
-            >
-              <RotateCcw size={14} />
-              Nuovo progetto
-            </button>
-
-            <p className={styles.menuMeta}>Ultimo save: {new Date(lastSavedAt).toLocaleTimeString('it-IT')}</p>
-          </div>
-        </details>
+          ) : null}
+        </div>
       </div>
 
       <input

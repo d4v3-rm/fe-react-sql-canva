@@ -6,23 +6,23 @@
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 0.18rem;
+  gap: 0.24rem;
   padding: 0;
   border-bottom: 1px solid t.$color-divider-soft;
 }
 
-.identity {
+.brand {
   min-width: 0;
   display: inline-flex;
   align-items: center;
-  gap: 0.24rem;
+  gap: 0.28rem;
   flex: 1 1 auto;
 }
 
-.logoTile {
-  width: 1.18rem;
-  height: 1.18rem;
-  border-radius: 0.34rem;
+.brandLogo {
+  width: 1.12rem;
+  height: 1.12rem;
+  border-radius: 0.3rem;
   display: inline-flex;
   align-items: center;
   justify-content: center;
@@ -31,27 +31,27 @@
   flex: 0 0 auto;
 }
 
-.identityText {
+.brandText {
   min-width: 0;
   display: inline-flex;
   align-items: baseline;
-  gap: 0.28rem;
+  gap: 0.26rem;
 
-  h1 {
+  strong {
     margin: 0;
     font-family: t.$font-heading;
     font-size: 0.82rem;
     line-height: 1.1;
-    letter-spacing: 0.02em;
+    font-weight: 640;
     white-space: nowrap;
   }
 
   span {
     @include m.text-ellipsis;
-    font-size: 0.69rem;
     color: t.$color-text-soft;
-    letter-spacing: 0.02em;
-    max-width: 230px;
+    font-size: 0.68rem;
+    max-width: 220px;
+    white-space: nowrap;
   }
 }
 
@@ -61,7 +61,22 @@
   align-items: center;
   justify-content: flex-end;
   gap: 0.14rem;
-  flex: 0 1 auto;
+}
+
+.actionButton {
+  height: 1.56rem;
+  border: 1px solid t.$color-primary;
+  border-radius: t.$radius-sm;
+  background: t.$color-primary;
+  color: white;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  padding: 0 0.48rem;
+  font-family: t.$font-heading;
+  font-size: 0.72rem;
+  font-weight: 620;
+  cursor: pointer;
 }
 
 .iconButton {
@@ -88,52 +103,44 @@
   }
 }
 
-.addButton {
-  border-color: t.$color-primary;
-  background: t.$color-primary;
-  color: white;
-}
-
-.themeButton {
-  color: t.$color-warning-strong;
-}
-
-.themeButtonDark {
-  color: t.$color-primary;
-  border-color: t.$color-border-strong;
+.warningBadge {
+  font-size: 0.62rem !important;
+  padding: 0.12rem 0.34rem !important;
 }
 
 .moreMenu {
   position: relative;
   display: inline-flex;
-
-  summary {
-    list-style: none;
-  }
-
-  summary::-webkit-details-marker {
-    display: none;
-  }
 }
 
 .morePanel {
   position: absolute;
-  top: calc(100% + 0.3rem);
   right: 0;
-  z-index: 12;
-  min-width: 230px;
+  top: calc(100% + 0.22rem);
+  z-index: 16;
+  min-width: 236px;
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
   background: t.$color-surface;
   padding: 0.34rem;
   display: grid;
-  gap: 0.32rem;
+  gap: 0.3rem;
+}
+
+.menuSectionTitle {
+  margin: 0;
+  font-family: t.$font-heading;
+  font-size: 0.64rem;
+  font-weight: 700;
+  letter-spacing: 0.05em;
+  text-transform: uppercase;
+  color: t.$color-text-soft;
 }
 
 .presetRow {
   display: flex;
   flex-wrap: wrap;
-  gap: 0.2rem;
+  gap: 0.18rem;
 }
 
 .layoutPresetButton {
@@ -142,18 +149,12 @@
   background: t.$color-surface-soft;
   color: t.$color-text-soft;
   font-family: t.$font-heading;
-  font-size: 0.65rem;
+  font-size: 0.64rem;
   font-weight: 640;
   letter-spacing: 0.03em;
   text-transform: uppercase;
-  padding: 0.22rem 0.36rem;
+  padding: 0.2rem 0.34rem;
   cursor: pointer;
-  transition: border-color t.$transition-fast, color t.$transition-fast, background-color t.$transition-fast;
-
-  &:hover {
-    border-color: t.$color-primary;
-    color: t.$color-text;
-  }
 }
 
 .layoutPresetButtonActive {
@@ -162,22 +163,17 @@
   background: t.$color-primary-soft;
 }
 
-.warningBadge {
-  font-size: 0.62rem !important;
-  padding: 0.12rem 0.36rem !important;
-}
-
 .menuAction {
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;
   background: t.$color-surface-soft;
   color: t.$color-text;
-  min-height: 1.66rem;
+  min-height: 1.58rem;
   display: inline-flex;
   align-items: center;
-  gap: 0.34rem;
+  gap: 0.3rem;
   justify-content: flex-start;
-  padding: 0.28rem 0.44rem;
+  padding: 0.24rem 0.42rem;
   font-size: 0.73rem;
   cursor: pointer;
 }
@@ -185,39 +181,31 @@
 .menuMeta {
   margin: 0;
   color: t.$color-text-soft;
-  font-size: 0.67rem;
+  font-size: 0.66rem;
 }
 
 .hiddenInput {
   display: none;
 }
 
-@media (max-width: 980px) {
-  .toolbar {
-    gap: 0.2rem;
-  }
-
-  .identityText span {
+@media (max-width: 1080px) {
+  .brandText span {
     display: none;
-  }
-
-  .actions {
-    gap: 0.14rem;
   }
 }
 
-@media (max-width: 740px) {
+@media (max-width: 760px) {
   .toolbar {
     flex-wrap: wrap;
-    align-items: center;
+    gap: 0.18rem;
   }
 
-  .identity {
+  .brand,
+  .actions {
     flex: 1 1 100%;
   }
 
   .actions {
-    flex: 1 1 100%;
     justify-content: flex-start;
   }
 }
