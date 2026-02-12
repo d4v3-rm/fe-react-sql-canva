@@ -1,8 +1,11 @@
+import { AlertTriangle, Copy, Download } from 'lucide-react'
 import { useEffect, useRef, useState } from 'react'
-import { AlertTriangle } from 'lucide-react'
 
 import { Badge } from '@/components/ui/Badge'
+import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
+import { downloadTextFile } from '@/lib/file/textFile'
 import { useSchemaStore } from '@/store/schemaStore'
 
 import styles from './SqlPreview.module.scss'
@@ -17,6 +20,7 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
 
   const [editableSql, setEditableSql] = useState(sql)
   const [syncError, setSyncError] = useState(false)
+  const [copyStatus, setCopyStatus] = useState<'idle' | 'copied' | 'error'>('idle')
   const lastModelSqlRef = useRef(sql)
 
   useEffect(() => {
@@ -51,10 +55,39 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
     }
   }, [editableSql, importSql, sql])
 
+  async function handleCopySql() {
+    try {
+      await navigator.clipboard.writeText(editableSql)
+      setCopyStatus('copied')
+    } catch {
+      setCopyStatus('error')
+    } finally {
+      window.setTimeout(() => setCopyStatus('idle'), 1800)
+    }
+  }
+
+  function handleExportSql() {
+    downloadTextFile('schema-export.sql', editableSql)
+  }
+
   const hasSyncError = editableSql !== sql && syncError
 
   return (
     <Card title="SQL Editor" subtitle="Sincronizzazione automatica con il canvas (GUI <-> SQL).">
+      <CollapsiblePanel title="Azioni SQL" subtitle="Operazioni script e appunti." defaultOpen={false}>
+        <div className={styles.sqlActions}>
+          <Button compact variant="ghost" onClick={() => void handleCopySql()}>
+            <Copy size={12} />
+            {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
+          </Button>
+
+          <Button compact variant="ghost" onClick={handleExportSql}>
+            <Download size={12} />
+            Esporta SQL
+          </Button>
+        </div>
+      </CollapsiblePanel>
+
       {warnings.length > 0 ? (
         <div className={styles.warningBox}>
           <Badge tone="warning">

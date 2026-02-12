@@ -1,12 +1,11 @@
 import clsx from 'clsx'
-import { Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
+import { DatabaseZap, Maximize2, Minimize2, Minus, Plus } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type CSSProperties, type PointerEvent as ReactPointerEvent } from 'react'
 
 import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
 import { CommandPalette } from '@/features/command-palette/CommandPalette'
 import { DatabaseExplorer } from '@/features/explorer/DatabaseExplorer'
 import { InspectorPanel } from '@/features/inspector/InspectorPanel'
-import { Toolbar } from '@/features/toolbar/Toolbar'
 import { generateProjectSql } from '@/lib/sql/generateSql'
 import { useInspectorStore } from '@/store/inspectorStore'
 import { useLayoutStore, type PaneId, type QuickLayoutPreset } from '@/store/layoutStore'
@@ -217,12 +216,19 @@ export default function App() {
 
   return (
     <div className={styles.page}>
-      <Toolbar
-        sqlScript={sqlScript}
-        activeLayoutPreset={activeLayoutPreset}
-        onApplyLayoutPreset={handleApplyLayoutPreset}
-        onOpenCommandPalette={() => setIsCommandPaletteOpen(true)}
-      />
+      <header className={styles.appHeader}>
+        <div className={styles.headerBrand}>
+          <DatabaseZap size={14} />
+          <strong>SQL Canvas</strong>
+          <span>{database.name}</span>
+        </div>
+
+        <div className={styles.headerMeta}>
+          <span>{tables.length} tabelle</span>
+          <span>{relations.length} relazioni</span>
+          <kbd>Ctrl+K</kbd>
+        </div>
+      </header>
 
       <main ref={layoutRef} className={styles.layout} style={layoutStyle}>
         {showLeftPane ? (
@@ -239,7 +245,7 @@ export default function App() {
                 </div>
               ) : (
                 <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
-                  <DatabaseExplorer />
+                  <DatabaseExplorer onOpenCommandPalette={() => setIsCommandPaletteOpen(true)} />
                 </div>
               )}
             </div>
@@ -305,7 +311,11 @@ export default function App() {
                 </div>
               ) : (
                 <div className={clsx(styles.paneContent, styles.scrollPaneContent)}>
-                  <InspectorPanel sqlScript={sqlScript} />
+                  <InspectorPanel
+                    sqlScript={sqlScript}
+                    activeLayoutPreset={activeLayoutPreset}
+                    onApplyLayoutPreset={handleApplyLayoutPreset}
+                  />
                 </div>
               )}
             </div>

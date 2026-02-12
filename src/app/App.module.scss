@@ -4,9 +4,68 @@
 .page {
   height: 100%;
   display: grid;
-  gap: 0.24rem;
-  padding: 0.28rem 0.56rem 0.56rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.2rem;
+  padding: 0.24rem 0.5rem 0.5rem;
   overflow-x: clip;
+}
+
+.appHeader {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0 0.08rem 0.16rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+}
+
+.headerBrand {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  color: t.$color-text;
+
+  strong {
+    font-family: t.$font-heading;
+    font-size: 0.8rem;
+    font-weight: 680;
+    line-height: 1;
+  }
+
+  span {
+    font-size: 0.72rem;
+    color: t.$color-text-soft;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(220px, 40vw);
+  }
+}
+
+.headerMeta {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: t.$color-text-soft;
+  font-size: 0.67rem;
+
+  span {
+    white-space: nowrap;
+  }
+
+  kbd {
+    border: 1px solid t.$color-border;
+    border-radius: 5px;
+    background: t.$color-surface-soft;
+    color: t.$color-text-soft;
+    padding: 0.08rem 0.24rem;
+    font-size: 0.64rem;
+    font-family: t.$font-heading;
+    line-height: 1.2;
+  }
 }
 
 .layout {
@@ -212,6 +271,16 @@
 }
 
 @media (max-width: 860px) {
+  .appHeader {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .headerMeta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
   .layout {
     display: grid;
     grid-template-columns: 1fr;

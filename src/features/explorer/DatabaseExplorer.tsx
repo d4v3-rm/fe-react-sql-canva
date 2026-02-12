@@ -1,11 +1,28 @@
-﻿import clsx from 'clsx'
-import { ArrowRightLeft, Copy, Database, FolderPlus, FolderTree, MoreHorizontal, Pencil, Plus, Search, Table2, Trash2 } from 'lucide-react'
-import { useMemo, useState, type DragEvent } from 'react'
+import clsx from 'clsx'
+import {
+  ArrowRightLeft,
+  Command,
+  Copy,
+  Database,
+  FileUp,
+  FolderPlus,
+  FolderTree,
+  MoreHorizontal,
+  Pencil,
+  Plus,
+  RotateCcw,
+  Search,
+  Table2,
+  Trash2,
+} from 'lucide-react'
+import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
+import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
 import { useDialog } from '@/components/ui/dialog/useDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { readTextFile } from '@/lib/file/textFile'
 import { useSchemaStore } from '@/store/schemaStore'
 
 import styles from './DatabaseExplorer.module.scss'
@@ -22,6 +39,10 @@ interface SchemaGroup {
   tables: ExplorerTable[]
 }
 
+interface DatabaseExplorerProps {
+  onOpenCommandPalette: () => void
+}
+
 function sortByName<T extends { name: string }>(items: T[]): T[] {
   return [...items].sort((a, b) => a.name.localeCompare(b.name))
 }
@@ -30,11 +51,14 @@ function sortBySchema(items: SchemaGroup[]): SchemaGroup[] {
   return [...items].sort((a, b) => a.schema.localeCompare(b.schema))
 }
 
-export function DatabaseExplorer() {
+export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps) {
   const [query, setQuery] = useState('')
   const [draggingTableId, setDraggingTableId] = useState<string | null>(null)
   const [dropSchema, setDropSchema] = useState<string | null>(null)
   const [openMenuTableId, setOpenMenuTableId] = useState<string | null>(null)
+  const [importing, setImporting] = useState(false)
+
+  const hiddenInputRef = useRef<HTMLInputElement>(null)
 
   const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
@@ -47,6 +71,11 @@ export function DatabaseExplorer() {
   const renameTable = useSchemaStore((state) => state.renameTable)
   const duplicateTable = useSchemaStore((state) => state.duplicateTable)
   const moveTableToSchema = useSchemaStore((state) => state.moveTableToSchema)
+  const importSql = useSchemaStore((state) => state.importSql)
+  const clearProject = useSchemaStore((state) => state.clearProject)
+  const clearWarnings = useSchemaStore((state) => state.clearWarnings)
+  const warnings = useSchemaStore((state) => state.importWarnings)
+  const lastSavedAt = useSchemaStore((state) => state.lastSavedAt)
   const { alert, confirm, prompt } = useDialog()
 
   const normalizedQuery = query.trim().toLowerCase()
@@ -267,8 +296,79 @@ export function DatabaseExplorer() {
     setDropSchema(null)
   }
 
+  function handleOpenImportDialog() {
+    hiddenInputRef.current?.click()
+  }
+
+  async function handleImportFile(event: ChangeEvent<HTMLInputElement>) {
+    const file = event.target.files?.[0]
+    if (!file) {
+      return
+    }
+
+    setImporting(true)
+    clearWarnings()
+
+    try {
+      const sql = await readTextFile(file)
+      importSql(sql)
+    } finally {
+      setImporting(false)
+      if (hiddenInputRef.current) {
+        hiddenInputRef.current.value = ''
+      }
+    }
+  }
+
+  async function handleResetProject() {
+    const confirmed = await confirm({
+      title: 'Nuovo progetto vuoto',
+      message: 'Vuoi davvero creare un progetto vuoto? I dati correnti saranno rimossi.',
+      confirmLabel: 'Crea progetto',
+      tone: 'danger',
+    })
+
+    if (confirmed) {
+      clearProject()
+    }
+  }
+
   return (
     <section className={styles.explorer}>
+      <CollapsiblePanel title="Workspace" subtitle="Operazioni progetto e import SQL." defaultOpen={false}>
+        <div className={styles.workspaceButtons}>
+          <Button compact onClick={addTable}>
+            <Plus size={12} />
+            Nuova tabella
+          </Button>
+
+          <Button compact variant="ghost" onClick={handleAddSchema}>
+            <FolderPlus size={12} />
+            Nuovo schema
+          </Button>
+
+          <Button compact variant="ghost" onClick={handleOpenImportDialog} disabled={importing}>
+            <FileUp size={12} />
+            {importing ? 'Importazione...' : 'Importa SQL'}
+          </Button>
+
+          <Button compact variant="ghost" onClick={onOpenCommandPalette}>
+            <Command size={12} />
+            Comandi
+          </Button>
+
+          <Button compact variant="danger" onClick={() => void handleResetProject()}>
+            <RotateCcw size={12} />
+            Nuovo progetto
+          </Button>
+        </div>
+
+        <div className={styles.workspaceMeta}>
+          <p>Ultimo save: {new Date(lastSavedAt).toLocaleTimeString('it-IT')}</p>
+          {warnings.length > 0 ? <Badge tone="warning">Warning import: {warnings.length}</Badge> : null}
+        </div>
+      </CollapsiblePanel>
+
       <p className={styles.explorerIntro}>Naviga database, schemi e tabelle in modo gerarchico.</p>
       <div className={styles.topRow}>
         <label className={styles.searchField}>
@@ -279,18 +379,6 @@ export function DatabaseExplorer() {
             onChange={(event) => setQuery(event.target.value)}
           />
         </label>
-
-        <div className={styles.topActions}>
-          <Button compact variant="ghost" onClick={handleAddSchema}>
-            <FolderPlus size={12} />
-            Schema
-          </Button>
-
-          <Button compact onClick={addTable}>
-            <Plus size={12} />
-            Tabella
-          </Button>
-        </div>
       </div>
 
       <button
@@ -409,6 +497,14 @@ export function DatabaseExplorer() {
           ))}
         </div>
       )}
+
+      <input
+        ref={hiddenInputRef}
+        className={styles.hiddenInput}
+        type="file"
+        accept=".sql,.txt"
+        onChange={handleImportFile}
+      />
     </section>
   )
 }

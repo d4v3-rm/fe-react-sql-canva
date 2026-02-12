@@ -9,6 +9,37 @@
   gap: 0.45rem;
 }
 
+.workspaceButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+  min-width: 0;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+.workspaceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+}
+
 .explorerIntro {
   margin: 0;
   color: t.$color-text-soft;
@@ -18,22 +49,8 @@
 .topRow {
   display: flex;
   align-items: center;
-  gap: 0.36rem;
+  gap: 0.3rem;
   min-width: 0;
-
-  button {
-    display: inline-flex;
-    align-items: center;
-    gap: 0.26rem;
-    flex: 0 0 auto;
-  }
-}
-
-.topActions {
-  display: inline-flex;
-  align-items: center;
-  gap: 0.35rem;
-  flex: 0 0 auto;
 }
 
 .searchField {
@@ -272,13 +289,14 @@
   color: t.$color-danger !important;
 }
 
-@media (max-width: 1280px) {
-  .topRow {
-    flex-wrap: wrap;
-  }
+.hiddenInput {
+  display: none;
+}
 
-  .topActions {
-    width: 100%;
-    justify-content: flex-start;
+@media (max-width: 1280px) {
+  .workspaceMeta {
+    p {
+      white-space: normal;
+    }
   }
 }

@@ -1,6 +1,18 @@
 @use '../../styles/mixins' as m;
 @use '../../styles/tokens' as t;
 
+.sqlActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+}
+
 .warningBox {
   border: 1px solid t.$color-warning-border;
   background: t.$color-warning-soft;
