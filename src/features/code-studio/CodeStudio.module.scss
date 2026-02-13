@@ -1,0 +1,220 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.codeStudio {
+  @include m.panel;
+  min-height: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.fullscreenMode {
+  position: fixed;
+  inset: 0.32rem;
+  z-index: 40;
+  background: t.$color-surface;
+  border-color: t.$color-border-strong;
+}
+
+.header {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+  padding: 0.42rem 0.5rem;
+}
+
+.meta {
+  min-width: 0;
+  display: grid;
+  gap: 0.12rem;
+
+  h4 {
+    margin: 0;
+    @include m.section-title;
+    font-size: 0.84rem;
+  }
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.72rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.actions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.35rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
+}
+
+.workspace {
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(190px, 260px);
+  gap: 0.44rem;
+  padding: 0.5rem;
+}
+
+.filePanel,
+.previewPanel {
+  min-height: 0;
+  min-width: 0;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface-soft;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+}
+
+.panelTitle {
+  margin: 0;
+  padding: 0.38rem 0.46rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+  font-size: 0.72rem;
+  color: t.$color-text-soft;
+  font-family: t.$font-heading;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+}
+
+.fileList {
+  min-height: 0;
+  overflow: auto;
+  padding: 0.36rem;
+  display: grid;
+  gap: 0.22rem;
+  @include m.slim-scrollbar;
+}
+
+.fileButton {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface;
+  color: t.$color-text;
+  display: grid;
+  gap: 0.1rem;
+  text-align: left;
+  padding: 0.36rem 0.42rem;
+  cursor: pointer;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.74rem;
+  }
+
+  span {
+    @include m.text-ellipsis;
+    color: t.$color-text-soft;
+    font-size: 0.66rem;
+  }
+
+  &:hover {
+    border-color: t.$color-primary;
+  }
+}
+
+.fileButtonActive {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.editorPanel {
+  min-width: 0;
+  min-height: 0;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  overflow: hidden;
+}
+
+.emptyEditor {
+  width: 100%;
+  height: 100%;
+  min-height: 260px;
+  display: grid;
+  place-items: center;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+}
+
+.previewTree {
+  min-height: 0;
+  overflow: auto;
+  padding: 0.36rem;
+  display: grid;
+  gap: 0.3rem;
+  @include m.slim-scrollbar;
+}
+
+.previewFolder {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface;
+  padding: 0.34rem 0.4rem;
+  display: grid;
+  gap: 0.25rem;
+
+  h5 {
+    margin: 0;
+    font-size: 0.72rem;
+    color: t.$color-text-soft;
+    font-family: t.$font-heading;
+    letter-spacing: 0.03em;
+    overflow-wrap: anywhere;
+  }
+
+  div {
+    display: grid;
+    gap: 0.16rem;
+  }
+
+  span {
+    font-size: 0.72rem;
+    color: t.$color-text;
+    overflow-wrap: anywhere;
+  }
+}
+
+@media (max-width: 1320px) {
+  .workspace {
+    grid-template-columns: minmax(170px, 230px) minmax(0, 1fr);
+  }
+
+  .previewPanel {
+    grid-column: 1 / -1;
+    min-height: 180px;
+  }
+}
+
+@media (max-width: 920px) {
+  .header {
+    flex-wrap: wrap;
+  }
+
+  .actions {
+    width: 100%;
+    justify-content: flex-start;
+  }
+
+  .workspace {
+    grid-template-columns: 1fr;
+  }
+
+  .filePanel,
+  .previewPanel,
+  .editorPanel {
+    min-height: 220px;
+  }
+}

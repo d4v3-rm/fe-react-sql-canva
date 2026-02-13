@@ -3,7 +3,7 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 const STORAGE_KEY = 'sql-canvas-inspector-v1'
 
-export type InspectorTab = 'structure' | 'relations' | 'sql'
+export type InspectorTab = 'structure' | 'relations' | 'sql' | 'code'
 
 interface InspectorStore {
   activeTab: InspectorTab
