@@ -89,46 +89,101 @@
   gap: 0.3rem;
 }
 
-.fileList {
+.treeView {
   min-height: 0;
   overflow: auto;
-  padding: 0.36rem;
+  padding: 0.28rem 0.24rem;
   display: grid;
-  gap: 0.22rem;
+  align-content: start;
+  gap: 0.04rem;
   @include m.slim-scrollbar;
 }
 
-.fileButton {
-  border: 1px solid t.$color-border;
-  border-radius: t.$radius-sm;
-  background: t.$color-surface;
-  color: t.$color-text;
+.treeNode {
   display: grid;
-  gap: 0.1rem;
+}
+
+.treeChildren {
+  display: grid;
+}
+
+.treeRow {
+  width: 100%;
+  border: 1px solid transparent;
+  border-radius: 4px;
+  background: transparent;
+  color: t.$color-text;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.22rem;
   text-align: left;
-  padding: 0.36rem 0.42rem;
+  min-height: 1.45rem;
+  padding-block: 0.1rem;
+  padding-inline-end: 0.35rem;
   cursor: pointer;
   min-width: 0;
-
-  strong {
-    @include m.text-ellipsis;
-    font-size: 0.74rem;
-  }
-
-  span {
-    @include m.text-ellipsis;
-    color: t.$color-text-soft;
-    font-size: 0.66rem;
-  }
+  font-size: 0.74rem;
 
   &:hover {
-    border-color: t.$color-primary;
+    background: t.$color-row-alt-bg;
+    border-color: t.$color-border;
   }
 }
 
-.fileButtonActive {
+.treeRootRow {
+  font-family: t.$font-heading;
+  font-size: 0.71rem;
+  letter-spacing: 0.04em;
+  text-transform: uppercase;
+  color: t.$color-text-soft;
+}
+
+.treeFileRow {
+  color: t.$color-text;
+}
+
+.treeFileRowActive {
   border-color: t.$color-primary;
   background: t.$color-primary-soft;
+}
+
+.treeChevron {
+  width: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: t.$color-text-soft;
+  flex: 0 0 auto;
+}
+
+.treeIcon {
+  width: 14px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: t.$color-text-soft;
+  flex: 0 0 auto;
+}
+
+.treeLabel {
+  @include m.text-ellipsis;
+  min-width: 0;
+}
+
+.treeMeta {
+  margin-left: auto;
+  color: t.$color-text-soft;
+  font-size: 0.66rem;
+  flex: 0 0 auto;
+}
+
+.treeDirtyDot {
+  margin-left: auto;
+  width: 6px;
+  height: 6px;
+  border-radius: 999px;
+  background: t.$color-primary;
+  flex: 0 0 auto;
 }
 
 .editorPanel {
@@ -136,7 +191,46 @@
   min-height: 0;
   border: 1px solid t.$color-border;
   border-radius: t.$radius-sm;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
   overflow: hidden;
+}
+
+.editorHeader {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  padding: 0.32rem 0.46rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+  background: t.$color-surface-soft;
+}
+
+.editorPath {
+  @include m.text-ellipsis;
+  font-size: 0.72rem;
+  color: t.$color-text-soft;
+}
+
+.editorState {
+  flex: 0 0 auto;
+  font-size: 0.66rem;
+  color: t.$color-success;
+  border: 1px solid t.$color-success-border;
+  background: t.$color-success-soft;
+  border-radius: 999px;
+  padding: 0.04rem 0.34rem;
+}
+
+.editorStateDirty {
+  color: t.$color-warning;
+  border-color: t.$color-warning-border;
+  background: t.$color-warning-soft;
+}
+
+.editorBody {
+  min-height: 0;
 }
 
 .emptyEditor {

@@ -1,8 +1,8 @@
 import clsx from 'clsx'
 import Editor, { useMonaco } from '@monaco-editor/react'
 import JSZip from 'jszip'
-import { Download, FolderTree, Maximize2, Minimize2 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState } from 'react'
+import { ChevronDown, ChevronRight, Download, FileCode2, FileJson2, Folder, FolderOpen, FolderTree, Maximize2, Minimize2 } from 'lucide-react'
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { generateSequelizeScaffold } from '@/lib/codegen/generateSequelizeScaffold'
@@ -73,6 +73,123 @@ function normalizeArchiveName(raw: string): string {
   )
 }
 
+type TreeNodeType = 'folder' | 'file'
+
+interface FileTreeNode {
+  type: TreeNodeType
+  name: string
+  path: string
+  children: FileTreeNode[]
+}
+
+function sortTree(node: FileTreeNode): void {
+  node.children.sort((a, b) => {
+    if (a.type !== b.type) {
+      return a.type === 'folder' ? -1 : 1
+    }
+
+    return a.name.localeCompare(b.name)
+  })
+
+  node.children.forEach((child) => {
+    if (child.type === 'folder') {
+      sortTree(child)
+    }
+  })
+}
+
+function buildFileTree(paths: string[]): FileTreeNode {
+  const root: FileTreeNode = {
+    type: 'folder',
+    name: '',
+    path: '',
+    children: [],
+  }
+
+  const folderMap = new Map<string, FileTreeNode>([['', root]])
+
+  paths.forEach((filePath) => {
+    const segments = filePath.split('/').filter(Boolean)
+    let currentParent = root
+    let currentPath = ''
+
+    segments.forEach((segment, index) => {
+      const isLast = index === segments.length - 1
+      const nextPath = currentPath ? `${currentPath}/${segment}` : segment
+
+      if (isLast) {
+        currentParent.children.push({
+          type: 'file',
+          name: segment,
+          path: nextPath,
+          children: [],
+        })
+        return
+      }
+
+      const existingFolder = folderMap.get(nextPath)
+      if (existingFolder) {
+        currentParent = existingFolder
+        currentPath = nextPath
+        return
+      }
+
+      const folderNode: FileTreeNode = {
+        type: 'folder',
+        name: segment,
+        path: nextPath,
+        children: [],
+      }
+
+      folderMap.set(nextPath, folderNode)
+      currentParent.children.push(folderNode)
+      currentParent = folderNode
+      currentPath = nextPath
+    })
+  })
+
+  sortTree(root)
+  return root
+}
+
+function collectFolderPaths(node: FileTreeNode, output: string[] = []): string[] {
+  if (node.type === 'folder') {
+    output.push(node.path)
+  }
+
+  node.children.forEach((child) => {
+    if (child.type === 'folder') {
+      collectFolderPaths(child, output)
+    }
+  })
+
+  return output
+}
+
+function detectEditorLanguage(path: string): 'typescript' | 'json' | 'markdown' {
+  if (path.endsWith('.json')) {
+    return 'json'
+  }
+
+  if (path.endsWith('.md')) {
+    return 'markdown'
+  }
+
+  return 'typescript'
+}
+
+function fileUri(path: string): string {
+  return `file:///workspace/${path}`
+}
+
+function isFileDirty(path: string, overrides: Record<string, string>, originalContent: string | undefined): boolean {
+  if (!Object.prototype.hasOwnProperty.call(overrides, path)) {
+    return false
+  }
+
+  return overrides[path] !== (originalContent ?? '')
+}
+
 export function CodeStudio() {
   const monaco = useMonaco()
   const didSetupMonacoRef = useRef(false)
@@ -93,6 +210,8 @@ export function CodeStudio() {
   )
 
   const fileMap = useMemo(() => new Map(files.map((file) => [file.path, file.content])), [files])
+  const treeRoot = useMemo(() => buildFileTree(files.map((file) => file.path)), [files])
+  const folderPaths = useMemo(() => collectFolderPaths(treeRoot), [treeRoot])
 
   const scaffoldPreview = useMemo(() => {
     const groups = new Map<string, string[]>()
@@ -114,6 +233,7 @@ export function CodeStudio() {
 
   const [selectedFile, setSelectedFile] = useState('')
   const [overrides, setOverrides] = useState<Record<string, string>>({})
+  const [expandedFolders, setExpandedFolders] = useState<Record<string, boolean>>({ '': true })
   const [isFullscreen, setIsFullscreen] = useState(false)
   const [exportingArchive, setExportingArchive] = useState(false)
 
@@ -174,6 +294,18 @@ export function CodeStudio() {
   }, [fileMap, files, selectedFile])
 
   useEffect(() => {
+    setExpandedFolders((current) => {
+      const next: Record<string, boolean> = {}
+
+      folderPaths.forEach((folderPath) => {
+        next[folderPath] = current[folderPath] ?? true
+      })
+
+      return next
+    })
+  }, [folderPaths])
+
+  useEffect(() => {
     setOverrides((current) => {
       const next = Object.fromEntries(Object.entries(current).filter(([path]) => fileMap.has(path)))
 
@@ -181,8 +313,115 @@ export function CodeStudio() {
     })
   }, [fileMap])
 
+  useEffect(() => {
+    if (!monaco) {
+      return
+    }
+
+    const validUris = new Set(files.map((file) => fileUri(file.path)))
+
+    files.forEach((file) => {
+      const uri = monaco.Uri.parse(fileUri(file.path))
+      const content = overrides[file.path] ?? file.content
+      const language = detectEditorLanguage(file.path)
+      const model = monaco.editor.getModel(uri)
+
+      if (!model) {
+        monaco.editor.createModel(content, language, uri)
+        return
+      }
+
+      if (model.getValue() !== content) {
+        model.setValue(content)
+      }
+    })
+
+    monaco.editor.getModels().forEach((model) => {
+      const modelUri = model.uri.toString()
+
+      if (modelUri.startsWith('file:///workspace/') && !validUris.has(modelUri)) {
+        model.dispose()
+      }
+    })
+  }, [files, monaco, overrides])
+
+  function expandPathToFile(filePath: string) {
+    const segments = filePath.split('/').filter(Boolean)
+
+    setExpandedFolders((current) => {
+      const next: Record<string, boolean> = { ...current, '': true }
+      let runningPath = ''
+
+      segments.slice(0, -1).forEach((segment) => {
+        runningPath = runningPath ? `${runningPath}/${segment}` : segment
+        next[runningPath] = true
+      })
+
+      return next
+    })
+  }
+
+  function handleSelectFile(path: string) {
+    expandPathToFile(path)
+    setSelectedFile(path)
+  }
+
+  function toggleFolder(path: string) {
+    setExpandedFolders((current) => ({
+      ...current,
+      [path]: !current[path],
+    }))
+  }
+
+  function renderTreeNodes(nodes: FileTreeNode[], depth = 0): ReactNode {
+    return nodes.map((node) => {
+      if (node.type === 'folder') {
+        const isExpanded = expandedFolders[node.path] ?? true
+
+        return (
+          <div key={node.path} className={styles.treeNode}>
+            <button
+              className={styles.treeRow}
+              style={{ paddingInlineStart: `${0.38 + depth * 0.74}rem` }}
+              onClick={() => toggleFolder(node.path)}
+              type="button"
+            >
+              <span className={styles.treeChevron}>{isExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}</span>
+              <span className={styles.treeIcon}>{isExpanded ? <FolderOpen size={13} /> : <Folder size={13} />}</span>
+              <span className={styles.treeLabel}>{node.name}</span>
+            </button>
+
+            {isExpanded ? <div className={styles.treeChildren}>{renderTreeNodes(node.children, depth + 1)}</div> : null}
+          </div>
+        )
+      }
+
+      const fileDirty = isFileDirty(node.path, overrides, fileMap.get(node.path))
+      const fileExtension = node.name.split('.').pop()?.toLowerCase()
+      const fileIcon = fileExtension === 'json' ? <FileJson2 size={13} /> : <FileCode2 size={13} />
+
+      return (
+        <button
+          key={node.path}
+          className={clsx(styles.treeRow, styles.treeFileRow, selectedFile === node.path && styles.treeFileRowActive)}
+          style={{ paddingInlineStart: `${0.38 + depth * 0.74}rem` }}
+          onClick={() => handleSelectFile(node.path)}
+          type="button"
+        >
+          <span className={styles.treeChevron} />
+          <span className={styles.treeIcon}>{fileIcon}</span>
+          <span className={styles.treeLabel}>{node.name}</span>
+          {fileDirty ? <span className={styles.treeDirtyDot} /> : null}
+        </button>
+      )
+    })
+  }
+
   const editorValue = selectedFile ? overrides[selectedFile] ?? fileMap.get(selectedFile) ?? '' : ''
-  const editorLanguage = selectedFile.endsWith('.json') ? 'json' : 'typescript'
+  const editorLanguage = selectedFile ? detectEditorLanguage(selectedFile) : 'typescript'
+  const selectedFileDirty = selectedFile ? isFileDirty(selectedFile, overrides, fileMap.get(selectedFile)) : false
+  const rootFolderName = `${normalizeArchiveName(database.name)}-sequelize-scaffold`
+  const rootExpanded = expandedFolders[''] ?? true
 
   async function handleExportArchive() {
     setExportingArchive(true)
@@ -229,59 +468,72 @@ export function CodeStudio() {
 
       <div className={styles.workspace}>
         <aside className={styles.filePanel}>
-          <p className={styles.panelTitle}>File generati</p>
-          <div className={styles.fileList}>
-            {files.map((file) => (
-              <button
-                key={file.path}
-                className={clsx(styles.fileButton, selectedFile === file.path && styles.fileButtonActive)}
-                onClick={() => setSelectedFile(file.path)}
-                type="button"
-              >
-                <strong>{getFileName(file.path)}</strong>
-                <span>{getFileDirectory(file.path)}</span>
-              </button>
-            ))}
+          <p className={styles.panelTitle}>Explorer</p>
+          <div className={styles.treeView}>
+            <button
+              className={clsx(styles.treeRow, styles.treeRootRow)}
+              style={{ paddingInlineStart: '0.38rem' }}
+              onClick={() => toggleFolder('')}
+              type="button"
+            >
+              <span className={styles.treeChevron}>{rootExpanded ? <ChevronDown size={13} /> : <ChevronRight size={13} />}</span>
+              <span className={styles.treeIcon}>{rootExpanded ? <FolderOpen size={13} /> : <Folder size={13} />}</span>
+              <span className={styles.treeLabel}>{rootFolderName}</span>
+              <span className={styles.treeMeta}>{files.length}</span>
+            </button>
+
+            {rootExpanded ? <div className={styles.treeChildren}>{renderTreeNodes(treeRoot.children, 1)}</div> : null}
           </div>
         </aside>
 
         <section className={styles.editorPanel}>
-          {selectedFile ? (
-            <Editor
-              path={`file:///${selectedFile}`}
-              language={editorLanguage}
-              value={editorValue}
-              theme={theme === 'dark' ? 'vs-dark' : 'vs'}
-              onChange={(value) => {
-                if (!selectedFile) {
-                  return
-                }
+          <header className={styles.editorHeader}>
+            <span className={styles.editorPath}>{selectedFile || 'Nessun file selezionato'}</span>
+            {selectedFile ? (
+              <span className={clsx(styles.editorState, selectedFileDirty && styles.editorStateDirty)}>
+                {selectedFileDirty ? 'Modificato' : 'Allineato'}
+              </span>
+            ) : null}
+          </header>
 
-                setOverrides((current) => ({
-                  ...current,
-                  [selectedFile]: value ?? '',
-                }))
-              }}
-              options={{
-                automaticLayout: true,
-                minimap: { enabled: true },
-                fontSize: 13,
-                lineNumbers: 'on',
-                tabSize: 2,
-                insertSpaces: true,
-                formatOnPaste: true,
-                formatOnType: true,
-                scrollBeyondLastLine: false,
-                wordWrap: 'on',
-                smoothScrolling: true,
-                stickyScroll: {
-                  enabled: true,
-                },
-              }}
-            />
-          ) : (
-            <div className={styles.emptyEditor}>Nessun file disponibile.</div>
-          )}
+          <div className={styles.editorBody}>
+            {selectedFile ? (
+              <Editor
+                path={fileUri(selectedFile)}
+                language={editorLanguage}
+                value={editorValue}
+                theme={theme === 'dark' ? 'vs-dark' : 'vs'}
+                onChange={(value) => {
+                  if (!selectedFile) {
+                    return
+                  }
+
+                  setOverrides((current) => ({
+                    ...current,
+                    [selectedFile]: value ?? '',
+                  }))
+                }}
+                options={{
+                  automaticLayout: true,
+                  minimap: { enabled: true },
+                  fontSize: 13,
+                  lineNumbers: 'on',
+                  tabSize: 2,
+                  insertSpaces: true,
+                  formatOnPaste: true,
+                  formatOnType: true,
+                  scrollBeyondLastLine: false,
+                  wordWrap: 'on',
+                  smoothScrolling: true,
+                  stickyScroll: {
+                    enabled: true,
+                  },
+                }}
+              />
+            ) : (
+              <div className={styles.emptyEditor}>Nessun file disponibile.</div>
+            )}
+          </div>
         </section>
 
         <aside className={styles.previewPanel}>
