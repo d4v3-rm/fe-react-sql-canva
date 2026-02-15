@@ -13,6 +13,12 @@ import { useThemeStore } from '@/store/themeStore'
 import styles from './CodeStudio.module.scss'
 
 const MONACO_EXTRA_LIBS = `
+declare const process: {
+  env: Record<string, string | undefined>
+}
+
+declare module 'reflect-metadata' {}
+
 declare module 'sequelize' {
   export type CreationOptional<T> = T
   export type InferAttributes<T> = Record<string, unknown>
@@ -25,30 +31,42 @@ declare module 'sequelize-typescript' {
     constructor(options: Record<string, unknown>)
     authenticate(): Promise<void>
   }
-  export const Table: (...args: unknown[]) => ClassDecorator
-  export const Column: (...args: unknown[]) => PropertyDecorator
-  export const DataType: Record<string, (...args: unknown[]) => unknown> & Record<string, unknown>
-  export const PrimaryKey: (...args: unknown[]) => PropertyDecorator
-  export const AutoIncrement: (...args: unknown[]) => PropertyDecorator
-  export const AllowNull: (...args: unknown[]) => PropertyDecorator
-  export const Unique: (...args: unknown[]) => PropertyDecorator
-  export const ForeignKey: (...args: unknown[]) => PropertyDecorator
-  export const BelongsTo: (...args: unknown[]) => PropertyDecorator
-  export const HasMany: (...args: unknown[]) => PropertyDecorator
-  export const HasOne: (...args: unknown[]) => PropertyDecorator
+  export const Table: (options?: Record<string, unknown>) => ClassDecorator
+  export const Column: (options?: Record<string, unknown>) => PropertyDecorator
+  export const DataType: {
+    SMALLINT: unknown
+    INTEGER: unknown
+    BIGINT: unknown
+    TEXT: unknown
+    BOOLEAN: unknown
+    DATEONLY: unknown
+    DATE: unknown
+    UUID: unknown
+    JSONB: unknown
+    STRING: (length?: number) => unknown
+    DECIMAL: (precision?: number, scale?: number) => unknown
+  }
+  export const PrimaryKey: PropertyDecorator
+  export const AutoIncrement: PropertyDecorator
+  export const AllowNull: (value: boolean) => PropertyDecorator
+  export const Unique: PropertyDecorator
+  export const ForeignKey: (resolver: () => unknown) => PropertyDecorator
+  export const BelongsTo: (resolver: () => unknown, options?: Record<string, unknown>) => PropertyDecorator
+  export const HasMany: (resolver: () => unknown, options?: Record<string, unknown>) => PropertyDecorator
+  export const HasOne: (resolver: () => unknown, options?: Record<string, unknown>) => PropertyDecorator
 }
 
 declare module 'class-validator' {
-  export const IsOptional: (...args: unknown[]) => PropertyDecorator
-  export const IsNotEmpty: (...args: unknown[]) => PropertyDecorator
-  export const IsString: (...args: unknown[]) => PropertyDecorator
-  export const MaxLength: (...args: unknown[]) => PropertyDecorator
-  export const IsUUID: (...args: unknown[]) => PropertyDecorator
-  export const IsInt: (...args: unknown[]) => PropertyDecorator
-  export const IsNumber: (...args: unknown[]) => PropertyDecorator
-  export const IsBoolean: (...args: unknown[]) => PropertyDecorator
-  export const IsDate: (...args: unknown[]) => PropertyDecorator
-  export const IsObject: (...args: unknown[]) => PropertyDecorator
+  export const IsOptional: () => PropertyDecorator
+  export const IsNotEmpty: () => PropertyDecorator
+  export const IsString: () => PropertyDecorator
+  export const MaxLength: (value: number) => PropertyDecorator
+  export const IsUUID: () => PropertyDecorator
+  export const IsInt: () => PropertyDecorator
+  export const IsNumber: () => PropertyDecorator
+  export const IsBoolean: () => PropertyDecorator
+  export const IsDate: () => PropertyDecorator
+  export const IsObject: () => PropertyDecorator
 }
 `
 
@@ -270,6 +288,8 @@ export function CodeStudio() {
       module: tsApi.ModuleKind.ESNext,
       moduleResolution: tsApi.ModuleResolutionKind.NodeJs,
       strict: true,
+      noUnusedLocals: false,
+      noUnusedParameters: false,
       noEmit: true,
       skipLibCheck: true,
       esModuleInterop: true,

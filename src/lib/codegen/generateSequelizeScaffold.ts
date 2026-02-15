@@ -15,6 +15,74 @@ interface TableContext {
   table: TableModel
   className: string
   fileName: string
+  columnPropertyById: Map<string, string>
+}
+
+const TS_RESERVED_KEYWORDS = new Set([
+  'break',
+  'case',
+  'catch',
+  'class',
+  'const',
+  'continue',
+  'debugger',
+  'default',
+  'delete',
+  'do',
+  'else',
+  'enum',
+  'export',
+  'extends',
+  'false',
+  'finally',
+  'for',
+  'function',
+  'if',
+  'import',
+  'in',
+  'instanceof',
+  'new',
+  'null',
+  'return',
+  'super',
+  'switch',
+  'this',
+  'throw',
+  'true',
+  'try',
+  'typeof',
+  'var',
+  'void',
+  'while',
+  'with',
+  'as',
+  'implements',
+  'interface',
+  'let',
+  'package',
+  'private',
+  'protected',
+  'public',
+  'static',
+  'yield',
+  'any',
+  'boolean',
+  'constructor',
+  'declare',
+  'get',
+  'module',
+  'require',
+  'number',
+  'set',
+  'string',
+  'symbol',
+  'type',
+  'from',
+  'of',
+])
+
+function escapeSingleQuotes(raw: string): string {
+  return raw.replace(/'/g, "\\'")
 }
 
 function normalizeIdentifier(raw: string): string {
@@ -30,11 +98,13 @@ function normalizeIdentifier(raw: string): string {
 }
 
 function toPascalCase(raw: string): string {
-  return normalizeIdentifier(raw)
+  const pascal = normalizeIdentifier(raw)
     .split('_')
     .filter(Boolean)
     .map((chunk) => `${chunk.charAt(0).toUpperCase()}${chunk.slice(1)}`)
     .join('')
+
+  return pascal || 'Entity'
 }
 
 function toCamelCase(raw: string): string {
@@ -42,14 +112,49 @@ function toCamelCase(raw: string): string {
   return pascal.length > 0 ? `${pascal.charAt(0).toLowerCase()}${pascal.slice(1)}` : 'item'
 }
 
-function toModelClassName(table: TableModel): string {
-  const schemaPrefix = table.schema === 'public' ? '' : toPascalCase(table.schema)
-  return `${schemaPrefix}${toPascalCase(table.name)}Model`
+function sanitizeMemberName(raw: string, fallback: string): string {
+  const base = toCamelCase(raw)
+  let next = base || fallback
+
+  if (/^[0-9]/.test(next)) {
+    next = `${fallback}${toPascalCase(next)}`
+  }
+
+  if (TS_RESERVED_KEYWORDS.has(next.toLowerCase())) {
+    next = `${next}Value`
+  }
+
+  return next
 }
 
-function toModelFileName(table: TableModel): string {
-  const baseName = table.schema === 'public' ? normalizeIdentifier(table.name) : `${normalizeIdentifier(table.schema)}_${normalizeIdentifier(table.name)}`
-  return `${baseName}.model.ts`
+function sanitizeClassName(raw: string, fallback: string): string {
+  let next = toPascalCase(raw)
+  if (!next) {
+    next = fallback
+  }
+
+  if (/^[0-9]/.test(next)) {
+    next = `${fallback}${next}`
+  }
+
+  if (TS_RESERVED_KEYWORDS.has(next.toLowerCase())) {
+    next = `${next}Model`
+  }
+
+  return next
+}
+
+function allocateUnique(base: string, usedLower: Set<string>, format: (value: string, index: number) => string): string {
+  let candidate = base
+  let index = 2
+
+  while (usedLower.has(candidate.toLowerCase())) {
+    candidate = format(base, index)
+    index += 1
+  }
+
+  usedLower.add(candidate.toLowerCase())
+  return candidate
 }
 
 function toTsType(column: ColumnModel): string {
@@ -180,73 +285,43 @@ function collectValidatorImports(columns: ColumnModel[]): string[] {
   return [...imports].sort((a, b) => a.localeCompare(b))
 }
 
-function renderColumnDecorators(
-  table: TableModel,
-  column: ColumnModel,
-  relationByColumnKey: Map<string, RelationModel>,
-  tableContextsById: Map<string, TableContext>,
-): { lines: string[]; requiresForeignKey: boolean } {
-  const decorators: string[] = []
+function buildColumnPropertyMap(table: TableModel): Map<string, string> {
+  const usedNames = new Set<string>()
+  const map = new Map<string, string>()
 
-  const columnRelation = relationByColumnKey.get(`${table.id}:${column.id}`)
-  let requiresForeignKey = false
-
-  if (columnRelation) {
-    const targetContext = tableContextsById.get(columnRelation.targetTableId)
-    if (targetContext) {
-      decorators.push(`@ForeignKey(() => ${targetContext.className})`)
-      requiresForeignKey = true
-    }
-  }
-
-  if (column.isPrimary) {
-    decorators.push('@PrimaryKey')
-  }
-
-  if (column.autoIncrement) {
-    decorators.push('@AutoIncrement')
-  }
-
-  if (column.isUnique) {
-    decorators.push('@Unique')
-  }
-
-  decorators.push(`@AllowNull(${column.nullable ? 'true' : 'false'})`)
-
-  const columnConfig: string[] = [
-    `field: '${column.name}'`,
-    `type: ${toDataTypeExpression(column)}`,
-    `allowNull: ${column.nullable ? 'true' : 'false'}`,
-  ]
-
-  if (column.isUnique) {
-    columnConfig.push('unique: true')
-  }
-
-  if (column.defaultValue.trim()) {
-    columnConfig.push(`defaultValue: '${column.defaultValue.replace(/'/g, "\\'")}'`)
-  }
-
-  decorators.push('@Column({')
-  columnConfig.forEach((line) => {
-    decorators.push(`  ${line},`)
+  table.columns.forEach((column) => {
+    const baseName = sanitizeMemberName(column.name, 'column')
+    const propertyName = allocateUnique(baseName, usedNames, (value, index) => `${value}${index}`)
+    map.set(column.id, propertyName)
   })
-  decorators.push('})')
 
-  decorators.push(...collectValidatorDecorators(column))
-
-  return {
-    lines: decorators,
-    requiresForeignKey,
-  }
+  return map
 }
 
 function buildTableContexts(tables: TableModel[]): TableContext[] {
-  return tables.map((table) => ({
-    table,
-    className: toModelClassName(table),
-    fileName: toModelFileName(table),
-  }))
+  const usedClasses = new Set<string>()
+  const usedFiles = new Set<string>()
+
+  return tables.map((table) => {
+    const schemaPrefix = table.schema === 'public' ? '' : toPascalCase(table.schema)
+    const classBase = sanitizeClassName(`${schemaPrefix}${toPascalCase(table.name)}Model`, 'Entity')
+    const className = allocateUnique(classBase, usedClasses, (value, index) => `${value}${index}`)
+
+    const fileBaseCore = table.schema === 'public' ? normalizeIdentifier(table.name) : `${normalizeIdentifier(table.schema)}_${normalizeIdentifier(table.name)}`
+    const fileBase = normalizeIdentifier(fileBaseCore)
+    const fileCore = allocateUnique(fileBase, usedFiles, (value, index) => `${value}_${index}`)
+
+    return {
+      table,
+      className,
+      fileName: `${fileCore}.model.ts`,
+      columnPropertyById: buildColumnPropertyMap(table),
+    }
+  })
+}
+
+function resolveColumnProperty(context: TableContext, columnId: string, fallbackRaw: string): string {
+  return context.columnPropertyById.get(columnId) ?? sanitizeMemberName(fallbackRaw, 'column')
 }
 
 function buildModelSource(
@@ -254,40 +329,73 @@ function buildModelSource(
   tableContextsById: Map<string, TableContext>,
   relationsBySourceTable: Map<string, RelationModel[]>,
   relationsByTargetTable: Map<string, RelationModel[]>,
-  relationByColumnKey: Map<string, RelationModel>,
+  relationBySourceColumnKey: Map<string, RelationModel[]>,
 ): string {
   const validatorImports = collectValidatorImports(context.table.columns)
   const outgoingRelations = relationsBySourceTable.get(context.table.id) ?? []
   const incomingRelations = relationsByTargetTable.get(context.table.id) ?? []
 
+  const usedMemberNames = new Set<string>([...context.columnPropertyById.values()].map((value) => value.toLowerCase()))
   const sequelizeDecoratorImports = new Set<string>(['Model', 'Table', 'Column', 'DataType', 'AllowNull'])
   const relationClassImports = new Set<string>()
   const relationLines: string[] = []
 
-  const columnBlocks = context.table.columns.map((column) => {
-    const columnDecorators = renderColumnDecorators(context.table, column, relationByColumnKey, tableContextsById)
+  const ensureUniqueMember = (baseRaw: string, fallback: string): string => {
+    const base = sanitizeMemberName(baseRaw, fallback)
+    return allocateUnique(base, usedMemberNames, (value, index) => `${value}${index}`)
+  }
 
-    if (columnDecorators.requiresForeignKey) {
-      sequelizeDecoratorImports.add('ForeignKey')
+  const columnBlocks = context.table.columns.map((column) => {
+    const decorators: string[] = []
+    const sourceRelations = relationBySourceColumnKey.get(`${context.table.id}:${column.id}`) ?? []
+    const sourceRelation = sourceRelations[0]
+    const propertyName = resolveColumnProperty(context, column.id, column.name)
+
+    if (sourceRelation) {
+      const targetContext = tableContextsById.get(sourceRelation.targetTableId)
+      if (targetContext) {
+        decorators.push(`@ForeignKey(() => ${targetContext.className})`)
+        sequelizeDecoratorImports.add('ForeignKey')
+      }
     }
 
     if (column.isPrimary) {
+      decorators.push('@PrimaryKey')
       sequelizeDecoratorImports.add('PrimaryKey')
     }
 
     if (column.autoIncrement) {
+      decorators.push('@AutoIncrement')
       sequelizeDecoratorImports.add('AutoIncrement')
     }
 
     if (column.isUnique) {
+      decorators.push('@Unique')
       sequelizeDecoratorImports.add('Unique')
     }
+
+    decorators.push(`@AllowNull(${column.nullable ? 'true' : 'false'})`)
+    decorators.push('@Column({')
+    decorators.push(`  field: '${escapeSingleQuotes(column.name)}',`)
+    decorators.push(`  type: ${toDataTypeExpression(column)},`)
+    decorators.push(`  allowNull: ${column.nullable ? 'true' : 'false'},`)
+
+    if (column.isUnique) {
+      decorators.push('  unique: true,')
+    }
+
+    if (column.defaultValue.trim()) {
+      decorators.push(`  defaultValue: '${escapeSingleQuotes(column.defaultValue)}',`)
+    }
+
+    decorators.push('})')
+    decorators.push(...collectValidatorDecorators(column))
 
     const propertyType = toTsType(column)
     const nullableType = column.nullable ? `${propertyType} | null` : propertyType
 
-    const lines = columnDecorators.lines.map((line) => `  ${line}`)
-    lines.push(`  declare ${column.name}: ${nullableType}`)
+    const lines = decorators.map((line) => `  ${line}`)
+    lines.push(`  declare ${propertyName}: ${nullableType}`)
 
     return lines.join('\n')
   })
@@ -299,13 +407,13 @@ function buildModelSource(
     }
 
     const sourceColumn = context.table.columns.find((column) => column.id === relation.sourceColumnId)
-    const foreignKeyName = sourceColumn?.name ?? relation.sourceColumnId
+    const foreignKeyProperty = resolveColumnProperty(context, relation.sourceColumnId, sourceColumn?.name ?? 'column')
 
     relationClassImports.add(targetContext.className)
     sequelizeDecoratorImports.add('BelongsTo')
 
-    const relationName = toCamelCase(targetContext.table.name)
-    relationLines.push(`  @BelongsTo(() => ${targetContext.className}, { foreignKey: '${foreignKeyName}', as: '${relationName}' })`)
+    const relationName = ensureUniqueMember(`${toCamelCase(targetContext.table.name)}By${toPascalCase(foreignKeyProperty)}`, 'related')
+    relationLines.push(`  @BelongsTo(() => ${targetContext.className}, { foreignKey: '${foreignKeyProperty}', as: '${relationName}' })`)
     relationLines.push(`  declare ${relationName}?: ${targetContext.className}`)
     relationLines.push('')
   })
@@ -319,21 +427,21 @@ function buildModelSource(
     relationClassImports.add(sourceContext.className)
 
     const sourceColumn = sourceContext.table.columns.find((column) => column.id === relation.sourceColumnId)
-    const foreignKeyName = sourceColumn?.name ?? relation.sourceColumnId
+    const sourceForeignKey = resolveColumnProperty(sourceContext, relation.sourceColumnId, sourceColumn?.name ?? 'column')
     const isOneToOne = Boolean(sourceColumn?.isUnique || sourceColumn?.isPrimary)
 
     if (isOneToOne) {
       sequelizeDecoratorImports.add('HasOne')
-      const relationName = `${toCamelCase(sourceContext.table.name)}Item`
-      relationLines.push(`  @HasOne(() => ${sourceContext.className}, { foreignKey: '${foreignKeyName}', as: '${relationName}' })`)
+      const relationName = ensureUniqueMember(`${toCamelCase(sourceContext.table.name)}By${toPascalCase(sourceForeignKey)}`, 'related')
+      relationLines.push(`  @HasOne(() => ${sourceContext.className}, { foreignKey: '${sourceForeignKey}', as: '${relationName}' })`)
       relationLines.push(`  declare ${relationName}?: ${sourceContext.className}`)
       relationLines.push('')
       return
     }
 
     sequelizeDecoratorImports.add('HasMany')
-    const relationName = `${toCamelCase(sourceContext.table.name)}List`
-    relationLines.push(`  @HasMany(() => ${sourceContext.className}, { foreignKey: '${foreignKeyName}', as: '${relationName}' })`)
+    const relationName = ensureUniqueMember(`${toCamelCase(sourceContext.table.name)}ListBy${toPascalCase(sourceForeignKey)}`, 'relatedList')
+    relationLines.push(`  @HasMany(() => ${sourceContext.className}, { foreignKey: '${sourceForeignKey}', as: '${relationName}' })`)
     relationLines.push(`  declare ${relationName}?: ${sourceContext.className}[]`)
     relationLines.push('')
   })
@@ -366,8 +474,8 @@ function buildModelSource(
 
   sections.push('')
   sections.push('@Table({')
-  sections.push(`  tableName: '${context.table.name}',`)
-  sections.push(`  schema: '${context.table.schema}',`)
+  sections.push(`  tableName: '${escapeSingleQuotes(context.table.name)}',`)
+  sections.push(`  schema: '${escapeSingleQuotes(context.table.schema)}',`)
   sections.push('  timestamps: false,')
   sections.push('})')
   sections.push(`export class ${context.className} extends Model<${context.className}> {`)
@@ -385,6 +493,10 @@ function buildModelSource(
 }
 
 function buildModelsIndex(contexts: TableContext[]): string {
+  if (contexts.length === 0) {
+    return 'export {}\n'
+  }
+
   const lines = contexts
     .slice()
     .sort((a, b) => a.className.localeCompare(b.className))
@@ -395,19 +507,20 @@ function buildModelsIndex(contexts: TableContext[]): string {
 
 function buildDatabaseBootstrap(database: DatabaseModel, contexts: TableContext[]): string {
   const classNames = contexts.map((context) => context.className).sort((a, b) => a.localeCompare(b))
+  const importModelsLine = classNames.length > 0 ? `import { ${classNames.join(', ')} } from '../models'\n` : ''
+  const modelsArray = classNames.length > 0 ? `[${classNames.join(', ')}]` : '[]'
 
   return `import 'reflect-metadata'
 import { Sequelize } from 'sequelize-typescript'
-import { ${classNames.join(', ')} } from '../models'
-
+${importModelsLine}
 export const sequelize = new Sequelize({
   dialect: 'postgres',
   host: process.env.DB_HOST ?? 'localhost',
   port: Number(process.env.DB_PORT ?? 5432),
   username: process.env.DB_USER ?? 'postgres',
   password: process.env.DB_PASSWORD ?? 'postgres',
-  database: process.env.DB_NAME ?? '${database.name}',
-  models: [${classNames.join(', ')}],
+  database: process.env.DB_NAME ?? '${escapeSingleQuotes(database.name)}',
+  models: ${modelsArray},
   logging: false,
 })
 
@@ -425,7 +538,6 @@ function buildPackageJson(database: DatabaseModel): string {
   "type": "module",
   "scripts": {
     "build": "tsc -p tsconfig.json",
-    "lint": "eslint \\"src/**/*.ts\\"",
     "start": "node dist/database/sequelize.js"
   },
   "dependencies": {
@@ -448,8 +560,8 @@ function buildTsConfig(): string {
   return `{
   "compilerOptions": {
     "target": "ES2022",
-    "module": "NodeNext",
-    "moduleResolution": "NodeNext",
+    "module": "ESNext",
+    "moduleResolution": "Bundler",
     "strict": true,
     "outDir": "dist",
     "rootDir": "src",
@@ -464,6 +576,8 @@ function buildTsConfig(): string {
 }
 
 function buildReadme(database: DatabaseModel, contexts: TableContext[]): string {
+  const modelLines = contexts.length > 0 ? contexts.map((context) => `- ${context.className}`).join('\n') : '- Nessun modello presente'
+
   return `# ${database.name} - Sequelize Scaffold
 
 Scaffolding TypeScript generato in real-time da SQL Canvas.
@@ -474,7 +588,7 @@ Scaffolding TypeScript generato in real-time da SQL Canvas.
 - class-validator
 
 ## Modelli generati
-${contexts.map((context) => `- ${context.className}`).join('\n')}
+${modelLines}
 `
 }
 
@@ -484,7 +598,7 @@ export function generateSequelizeScaffold({ database, tables, relations }: Gener
 
   const relationsBySourceTable = new Map<string, RelationModel[]>()
   const relationsByTargetTable = new Map<string, RelationModel[]>()
-  const relationByColumnKey = new Map<string, RelationModel>()
+  const relationBySourceColumnKey = new Map<string, RelationModel[]>()
 
   relations.forEach((relation) => {
     const sourceList = relationsBySourceTable.get(relation.sourceTableId) ?? []
@@ -495,12 +609,15 @@ export function generateSequelizeScaffold({ database, tables, relations }: Gener
     targetList.push(relation)
     relationsByTargetTable.set(relation.targetTableId, targetList)
 
-    relationByColumnKey.set(`${relation.sourceTableId}:${relation.sourceColumnId}`, relation)
+    const key = `${relation.sourceTableId}:${relation.sourceColumnId}`
+    const byColumn = relationBySourceColumnKey.get(key) ?? []
+    byColumn.push(relation)
+    relationBySourceColumnKey.set(key, byColumn)
   })
 
   const modelFiles = contexts.map<GeneratedScaffoldFile>((context) => ({
     path: `src/models/${context.fileName}`,
-    content: buildModelSource(context, contextsById, relationsBySourceTable, relationsByTargetTable, relationByColumnKey),
+    content: buildModelSource(context, contextsById, relationsBySourceTable, relationsByTargetTable, relationBySourceColumnKey),
   }))
 
   const files: GeneratedScaffoldFile[] = [
