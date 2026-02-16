@@ -1,7 +1,7 @@
 import clsx from 'clsx'
 import Editor, { useMonaco } from '@monaco-editor/react'
 import JSZip from 'jszip'
-import { ChevronDown, ChevronRight, Download, FileCode2, FileJson2, Folder, FolderOpen, FolderTree, Maximize2, Minimize2 } from 'lucide-react'
+import { ChevronDown, ChevronRight, Download, FileCode2, FileJson2, Folder, FolderOpen, Maximize2, Minimize2 } from 'lucide-react'
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react'
 
 import { Button } from '@/components/ui/Button'
@@ -69,16 +69,6 @@ declare module 'class-validator' {
   export const IsObject: () => PropertyDecorator
 }
 `
-
-function getFileName(path: string): string {
-  const chunks = path.split('/')
-  return chunks[chunks.length - 1] ?? path
-}
-
-function getFileDirectory(path: string): string {
-  const chunks = path.split('/')
-  return chunks.slice(0, -1).join('/') || '.'
-}
 
 function normalizeArchiveName(raw: string): string {
   return (
@@ -230,24 +220,6 @@ export function CodeStudio() {
   const fileMap = useMemo(() => new Map(files.map((file) => [file.path, file.content])), [files])
   const treeRoot = useMemo(() => buildFileTree(files.map((file) => file.path)), [files])
   const folderPaths = useMemo(() => collectFolderPaths(treeRoot), [treeRoot])
-
-  const scaffoldPreview = useMemo(() => {
-    const groups = new Map<string, string[]>()
-
-    files.forEach((file) => {
-      const directory = getFileDirectory(file.path)
-      const list = groups.get(directory) ?? []
-      list.push(getFileName(file.path))
-      groups.set(directory, list)
-    })
-
-    return [...groups.entries()]
-      .map(([directory, entries]) => ({
-        directory,
-        entries: entries.sort((a, b) => a.localeCompare(b)),
-      }))
-      .sort((a, b) => a.directory.localeCompare(b.directory))
-  }, [files])
 
   const [selectedFile, setSelectedFile] = useState('')
   const [overrides, setOverrides] = useState<Record<string, string>>({})
@@ -555,26 +527,6 @@ export function CodeStudio() {
             )}
           </div>
         </section>
-
-        <aside className={styles.previewPanel}>
-          <p className={styles.panelTitle}>
-            <FolderTree size={13} />
-            Preview scaffolding
-          </p>
-
-          <div className={styles.previewTree}>
-            {scaffoldPreview.map((group) => (
-              <section key={group.directory} className={styles.previewFolder}>
-                <h5>{group.directory}</h5>
-                <div>
-                  {group.entries.map((entry) => (
-                    <span key={`${group.directory}/${entry}`}>{entry}</span>
-                  ))}
-                </div>
-              </section>
-            ))}
-          </div>
-        </aside>
       </div>
     </section>
   )

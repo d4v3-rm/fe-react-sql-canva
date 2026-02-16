@@ -58,13 +58,12 @@
   min-height: 0;
   min-width: 0;
   display: grid;
-  grid-template-columns: minmax(180px, 240px) minmax(0, 1fr) minmax(190px, 260px);
+  grid-template-columns: minmax(200px, 260px) minmax(0, 1fr);
   gap: 0.44rem;
   padding: 0.5rem;
 }
 
-.filePanel,
-.previewPanel {
+.filePanel {
   min-height: 0;
   min-width: 0;
   border: 1px solid t.$color-border;
@@ -243,52 +242,9 @@
   font-size: 0.74rem;
 }
 
-.previewTree {
-  min-height: 0;
-  overflow: auto;
-  padding: 0.36rem;
-  display: grid;
-  gap: 0.3rem;
-  @include m.slim-scrollbar;
-}
-
-.previewFolder {
-  border: 1px solid t.$color-border;
-  border-radius: t.$radius-sm;
-  background: t.$color-surface;
-  padding: 0.34rem 0.4rem;
-  display: grid;
-  gap: 0.25rem;
-
-  h5 {
-    margin: 0;
-    font-size: 0.72rem;
-    color: t.$color-text-soft;
-    font-family: t.$font-heading;
-    letter-spacing: 0.03em;
-    overflow-wrap: anywhere;
-  }
-
-  div {
-    display: grid;
-    gap: 0.16rem;
-  }
-
-  span {
-    font-size: 0.72rem;
-    color: t.$color-text;
-    overflow-wrap: anywhere;
-  }
-}
-
 @media (max-width: 1320px) {
   .workspace {
-    grid-template-columns: minmax(170px, 230px) minmax(0, 1fr);
-  }
-
-  .previewPanel {
-    grid-column: 1 / -1;
-    min-height: 180px;
+    grid-template-columns: minmax(180px, 240px) minmax(0, 1fr);
   }
 }
 
@@ -307,7 +263,6 @@
   }
 
   .filePanel,
-  .previewPanel,
   .editorPanel {
     min-height: 220px;
   }
