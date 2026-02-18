@@ -74,10 +74,19 @@
   overflow: hidden;
 }
 
+.panelHeader {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.34rem;
+  padding: 0.28rem 0.4rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+}
+
 .panelTitle {
   margin: 0;
-  padding: 0.38rem 0.46rem;
-  border-bottom: 1px solid t.$color-divider-soft;
+  padding: 0;
   font-size: 0.72rem;
   color: t.$color-text-soft;
   font-family: t.$font-heading;
@@ -86,6 +95,14 @@
   display: inline-flex;
   align-items: center;
   gap: 0.3rem;
+}
+
+.panelActions {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24rem;
+  flex-wrap: wrap;
+  justify-content: flex-end;
 }
 
 .treeView {
@@ -185,6 +202,21 @@
   flex: 0 0 auto;
 }
 
+.treeCustomMark {
+  margin-left: auto;
+  font-size: 0.62rem;
+  font-family: t.$font-heading;
+  color: t.$color-text-soft;
+  border: 1px solid t.$color-border;
+  border-radius: 999px;
+  min-width: 1rem;
+  height: 1rem;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  flex: 0 0 auto;
+}
+
 .editorPanel {
   min-width: 0;
   min-height: 0;
@@ -226,6 +258,12 @@
   color: t.$color-warning;
   border-color: t.$color-warning-border;
   background: t.$color-warning-soft;
+}
+
+.editorStateCustom {
+  color: t.$color-text-soft;
+  border-color: t.$color-border;
+  background: t.$color-row-alt-bg;
 }
 
 .editorBody {
