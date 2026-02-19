@@ -1,5 +1,5 @@
 import clsx from 'clsx'
-import { Binary, Code2, Database, FolderPlus, LayoutTemplate, PanelsTopLeft, Search, SunMoon, Telescope } from 'lucide-react'
+import { Binary, Database, FolderPlus, LayoutTemplate, PanelsTopLeft, Search, SunMoon, Telescope } from 'lucide-react'
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDialog } from '@/components/ui/dialog/useDialog'
@@ -116,17 +116,6 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         run: () => {
           setInspectorTab('sql')
           applyLayoutPreset('focus_sql')
-        },
-      },
-      {
-        id: 'open-code-studio',
-        label: 'Apri Code Studio',
-        description: 'Apre la tab Code con scaffolding Sequelize in tempo reale.',
-        keywords: ['code', 'sequelize', 'typescript', 'validator'],
-        icon: <Code2 size={14} />,
-        run: () => {
-          setInspectorTab('code')
-          applyLayoutPreset('focus_inspector')
         },
       },
       {

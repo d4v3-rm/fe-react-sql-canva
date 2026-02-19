@@ -3,11 +3,19 @@ import { createJSONStorage, persist } from 'zustand/middleware'
 
 const STORAGE_KEY = 'sql-canvas-inspector-v1'
 
-export type InspectorTab = 'structure' | 'relations' | 'sql' | 'code'
+export type InspectorTab = 'structure' | 'relations' | 'sql'
 
 interface InspectorStore {
   activeTab: InspectorTab
   setActiveTab: (tab: InspectorTab) => void
+}
+
+function sanitizeInspectorTab(value: unknown): InspectorTab {
+  if (value === 'structure' || value === 'relations' || value === 'sql') {
+    return value
+  }
+
+  return 'structure'
 }
 
 export const useInspectorStore = create<InspectorStore>()(
@@ -24,6 +32,14 @@ export const useInspectorStore = create<InspectorStore>()(
       partialize: (state) => ({
         activeTab: state.activeTab,
       }),
+      merge: (persistedState, currentState) => {
+        const parsed = persistedState as Partial<InspectorStore>
+
+        return {
+          ...currentState,
+          activeTab: sanitizeInspectorTab(parsed.activeTab),
+        }
+      },
     },
   ),
 )

@@ -1,6 +1,6 @@
 import clsx from 'clsx'
-import { Binary, Code2, MoonStar, Network, PanelsTopLeft, SunMedium } from 'lucide-react'
-import { Suspense, lazy, useMemo } from 'react'
+import { Binary, MoonStar, Network, PanelsTopLeft, SunMedium } from 'lucide-react'
+import { useMemo } from 'react'
 
 import { Button } from '@/components/ui/Button'
 import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
@@ -15,11 +15,6 @@ import { useSelectedTable, useSchemaStore } from '@/store/schemaStore'
 import { useThemeStore } from '@/store/themeStore'
 
 import styles from './InspectorPanel.module.scss'
-
-const CodeStudio = lazy(async () => {
-  const module = await import('@/features/code-studio/CodeStudio')
-  return { default: module.CodeStudio }
-})
 
 interface InspectorPanelProps {
   sqlScript: string
@@ -120,15 +115,6 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             <Binary size={13} />
             SQL
           </button>
-
-          <button
-            className={clsx(styles.tabButton, activeTab === 'code' && styles.activeTab)}
-            onClick={() => setActiveTab('code')}
-            type="button"
-          >
-            <Code2 size={13} />
-            Code
-          </button>
         </div>
       </section>
 
@@ -155,11 +141,6 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
         ) : null}
 
         {activeTab === 'sql' ? <SqlPreview sql={sqlScript} /> : null}
-        {activeTab === 'code' ? (
-          <Suspense fallback={<section className={styles.emptyPanel}>Caricamento Code Studio...</section>}>
-            <CodeStudio />
-          </Suspense>
-        ) : null}
       </section>
     </div>
   )
