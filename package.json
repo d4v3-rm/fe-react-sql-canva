@@ -5,35 +5,11 @@
   "description": "Visual PostgreSQL database modeler with SQL and ORM code generation.",
   "author": "d4v3-rm <>",
   "type": "module",
-  "main": "electron/main.cjs",
   "scripts": {
-    "dev": "concurrently -k \"npm:dev:web\" \"npm:dev:desktop\"",
-    "dev:web": "vite",
-    "dev:desktop": "wait-on tcp:5173 && cross-env ELECTRON_DEV_SERVER_URL=http://localhost:5173 electron .",
-    "build": "npm run build:web",
-    "build:web": "tsc -b && vite build",
-    "build:win:portable": "npm run build:web && electron-builder --win portable",
+    "dev": "vite",
+    "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview"
-  },
-  "build": {
-    "appId": "com.d4v3rm.sqlcanvas",
-    "productName": "SQL Canvas",
-    "asar": true,
-    "files": [
-      "dist/**/*",
-      "electron/**/*",
-      "package.json"
-    ],
-    "directories": {
-      "output": "release"
-    },
-    "win": {
-      "target": [
-        "portable"
-      ],
-      "artifactName": "SQL-Canvas-${version}-portable-${arch}.${ext}"
-    }
   },
   "dependencies": {
     "@xyflow/react": "^12.10.1",
@@ -49,10 +25,6 @@
     "@types/react": "^19.2.7",
     "@types/react-dom": "^19.2.3",
     "@vitejs/plugin-react": "^5.1.1",
-    "concurrently": "^9.2.1",
-    "cross-env": "^10.1.0",
-    "electron": "^38.4.0",
-    "electron-builder": "^26.0.12",
     "eslint": "^9.39.1",
     "eslint-plugin-react-hooks": "^7.0.1",
     "eslint-plugin-react-refresh": "^0.4.24",
@@ -60,7 +32,6 @@
     "sass": "^1.97.3",
     "typescript": "~5.9.3",
     "typescript-eslint": "^8.48.0",
-    "vite": "^7.3.1",
-    "wait-on": "^9.0.3"
+    "vite": "^7.3.1"
   }
 }
