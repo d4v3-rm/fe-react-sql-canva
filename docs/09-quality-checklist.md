@@ -1,47 +1,47 @@
 # 09 - Quality Checklist
 
-Usare questa checklist prima di chiudere una feature.
+Use this checklist before closing any feature.
 
 ## Build and lint
 
-- [ ] `npm run lint` senza errori
-- [ ] `npm run build` senza errori
+- [ ] `npm run lint` passes
+- [ ] `npm run build` passes
 
-## Smoke test funzionale
+## Functional smoke tests
 
-- [ ] creazione tabella da Explorer
-- [ ] modifica colonne da Inspector
-- [ ] creazione/modifica relazione
-- [ ] drag tabella su Canvas e persistenza posizione
-- [ ] modifica SQL e sync verso UI
-- [ ] export SQL funzionante
+- [ ] create table from Explorer
+- [ ] edit columns from Inspector
+- [ ] create/edit relation
+- [ ] drag table on Canvas and verify position persistence
+- [ ] edit SQL and verify reverse sync to UI
+- [ ] export SQL works
 
-## Persistenza
+## Persistence checks
 
-- [ ] refresh browser mantiene progetto
-- [ ] refresh mantiene layout pannelli
-- [ ] refresh mantiene tema
-- [ ] refresh mantiene tab inspector valido
+- [ ] browser refresh keeps project state
+- [ ] refresh keeps panel layout
+- [ ] refresh keeps selected theme
+- [ ] refresh keeps valid inspector tab
 
-## UI/UX
+## UI/UX checks
 
-- [ ] nessun overflow orizzontale nei pannelli principali
-- [ ] stato collapsed/maximized coerente
-- [ ] responsive leggibile su viewport stretta
-- [ ] dark/light senza regressioni cromatiche evidenti
+- [ ] no horizontal overflow in core panels
+- [ ] collapse/maximize state is coherent
+- [ ] layout remains readable on narrow viewport
+- [ ] light/dark themes remain visually consistent
 
-## Regressioni da evitare
+## Regressions to avoid
 
-- perdere relazioni durante rename/move tabelle
-- invalidare id esistenti senza motivo
-- rompere parser su SQL precedentemente supportato
-- introdurre side effect che causano rerender inutili
+- relation loss during table rename/move
+- unstable ID remapping during SQL import
+- parser breakage on previously supported SQL
+- unnecessary rerender loops caused by side effects
 
-## Quando aggiornare la documentazione
+## When to update docs
 
-Aggiorna almeno i file docs rilevanti quando cambi:
+Update relevant docs when you change:
 
-- flusso architetturale
-- convenzioni coding
-- struttura store
-- supporto parser/generator SQL
+- architecture flow
+- coding conventions
+- store/persistence model
+- SQL parser/generator capabilities

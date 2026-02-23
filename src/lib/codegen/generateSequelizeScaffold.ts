@@ -576,11 +576,11 @@ function buildTsConfig(): string {
 }
 
 function buildReadme(database: DatabaseModel, contexts: TableContext[]): string {
-  const modelLines = contexts.length > 0 ? contexts.map((context) => `- ${context.className}`).join('\n') : '- Nessun modello presente'
+  const modelLines = contexts.length > 0 ? contexts.map((context) => `- ${context.className}`).join('\n') : '- No models available'
 
   return `# ${database.name} - Sequelize Scaffold
 
-Scaffolding TypeScript generato in real-time da SQL Canvas.
+TypeScript scaffolding generated in real time by SQL Canvas.
 
 ## Stack
 - sequelize

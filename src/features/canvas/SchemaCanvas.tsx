@@ -181,9 +181,9 @@ export function SchemaCanvas() {
 
   async function handleApplyTemplate(templateId: string, templateName: string) {
     const approved = await confirm({
-      title: `Applicare template "${templateName}"`,
-      message: 'Il progetto corrente verra sovrascritto.',
-      confirmLabel: 'Applica template',
+      title: `Apply template "${templateName}"`,
+      message: 'The current project will be overwritten.',
+      confirmLabel: 'Apply template',
       tone: 'danger',
     })
 
@@ -196,16 +196,16 @@ export function SchemaCanvas() {
 
   return (
     <section className={styles.canvasRoot}>
-      <p className={styles.canvasIntro}>Trascina le tabelle e visualizza i collegamenti foreign key.</p>
+      <p className={styles.canvasIntro}>Drag tables and visualize foreign key links.</p>
       {tables.length === 0 ? (
         <EmptyState
-          title="Canvas vuoto"
-          body="Crea almeno una tabella per iniziare a modellare lo schema PostgreSQL in vista grafica."
+          title="Empty canvas"
+          body="Create at least one table to start modeling your PostgreSQL schema visually."
         >
           <div className={styles.quickStart}>
             <Button onClick={() => addTableInSchema('public')}>
               <Plus size={12} />
-              Nuova tabella
+              New table
             </Button>
 
             <div className={styles.quickTemplates}>
@@ -228,7 +228,7 @@ export function SchemaCanvas() {
           <div className={styles.canvasActions}>
             <Button compact onClick={handleQuickAdd}>
               <Plus size={12} />
-              Nuova tabella
+              New table
             </Button>
             <Button compact onClick={requestFitView}>
               <ScanSearch size={12} />

@@ -58,9 +58,9 @@ export function RelationManager({ tableId }: RelationManagerProps) {
   }
 
   return (
-    <Card title="Relazioni" subtitle="Definisci Foreign Key dalla tabella selezionata.">
+    <Card title="Relations" subtitle="Define foreign keys from the selected table.">
       <div className={styles.createRelation}>
-        <Field label="Colonna sorgente">
+        <Field label="Source column">
           <select value={safeSourceColumnId} onChange={(event) => setSourceColumnId(event.target.value)}>
             {sourceTable.columns.map((column) => (
               <option key={column.id} value={column.id}>
@@ -70,7 +70,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           </select>
         </Field>
 
-        <Field label="Tabella target">
+        <Field label="Target table">
           <select
             value={safeTargetTableId}
             onChange={(event) => {
@@ -86,7 +86,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           </select>
         </Field>
 
-        <Field label="Colonna target">
+        <Field label="Target column">
           <select value={safeTargetColumnId} onChange={(event) => setTargetColumnId(event.target.value)}>
             {(selectedTargetTable?.columns ?? []).map((column) => (
               <option key={column.id} value={column.id}>
@@ -101,13 +101,13 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           disabled={sourceTable.columns.length === 0 || targetTables.length === 0 || !safeTargetColumnId}
         >
           <Link2 size={14} />
-          Crea relazione
+          Create relation
         </Button>
       </div>
 
       <div className={styles.relationList}>
         {sourceRelations.length === 0 ? (
-          <p className={styles.empty}>Nessuna relazione in uscita dalla tabella selezionata.</p>
+          <p className={styles.empty}>No outgoing relations from the selected table.</p>
         ) : (
           sourceRelations.map((relation) => {
             const targetTable = tables.find((table) => table.id === relation.targetTableId)

@@ -1,62 +1,62 @@
 # 06 - UI/UX and Sass Guidelines
 
-## Obiettivo UX
+## UX objective
 
-- interfaccia densa ma leggibile
-- azioni frequenti raggiungibili in pochi click
-- zero overflow orizzontale nei pannelli principali
+- dense but readable interface
+- frequent actions reachable quickly
+- no horizontal overflow in primary panels
 
-## Regole UI
+## UI rules
 
-- usare componenti base da `components/ui` quando possibile
-- mantenere comportamento coerente:
-  - button variant (`primary`, `secondary`, `ghost`, `danger`)
-  - `Card` per sezioni semantiche
-  - `EmptyState` per mancanza dati
-- command palette come entry-point per azioni globali
+- prefer reusable primitives from `components/ui`
+- keep behavior consistent across modules:
+  - button variants
+  - card semantics
+  - empty states
+- command palette is the global action entrypoint
 
-## Layout pannelli
+## Panel layout behavior
 
-`App.tsx` supporta:
+`App.tsx` supports:
 
-- resize manuale pannelli sinistro/destro
-- collapse/expand per ogni pannello
-- maximize per singolo pannello
-- preset layout
+- manual resize (left/right panels)
+- collapse and expand per panel
+- maximize single panel
+- layout presets
 
-Qualsiasi nuova sezione deve funzionare in tutti gli stati sopra.
+New UI sections must remain usable in every layout mode above.
 
-## Regole Sass
+## Sass rules
 
-- import standard in ogni modulo:
+Standard imports in feature modules:
 
 ```scss
 @use '../../styles/mixins' as m;
 @use '../../styles/tokens' as t;
 ```
 
-- niente colori hardcoded nei moduli feature
-- usare token (`t.$color-*`)
-- usare mixin condivisi (`m.panel`, `m.input-base`, `m.slim-scrollbar`, `m.text-ellipsis`)
+Rules:
 
-## Theming
+- no hardcoded colors in feature styles
+- use semantic tokens (`t.$color-*`)
+- use shared mixins where applicable
 
-- variabili CSS in `_base.scss`
-- tema controllato da `data-theme` su `document.documentElement`
-- non bypassare variabili tema con colori assoluti
+## Theme system
 
-## Responsive
+- CSS variables defined in `_base.scss`
+- runtime theme selector uses `data-theme` on root element
+- avoid bypassing semantic theme variables
 
-Linee guida pratiche:
+## Responsive checklist
 
-- impostare `min-width: 0` su container flex/grid critici
-- usare `overflow-x: hidden` o `clip` sulle sezioni scrollabili
-- preferire `overflow-wrap: anywhere` su testi dinamici lunghi
-- introdurre media query quando il layout perde leggibilita
+- set `min-width: 0` in critical flex/grid containers
+- prevent horizontal overflow in scroll areas
+- use safe text wrapping for long dynamic labels
+- add media queries when readability degrades
 
-## Accessibilita minima
+## Minimum accessibility baseline
 
-- bottoni con `type="button"` dove necessario
-- label/input associati
-- uso di `aria-label` su splitter/controlli non testuali
-- contrasto sufficiente tra foreground/background
+- explicit `type="button"` where required
+- proper label/input association
+- `aria-label` for non-text controls
+- maintain sufficient color contrast in both themes

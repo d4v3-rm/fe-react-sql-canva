@@ -225,7 +225,7 @@ export function DialogProvider({ children }: PropsWithChildren) {
             <footer className={styles.actions}>
               {activeDialog.kind !== 'alert' ? (
                 <Button variant="ghost" compact onClick={closeWithCancel}>
-                  {activeDialog.options.cancelLabel ?? 'Annulla'}
+                  {activeDialog.options.cancelLabel ?? 'Cancel'}
                 </Button>
               ) : null}
 
@@ -235,7 +235,7 @@ export function DialogProvider({ children }: PropsWithChildren) {
                 compact
                 onClick={closeWithConfirm}
               >
-                {activeDialog.options.confirmLabel ?? (activeDialog.kind === 'alert' ? 'Chiudi' : 'Conferma')}
+                {activeDialog.options.confirmLabel ?? (activeDialog.kind === 'alert' ? 'Close' : 'Confirm')}
               </Button>
             </footer>
           </section>

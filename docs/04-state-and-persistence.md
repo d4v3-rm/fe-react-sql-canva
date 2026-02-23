@@ -1,72 +1,69 @@
 # 04 - State and Persistence
 
-## Store principali
+## Main stores
 
 ### `schemaStore`
 
-Responsabile di:
+Handles:
 
-- metadati database
-- tabelle e colonne
-- relazioni
-- import SQL / apply template
-- selezione tabella
+- database metadata
+- tables and columns
+- relations
+- SQL import and template application
+- selected table state
 
-Persistenza:
+Persistence:
 
-- chiave: `sql-canvas-project-v1`
-- `partialize`: salva solo stato necessario
-- `merge`: riallinea schema persistito con fallback correnti
+- key: `sql-canvas-project-v1`
+- uses `partialize` + custom `merge`
 
 ### `layoutStore`
 
-Responsabile di:
+Handles:
 
-- larghezze pannelli
-- collapse/maximize
-- preset layout
+- panel widths
+- collapsed/maximized panels
+- layout presets
 
-Persistenza:
+Persistence key:
 
-- chiave: `sql-canvas-layout-v1`
+- `sql-canvas-layout-v1`
 
 ### `themeStore`
 
-Responsabile di:
+Handles:
 
-- tema `light` / `dark`
+- light/dark mode
 
-Persistenza:
+Persistence key:
 
-- chiave: `sql-canvas-theme-v1`
+- `sql-canvas-theme-v1`
 
 ### `inspectorStore`
 
-Responsabile di:
+Handles:
 
-- tab attivo inspector (`structure`, `relations`, `sql`)
+- active inspector tab
 
-Persistenza:
+Persistence key:
 
-- chiave: `sql-canvas-inspector-v1`
-- include sanitizzazione valori legacy
+- `sql-canvas-inspector-v1`
+- includes tab sanitization for legacy values
 
 ### `canvasViewStore`
 
-Responsabile di:
+Handles:
 
-- trigger imperativi per `fit view` e `center selected`
+- imperative canvas events (fit view / center selected)
 
-## Regole per aggiungere nuovo stato
+## Rules for new global state
 
-1. Valutare se e realmente globale.
-2. Se e persistente, aggiungere `partialize`.
-3. Aggiungere `merge` se esistono rischi di dati legacy.
-4. Evitare side-effect dentro setter store (tenere setter prevedibili).
+1. Verify state must really be global.
+2. Add persistence only when it improves UX.
+3. If persisted shape may evolve, add safe merge logic.
+4. Keep setters predictable and side-effect free.
 
-## Pattern aggiornamento immutabile
-
-Esempio da seguire:
+## Immutable update pattern
 
 ```ts
 set((state) => ({
@@ -76,9 +73,9 @@ set((state) => ({
 }))
 ```
 
-## Invarianti importanti
+## Important invariants
 
-- almeno uno schema valido (`public` fallback)
-- id stabili su merge import SQL quando possibile
-- relazioni eliminate se colonna sorgente/target viene rimossa
-- `lastSavedAt` aggiornato per ogni mutazione semantica
+- at least one valid schema (`public` fallback)
+- relation cleanup when source/target columns disappear
+- stable IDs when merging imported SQL where possible
+- `lastSavedAt` updated on meaningful project mutations

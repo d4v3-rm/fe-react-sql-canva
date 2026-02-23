@@ -1,55 +1,53 @@
 # 02 - Architecture and Data Flow
 
-## Architettura ad alto livello
+## High-level architecture
 
-Il progetto segue una separazione netta:
+The project uses a clear separation:
 
-- UI in React (feature + componenti base)
-- stato globale in Zustand
-- logica SQL in moduli puri (`lib/sql`)
+- React UI in feature modules
+- global state in Zustand stores
+- SQL logic in pure modules (`lib/sql`)
 
-## Flusso principale GUI -> SQL
+## Main flow: GUI -> SQL
 
-1. L'utente modifica database/tabelle/colonne/relazioni via UI.
-2. Le azioni aggiornano `schemaStore`.
-3. `App.tsx` calcola `sqlScript` con `generateProjectSql`.
-4. `SqlPreview` visualizza SQL aggiornato.
+1. User edits database/tables/columns/relations from the UI.
+2. Actions update `schemaStore`.
+3. `App.tsx` derives `sqlScript` via `generateProjectSql`.
+4. `SqlPreview` shows synchronized SQL output.
 
-## Flusso inverso SQL -> GUI
+## Reverse flow: SQL -> GUI
 
-1. L'utente modifica SQL nel tab SQL.
-2. `SqlPreview` avvia debounce.
-3. `schemaStore.importSql` usa `parseSqlSchema`.
-4. Se parsing valido:
-   - database/tabelle/relazioni vengono aggiornati
-   - canvas/explorer/inspector si riallineano.
-5. Se parsing non valido:
-   - warning non bloccanti
-   - lo stato modello non viene corrotto.
+1. User edits SQL in the SQL tab.
+2. `SqlPreview` triggers a debounced import.
+3. `schemaStore.importSql` calls `parseSqlSchema`.
+4. If parsing is valid, database/tables/relations are updated.
+5. If parsing fails, warnings are shown without corrupting model state.
 
-## Flusso layout/UX
+## Layout and UX flow
 
-- `layoutStore` controlla:
-  - larghezze pannelli
-  - collapse/maximize
-  - preset layout
-- `inspectorStore` controlla tab attivo (`structure`, `relations`, `sql`)
-- `themeStore` controlla tema (`light`, `dark`)
+- `layoutStore` controls:
+  - panel widths
+  - collapsed/maximized state
+  - layout presets
+- `inspectorStore` controls active inspector tab (`structure`, `relations`, `sql`)
+- `themeStore` controls light/dark theme
 
-## Diagramma logico semplificato
+## Simplified logical diagram
 
 ```text
 UI Events
   -> Zustand Stores (schema/layout/theme/inspector)
-    -> Derived View State
-      -> Render Features (Explorer, Canvas, Inspector)
+    -> Derived State
+      -> Feature Rendering (Explorer, Canvas, Inspector)
         -> SQL Generator / SQL Parser
           -> Store Update
 ```
 
-## Principio guida
+## Guiding principle
 
-Le feature non parlano tra loro direttamente.
+Features should not talk to each other directly.
 
-- comunicano solo tramite store o funzioni pure in `lib`.
-- questo riduce coupling e facilita refactor.
+- share data through stores
+- share logic through pure `lib` modules
+
+This keeps coupling low and refactors predictable.

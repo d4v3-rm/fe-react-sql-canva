@@ -19,11 +19,11 @@ export function TableList() {
   return (
     <Card
       className={styles.tableList}
-      title="Tabelle"
-      subtitle={`${database.schemas.length} schemi | ${tables.length} tabelle in ${database.name}`}
+      title="Tables"
+      subtitle={`${database.schemas.length} schemas | ${tables.length} tables in ${database.name}`}
     >
       {tables.length === 0 ? (
-        <EmptyState title="Nessuna tabella" body="Aggiungi una nuova tabella dalla toolbar per iniziare." />
+        <EmptyState title="No tables" body="Add a new table from the toolbar to get started." />
       ) : (
         <div className={styles.items}>
           {tables.map((table) => (
@@ -38,7 +38,7 @@ export function TableList() {
                 <span>{table.schema}</span>
               </div>
               <div className={styles.itemActions}>
-                <Badge>{table.columns.length} colonne</Badge>
+                <Badge>{table.columns.length} columns</Badge>
                 <Button
                   variant="danger"
                   compact

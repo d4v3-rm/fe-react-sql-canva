@@ -1,80 +1,80 @@
 # 08 - Feature Playbook
 
-Questa guida mostra come implementare feature nuove senza rompere convenzioni.
+This playbook explains how to add features while respecting project conventions.
 
-## Caso A - Aggiungere un nuovo campo a `ColumnModel`
+## Case A - Add a new field to `ColumnModel`
 
-Esempio: `comment?: string`.
+Example: `comment?: string`.
 
-Passi:
+Steps:
 
-1. aggiornare `src/domain/schema.ts`
-2. aggiornare default in `src/domain/defaults.ts`
-3. aggiornare store (`updateColumn`, import/export se necessario)
-4. aggiornare SQL generator/parser se il campo ha impatto SQL
-5. aggiornare UI `TableEditor`
-6. verificare persistenza localStorage
+1. update `src/domain/schema.ts`
+2. update defaults in `src/domain/defaults.ts`
+3. update store mutations if needed
+4. update SQL parser/generator if field affects SQL
+5. update `TableEditor` UI
+6. verify persistence compatibility
 
-Checklist rapida:
+Quick checks:
 
-- field serializzato correttamente
-- round-trip SQL coerente
-- nessun warning lint/build
+- field survives reload
+- SQL round-trip is consistent
+- lint/build remain clean
 
-## Caso B - Nuova azione in Command Palette
+## Case B - Add a new command palette action
 
-Passi:
+Steps:
 
-1. aprire `features/command-palette/CommandPalette.tsx`
-2. aggiungere nuovo oggetto `CommandAction` in `actions`
-3. usare store esistenti o dialog API
-4. assegnare keywords utili per ricerca
+1. open `features/command-palette/CommandPalette.tsx`
+2. add a new `CommandAction` item
+3. wire stores/dialog API as needed
+4. add meaningful keywords for search
 
-Esempio:
+Example:
 
 ```tsx
 {
   id: 'layout-balanced',
-  label: 'Layout: bilanciato',
-  description: 'Ripristina il layout standard.',
+  label: 'Layout: balanced',
+  description: 'Restore default panel layout.',
   keywords: ['layout', 'reset'],
   icon: <PanelsTopLeft size={14} />,
   run: () => applyLayoutPreset('balanced'),
 }
 ```
 
-## Caso C - Nuovo pannello/section in Inspector
+## Case C - Add a new inspector tab/section
 
-Passi:
+Steps:
 
-1. aggiungere tab type in `inspectorStore` (se necessario)
-2. aggiungere bottone tab in `InspectorPanel`
-3. aggiungere rendering condizionale contenuto
-4. aggiornare eventuale migrazione `sanitizeInspectorTab`
+1. extend `InspectorTab` type in `inspectorStore` if required
+2. add tab button in `InspectorPanel`
+3. add conditional content rendering
+4. update `sanitizeInspectorTab` for persistence migration
 
-## Caso D - Estendere parser SQL
+## Case D - Extend SQL parser support
 
-Passi:
+Steps:
 
-1. aggiornare regex/tokenizer in `parseSql.ts`
-2. mantenere compatibilita con script gia supportati
-3. aggiungere warning, non crash
-4. validare parser con script reali e edge-case
+1. update parser logic in `parseSql.ts`
+2. preserve backward compatibility with existing patterns
+3. emit warnings instead of hard crashes
+4. validate behavior with real SQL snippets and edge cases
 
-## Caso E - Nuovo template progetto
+## Case E - Add a new project template
 
-Passi:
+Steps:
 
-1. aggiornare `src/lib/templates/databaseTemplates.ts`
-2. verificare rendering automatico in command palette e canvas
-3. verificare import template -> UI -> SQL
+1. update `src/lib/templates/databaseTemplates.ts`
+2. verify visibility in command palette and canvas quick actions
+3. verify template import -> UI state -> generated SQL flow
 
-## Regola generale
+## General implementation order
 
-Se una feature tocca piu livelli, l'ordine corretto e:
+When multiple layers are touched, follow this order:
 
-1. dominio
+1. domain
 2. store
-3. lib (parser/generator/helper)
+3. pure library logic (`lib`)
 4. UI
 5. docs

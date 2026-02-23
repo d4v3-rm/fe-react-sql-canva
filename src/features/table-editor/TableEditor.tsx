@@ -68,10 +68,10 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
 
   if (!selectedTable) {
     return (
-      <Card title="Editor tabella" subtitle="Seleziona una tabella dal canvas o dalla lista.">
+      <Card title="Table editor" subtitle="Select a table from the canvas or list.">
         <EmptyState
-          title="Nessuna tabella selezionata"
-          body="Quando selezioni una tabella puoi modificarne colonne, tipi e relazioni in dettaglio."
+          title="No table selected"
+          body="When you select a table you can edit columns, types, and relations in detail."
         />
       </Card>
     )
@@ -79,7 +79,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
 
   return (
     <div className={styles.editorStack}>
-      <Card title="Editor tabella" subtitle="Definizione completa metadati e colonne.">
+      <Card title="Table editor" subtitle="Complete metadata and column definition.">
         <div className={styles.metaGrid}>
           <Field label="Schema">
             <input
@@ -95,7 +95,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
             </datalist>
           </Field>
 
-          <Field label="Nome tabella">
+          <Field label="Table name">
             <input
               value={selectedTable.name}
               onChange={(event) => updateTable(selectedTable.id, { name: event.target.value })}
@@ -105,10 +105,10 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
         </div>
 
         <div className={styles.columnsHeader}>
-          <h4>Colonne</h4>
+          <h4>Columns</h4>
           <Button compact onClick={() => addColumn(selectedTable.id)}>
             <Plus size={13} />
-            Aggiungi colonna
+            Add column
           </Button>
         </div>
 
@@ -120,7 +120,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
             return (
               <article key={column.id} className={styles.columnCard}>
                 <div className={styles.columnCardHeader}>
-                  <strong>Colonna {index + 1}</strong>
+                  <strong>Column {index + 1}</strong>
                   <Button variant="danger" compact onClick={() => deleteColumn(selectedTable.id, column.id)}>
                     <Trash2 size={12} />
                   </Button>

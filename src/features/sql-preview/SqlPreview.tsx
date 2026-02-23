@@ -73,17 +73,17 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
   const hasSyncError = editableSql !== sql && syncError
 
   return (
-    <Card title="SQL Editor" subtitle="Sincronizzazione automatica con il canvas (GUI <-> SQL).">
-      <CollapsiblePanel title="Azioni SQL" subtitle="Operazioni script e appunti." defaultOpen={false}>
+    <Card title="SQL Editor" subtitle="Automatic synchronization with canvas (GUI <-> SQL).">
+      <CollapsiblePanel title="SQL actions" subtitle="Script operations and clipboard." defaultOpen={false}>
         <div className={styles.sqlActions}>
           <Button compact variant="ghost" onClick={() => void handleCopySql()}>
             <Copy size={12} />
-            {copyStatus === 'copied' ? 'Copiato' : copyStatus === 'error' ? 'Errore copia' : 'Copia SQL'}
+            {copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy failed' : 'Copy SQL'}
           </Button>
 
           <Button compact variant="ghost" onClick={handleExportSql}>
             <Download size={12} />
-            Esporta SQL
+            Export SQL
           </Button>
         </div>
       </CollapsiblePanel>
@@ -92,7 +92,7 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
         <div className={styles.warningBox}>
           <Badge tone="warning">
             <AlertTriangle size={12} />
-            Warning import
+            Import warnings
           </Badge>
           <ul>
             {warnings.map((warning, index) => (
@@ -102,7 +102,7 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
         </div>
       ) : null}
 
-      {hasSyncError ? <Badge tone="warning">SQL non valido</Badge> : null}
+      {hasSyncError ? <Badge tone="warning">Invalid SQL</Badge> : null}
 
       <div className={styles.editArea}>
         <textarea

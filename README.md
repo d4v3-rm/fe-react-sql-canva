@@ -1,7 +1,7 @@
 <h1 align="center">🧩 SQL Canvas Modeler</h1>
 
 <p align="center">
-  <strong>Progettazione visuale PostgreSQL + editor SQL bidirezionale, totalmente web.</strong>
+  <strong>Visual PostgreSQL modeling + bidirectional SQL editing, fully web-based.</strong>
 </p>
 
 <p align="center">
@@ -16,204 +16,204 @@
 
 ---
 
-## ✨ Cos'è
+## ✨ What It Is
 
-`SQL Canvas Modeler` è un applicativo frontend (SPA) per modellare un database PostgreSQL in modo visuale e modificare SQL in tempo reale, con sincronizzazione automatica tra:
+`SQL Canvas Modeler` is a frontend SPA to model PostgreSQL databases visually and edit SQL in real time with automatic synchronization between:
 
-- 🧠 modello grafico (canvas + inspector)
-- 📜 script SQL (editor live)
+- 🧠 visual model (canvas + inspector)
+- 📜 SQL script (live editor)
 
-Obiettivo: ridurre il tempo tra idea e schema SQL consistente, mantenendo UX semplice e rapida.
+Goal: shorten the path from idea to consistent SQL schema while keeping a clean and productive UX.
 
 ---
 
-## 🧭 Indice
+## 🧭 Table of Contents
 
-- [🎯 Feature principali](#-feature-principali)
-- [🖥️ Esperienza utente](#️-esperienza-utente)
-- [🏗️ Architettura tecnica](#️-architettura-tecnica)
-- [📦 Struttura progetto](#-struttura-progetto)
-- [🚀 Avvio rapido](#-avvio-rapido)
-- [🛠️ Script disponibili](#️-script-disponibili)
-- [🧪 Qualità codice](#-qualità-codice)
-- [📚 Supporto SQL](#-supporto-sql)
-- [💾 Persistenza locale](#-persistenza-locale)
+- [🎯 Main Features](#-main-features)
+- [🖥️ User Experience](#️-user-experience)
+- [🏗️ Technical Architecture](#️-technical-architecture)
+- [📦 Project Structure](#-project-structure)
+- [🚀 Quick Start](#-quick-start)
+- [🛠️ Available Scripts](#️-available-scripts)
+- [🧪 Code Quality](#-code-quality)
+- [📚 SQL Support](#-sql-support)
+- [💾 Local Persistence](#-local-persistence)
 - [❓FAQ](#-faq)
-- [🛣️ Roadmap suggerita](#️-roadmap-suggerita)
-- [📄 Licenza](#-licenza)
+- [🛣️ Suggested Roadmap](#️-suggested-roadmap)
+- [📄 License](#-license)
 
 ---
 
-## 🎯 Feature principali
+## 🎯 Main Features
 
-### 📐 Modellazione database completa
+### 📐 Complete Database Modeling
 
-- gestione metadati database (`name`, `owner`, `encoding`, `lc_collate`, `lc_ctype`, `template`)
-- gestione schemi multipli
-- gestione estensioni database
-- creazione/duplicazione/rinomina/spostamento tabelle tra schemi
-- gestione colonne con tipizzazione PostgreSQL, default e vincoli
+- database metadata management (`name`, `owner`, `encoding`, `lc_collate`, `lc_ctype`, `template`)
+- multi-schema support
+- extension management
+- create/duplicate/rename/move tables across schemas
+- column modeling with PostgreSQL types, defaults, and constraints
 
-### 🔗 Relazioni e vincoli
+### 🔗 Relations and Constraints
 
-- creazione Foreign Key tra tabelle
-- configurazione `ON UPDATE` / `ON DELETE`
-- vincoli e naming dei constraint
-- visualizzazione relazioni direttamente nel canvas
+- foreign key creation between tables
+- `ON UPDATE` / `ON DELETE` configuration
+- constraint naming and lifecycle management
+- relation rendering directly in the canvas
 
-### 🗺️ Canvas relazionale
+### 🗺️ Relationship Canvas
 
-- drag & drop tabelle
-- aggiornamento posizioni persistito localmente
-- auto-fit e center tabella selezionata
-- preset layout (balanced, focus canvas, focus inspector, focus SQL)
+- draggable table nodes
+- persisted node positions
+- quick fit and center actions
+- layout presets (balanced, focus canvas, focus inspector, focus SQL)
 
-### 📜 SQL editor bidirezionale (core)
+### 📜 Bidirectional SQL Editor (Core)
 
-- generazione SQL live dal modello
-- modifica SQL con re-import automatico nel modello
-- validazione e warning non bloccanti
-- export SQL e copia rapida in clipboard
+- live SQL generation from the model
+- automatic re-import of SQL edits into the model
+- non-blocking warnings and validation feedback
+- export and copy to clipboard
 
-### 🧰 Workspace operativo
+### 🧰 Operational Workspace
 
-- import SQL da file `.sql` o `.txt`
-- template predefiniti per bootstrap rapido
-- command palette (`Ctrl+K`) con azioni contestuali
-- tema light/dark
-- pannelli ridimensionabili, collassabili e massimizzabili
+- import SQL from `.sql` or `.txt` files
+- built-in templates for quick bootstrap
+- command palette (`Ctrl+K`) for fast actions
+- light/dark mode
+- resizable, collapsible, and maximizable panels
 
 ---
 
-## 🖥️ Esperienza utente
+## 🖥️ User Experience
 
-Interfaccia a 3 pannelli:
+Three-panel layout:
 
 1. `Explorer`:
-creazione progetto, schemi, tabelle, import SQL, azioni rapide su tabella.
+project operations, schema/table management, SQL import, table actions.
 
 2. `Canvas`:
-mappa visuale delle tabelle e relazioni con interazioni drag & drop.
+visual graph of tables and relations with drag & drop.
 
 3. `Inspector`:
-editor struttura tabella, gestione relazioni e SQL editor.
+table structure editing, relation editing, SQL editor.
 
 ### ⌨️ Shortcut
 
-- `Ctrl+K`: apre command palette
+- `Ctrl+K`: open command palette
 
 ---
 
-## 🏗️ Architettura tecnica
+## 🏗️ Technical Architecture
 
 ### Stack
 
 - ⚛️ React 19
-- 🔷 TypeScript strict
+- 🔷 TypeScript (strict)
 - ⚡ Vite 7
-- 🐻 Zustand con `persist` su `localStorage`
-- 🎨 Sass modulare (`tokens`, `mixins`, moduli per feature)
-- 🔄 `@xyflow/react` per canvas relazionale
-- 🖼️ `lucide-react` per iconografia
+- 🐻 Zustand with `persist` + `localStorage`
+- 🎨 Modular Sass (`tokens`, `mixins`, feature modules)
+- 🔄 `@xyflow/react` for relational canvas
+- 🖼️ `lucide-react` for icons
 
-### Flusso dati (alto livello)
+### Data Flow (High Level)
 
-1. Stato dominio in `schemaStore` (database, tabelle, relazioni).
-2. Generazione SQL con `generateProjectSql`.
-3. Modifiche SQL re-importate via `parseSqlSchema`.
-4. UI aggiornata in tempo reale su explorer/canvas/inspector.
+1. Domain state is handled in `schemaStore` (database, tables, relations).
+2. SQL output is generated via `generateProjectSql`.
+3. SQL edits are parsed back via `parseSqlSchema`.
+4. Explorer/canvas/inspector update in real time.
 
 ---
 
-## 📦 Struttura progetto
+## 📦 Project Structure
 
 ```text
 src/
-  app/                 # composizione layout principale
-  components/ui/       # componenti UI riusabili
-  domain/              # modelli e tipi dominio
-  features/            # moduli funzionali (explorer, canvas, inspector, sql)
+  app/                 # main layout composition
+  components/ui/       # reusable UI primitives
+  domain/              # domain models and types
+  features/            # functional UI modules
   lib/
-    sql/               # parser SQL + generatore SQL
-    file/              # utility import/export file
-    templates/         # template database iniziali
-  store/               # zustand stores (schema, layout, tema, inspector)
+    sql/               # SQL parser + generator
+    file/              # file import/export helpers
+    templates/         # ready-to-use SQL templates
+  store/               # Zustand stores
   styles/              # base, tokens, mixins
 ```
 
 ---
 
-## 🚀 Avvio rapido
+## 🚀 Quick Start
 
-### Prerequisiti
+### Requirements
 
-- Node.js 20+ consigliato
-- npm 10+ consigliato
+- Node.js 20+ recommended
+- npm 10+ recommended
 
-### Installazione
+### Install
 
 ```bash
 npm install
 ```
 
-### Sviluppo locale
+### Run Locally
 
 ```bash
 npm run dev
 ```
 
-Apri il browser su `http://localhost:5173`.
+Open `http://localhost:5173`.
 
 ---
 
-## 🛠️ Script disponibili
+## 🛠️ Available Scripts
 
-| Script | Descrizione |
+| Script | Description |
 |---|---|
-| `npm run dev` | avvia Vite in sviluppo |
-| `npm run build` | build produzione in `dist/` |
-| `npm run preview` | preview locale della build |
-| `npm run lint` | lint codebase con ESLint |
+| `npm run dev` | start Vite dev server |
+| `npm run build` | production build into `dist/` |
+| `npm run preview` | preview production build |
+| `npm run lint` | run ESLint |
 
 ---
 
-## 🧪 Qualità codice
+## 🧪 Code Quality
 
 ```bash
 npm run lint
 npm run build
 ```
 
-Entrambi i comandi devono passare prima del rilascio.
+Both commands should pass before merging changes.
 
 ---
 
-## 📚 Supporto SQL
+## 📚 SQL Support
 
-L'import SQL copre i pattern PostgreSQL più comuni:
+Current import support covers common PostgreSQL patterns:
 
 - `CREATE TABLE ... (...)`
-- vincoli `PRIMARY KEY`, `UNIQUE`, `NOT NULL`, `DEFAULT`
-- `FOREIGN KEY` inline
+- `PRIMARY KEY`, `UNIQUE`, `NOT NULL`, `DEFAULT`
+- inline `FOREIGN KEY`
 - `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY ...`
 
-Se alcune istruzioni non sono mappabili al modello UI:
+If some SQL statements cannot be mapped to the UI model:
 
-- vengono segnalate come warning
-- il flusso non si interrompe
+- they are reported as warnings
+- flow continues without hard failure
 
 ---
 
-## 💾 Persistenza locale
+## 💾 Local Persistence
 
-Lo stato è persistito via `localStorage`:
+State is persisted through `localStorage`:
 
-- progetto schema (database/tabelle/relazioni)
-- layout pannelli e preset
-- tab inspector attiva
-- tema UI
+- schema project (database/tables/relations)
+- panel layout and presets
+- active inspector tab
+- current theme
 
-Chiavi principali:
+Main keys:
 
 - `sql-canvas-project-v1`
 - `sql-canvas-layout-v1`
@@ -224,36 +224,36 @@ Chiavi principali:
 
 ## ❓FAQ
 
-### Posso usare solo SQL senza toccare il canvas?
+### Can I work only in SQL without touching the canvas?
 
-Sì. L'editor SQL è sincronizzato con il modello e aggiorna la UI quando il parsing è valido.
+Yes. The SQL editor is synchronized with the model and updates the UI when parsing is valid.
 
-### Posso importare uno script SQL esistente?
+### Can I import an existing SQL script?
 
-Sì, da Explorer con import file `.sql`/`.txt`.
+Yes, from Explorer with `.sql`/`.txt` file import.
 
-### Dove trovo i comandi rapidi dell'app?
+### Where are global quick commands?
 
-Apri la command palette con `Ctrl+K`.
+Use command palette with `Ctrl+K`.
 
-### L'app salva automaticamente?
+### Is the project auto-saved?
 
-Sì, lo stato viene salvato automaticamente in locale.
-
----
-
-## 🛣️ Roadmap suggerita
-
-- esportazione progetto JSON completa
-- undo/redo globale
-- validazioni SQL più estese su edge-case PostgreSQL
-- test E2E su workflow import/edit/export
-- sistema plugin template avanzato
+Yes, state is automatically persisted locally.
 
 ---
 
-## 📄 Licenza
+## 🛣️ Suggested Roadmap
 
-Distribuito sotto licenza MIT.
+- full JSON project export
+- global undo/redo
+- broader SQL parser support for PostgreSQL edge cases
+- E2E tests for import/edit/export workflows
+- advanced template plugin system
 
-Vedi [LICENSE](./LICENSE) per i dettagli.
+---
+
+## 📄 License
+
+This project is distributed under MIT license.
+
+See [LICENSE](./LICENSE) for details.

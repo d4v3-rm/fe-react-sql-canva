@@ -135,11 +135,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       const nextName = await prompt({
-        title: `Rinomina ${table.schema}.${table.name}`,
-        message: 'Inserisci il nuovo nome della tabella.',
+        title: `Rename ${table.schema}.${table.name}`,
+        message: 'Enter the new table name.',
         defaultValue: table.name,
         placeholder: 'users',
-        confirmLabel: 'Rinomina',
+        confirmLabel: 'Rename',
       })
 
       if (!nextName || nextName.trim() === '' || nextName === table.name) {
@@ -152,9 +152,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       await alert({
-        title: 'Rinomina non disponibile',
-        message: 'Esiste gia una tabella con questo nome nello stesso schema.',
-        confirmLabel: 'Chiudi',
+        title: 'Rename unavailable',
+        message: 'A table with this name already exists in the same schema.',
+        confirmLabel: 'Close',
       })
     })()
   }
@@ -174,11 +174,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       const nextSchema = await prompt({
-        title: `Sposta ${table.name} in un altro schema`,
-        message: `Schemi disponibili: ${database.schemas.join(', ')}`,
+        title: `Move ${table.name} to another schema`,
+        message: `Available schemas: ${database.schemas.join(', ')}`,
         defaultValue: table.schema,
         placeholder: 'public',
-        confirmLabel: 'Sposta',
+        confirmLabel: 'Move',
       })
 
       if (!nextSchema || nextSchema.trim() === '' || nextSchema.trim() === table.schema) {
@@ -195,9 +195,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     void (async () => {
       const table = tableMap.get(tableId)
       const confirmed = await confirm({
-        title: 'Elimina tabella',
-        message: `Eliminare la tabella ${table?.schema}.${table?.name}?`,
-        confirmLabel: 'Elimina',
+        title: 'Delete table',
+        message: `Delete table ${table?.schema}.${table?.name}?`,
+        confirmLabel: 'Delete',
         tone: 'danger',
       })
 
@@ -211,10 +211,10 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     void (async () => {
       const suggestedSchema = `schema_${database.schemas.length + 1}`
       const nextSchema = await prompt({
-        title: 'Nuovo schema PostgreSQL',
+        title: 'New PostgreSQL schema',
         defaultValue: suggestedSchema,
         placeholder: 'public',
-        confirmLabel: 'Crea schema',
+        confirmLabel: 'Create schema',
       })
 
       if (!nextSchema || nextSchema.trim() === '') {
@@ -227,9 +227,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       await alert({
-        title: 'Schema non valido',
-        message: 'Schema gia esistente o nome non valido.',
-        confirmLabel: 'Chiudi',
+        title: 'Invalid schema',
+        message: 'Schema already exists or the name is invalid.',
+        confirmLabel: 'Close',
       })
     })()
   }
@@ -322,9 +322,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
 
   async function handleResetProject() {
     const confirmed = await confirm({
-      title: 'Nuovo progetto vuoto',
-      message: 'Vuoi davvero creare un progetto vuoto? I dati correnti saranno rimossi.',
-      confirmLabel: 'Crea progetto',
+      title: 'New empty project',
+      message: 'Create a new empty project? Current data will be removed.',
+      confirmLabel: 'Create project',
       tone: 'danger',
     })
 
@@ -335,46 +335,46 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
 
   return (
     <section className={styles.explorer}>
-      <CollapsiblePanel title="Workspace" subtitle="Operazioni progetto e import SQL." defaultOpen={false}>
+      <CollapsiblePanel title="Workspace" subtitle="Project actions and SQL import." defaultOpen={false}>
         <div className={styles.workspaceButtons}>
           <Button compact onClick={addTable}>
             <Plus size={12} />
-            Nuova tabella
+            New table
           </Button>
 
           <Button compact variant="ghost" onClick={handleAddSchema}>
             <FolderPlus size={12} />
-            Nuovo schema
+            New schema
           </Button>
 
           <Button compact variant="ghost" onClick={handleOpenImportDialog} disabled={importing}>
             <FileUp size={12} />
-            {importing ? 'Importazione...' : 'Importa SQL'}
+            {importing ? 'Importing...' : 'Import SQL'}
           </Button>
 
           <Button compact variant="ghost" onClick={onOpenCommandPalette}>
             <Command size={12} />
-            Comandi
+            Commands
           </Button>
 
           <Button compact variant="danger" onClick={() => void handleResetProject()}>
             <RotateCcw size={12} />
-            Nuovo progetto
+            New project
           </Button>
         </div>
 
         <div className={styles.workspaceMeta}>
-          <p>Ultimo save: {new Date(lastSavedAt).toLocaleTimeString('it-IT')}</p>
-          {warnings.length > 0 ? <Badge tone="warning">Warning import: {warnings.length}</Badge> : null}
+          <p>Last saved: {new Date(lastSavedAt).toLocaleTimeString('en-US')}</p>
+          {warnings.length > 0 ? <Badge tone="warning">Import warnings: {warnings.length}</Badge> : null}
         </div>
       </CollapsiblePanel>
 
-      <p className={styles.explorerIntro}>Naviga database, schemi e tabelle in modo gerarchico.</p>
+      <p className={styles.explorerIntro}>Browse databases, schemas, and tables in a hierarchical view.</p>
       <div className={styles.topRow}>
         <label className={styles.searchField}>
           <Search size={14} />
           <input
-            placeholder="Cerca schema o tabella"
+            placeholder="Search schema or table"
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -393,11 +393,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
           <Database size={15} />
           <strong>{database.name}</strong>
         </div>
-        <Badge>{tables.length} tabelle</Badge>
+        <Badge>{tables.length} tables</Badge>
       </button>
 
       {filteredGroups.length === 0 ? (
-        <EmptyState title="Nessun risultato" body="Nessuno schema o tabella corrisponde al filtro corrente." />
+        <EmptyState title="No results" body="No schema or table matches the current filter." />
       ) : (
         <div className={styles.tree}>
           {filteredGroups.map((group) => (
@@ -421,7 +421,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
               </header>
 
               {group.tables.length === 0 ? (
-                <p className={styles.emptySchema}>Trascina qui una tabella oppure creane una nuova.</p>
+                <p className={styles.emptySchema}>Drag a table here or create a new one.</p>
               ) : (
                 <div className={styles.tableRows}>
                   {group.tables.map((table) => (
@@ -472,19 +472,19 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                           <div className={styles.contextMenu}>
                             <button onClick={() => handleRenameTable(table.id)} type="button">
                               <Pencil size={12} />
-                              Rinomina
+                              Rename
                             </button>
                             <button onClick={() => handleDuplicateTable(table.id)} type="button">
                               <Copy size={12} />
-                              Duplica
+                              Duplicate
                             </button>
                             <button onClick={() => handleMoveTable(table.id)} type="button">
                               <ArrowRightLeft size={12} />
-                              Sposta
+                              Move
                             </button>
                             <button className={styles.dangerAction} onClick={() => handleDeleteTable(table.id)} type="button">
                               <Trash2 size={12} />
-                              Elimina
+                              Delete
                             </button>
                           </div>
                         ) : null}

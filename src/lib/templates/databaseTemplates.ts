@@ -9,7 +9,7 @@ export const PROJECT_TEMPLATES: ProjectTemplate[] = [
   {
     id: 'ecommerce',
     name: 'E-commerce',
-    description: 'Catalogo prodotti, utenti, ordini e righe ordine.',
+    description: 'Product catalog, users, orders, and order items.',
     sql: `
 CREATE DATABASE ecommerce_db
   WITH OWNER = postgres
@@ -77,7 +77,7 @@ ALTER TABLE public.order_items
   {
     id: 'blog',
     name: 'Blog CMS',
-    description: 'Autori, articoli, categorie e commenti.',
+    description: 'Authors, posts, categories, and comments.',
     sql: `
 CREATE DATABASE blog_db
   WITH OWNER = postgres
@@ -145,7 +145,7 @@ ALTER TABLE public.comments
   {
     id: 'crm',
     name: 'CRM',
-    description: 'Lead, account, opportunita e attivita.',
+    description: 'Leads, accounts, opportunities, and activities.',
     sql: `
 CREATE DATABASE crm_db
   WITH OWNER = postgres

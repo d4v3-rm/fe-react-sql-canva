@@ -1,14 +1,14 @@
 # Developer Docs
 
-Questa cartella contiene la documentazione operativa per sviluppare sul progetto in modo coerente con architettura, convenzioni e standard di qualita.
+This folder contains the operational documentation needed to work in this repository with consistent architecture, conventions, and quality standards.
 
-## A chi serve
+## Who should read this
 
-- nuovi sviluppatori che entrano nel progetto
-- contributor che devono aggiungere feature senza regressioni
-- reviewer che devono validare coerenza tecnica e UX
+- new developers onboarding the project
+- contributors adding or refactoring features
+- reviewers validating technical consistency and regressions
 
-## Ordine consigliato di lettura
+## Recommended reading order
 
 1. [01-project-map.md](./01-project-map.md)
 2. [02-architecture-and-data-flow.md](./02-architecture-and-data-flow.md)
@@ -20,15 +20,15 @@ Questa cartella contiene la documentazione operativa per sviluppare sul progetto
 8. [08-feature-playbook.md](./08-feature-playbook.md)
 9. [09-quality-checklist.md](./09-quality-checklist.md)
 
-## Regole non negoziabili
+## Non-negotiable rules
 
-- TypeScript strict sempre rispettato.
-- Nessuna logica business nei componenti UI riusabili.
-- Nessun colore hardcoded nei moduli feature: usare token Sass.
-- Ogni nuova feature deve passare `npm run lint` e `npm run build`.
-- Ogni modifica UI deve evitare overflow orizzontale.
+- Keep TypeScript strict compliance.
+- Keep business logic out of reusable UI primitives.
+- Do not hardcode colors inside feature modules: use Sass tokens.
+- Every feature must pass `npm run lint` and `npm run build`.
+- Avoid horizontal overflow in all primary panels.
 
-## Comandi base
+## Basic commands
 
 ```bash
 npm install

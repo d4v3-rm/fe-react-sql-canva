@@ -1,71 +1,69 @@
 # 01 - Project Map
 
-## Obiettivo
+## Goal
 
-Capire subito dove mettere codice nuovo e dove non metterlo.
+Understand where new code should live and where it should not.
 
-## Struttura principale
+## Main structure
 
 ```text
 src/
-  app/                  # composizione layout principale
-  components/ui/        # componenti UI riusabili e generici
-  domain/               # tipi e factory dominio
-  features/             # moduli funzionali verticali
-  lib/                  # logica pura, parser/generator, helper
-  store/                # stato globale Zustand
-  styles/               # token, mixin, base style
+  app/                  # main layout orchestration
+  components/ui/        # reusable generic UI primitives
+  domain/               # domain types and defaults
+  features/             # vertical functional modules
+  lib/                  # pure logic: parser/generator/helpers
+  store/                # global Zustand state
+  styles/               # tokens, mixins, base styles
 ```
 
-## Dove mettere cosa
+## Placement rules
 
 ### `src/app`
 
-- tiene insieme i pannelli principali
-- gestisce layout globale e orchestrazione feature
-- non deve contenere parser SQL o logica dominio profonda
+- composes top-level layout and panel behavior
+- orchestrates feature modules
+- should not contain deep SQL parsing logic
 
 ### `src/components/ui`
 
-- componenti base (`Button`, `Card`, `Field`, `Badge`, `Dialog`)
-- niente dipendenze dal dominio database
-- riusabili in qualsiasi feature
+- reusable base components (`Button`, `Card`, `Field`, `Badge`, `Dialog`)
+- no database-specific domain logic
 
 ### `src/domain`
 
-- definisce il linguaggio del progetto:
+- project language and contracts:
   - `DatabaseModel`
   - `TableModel`
   - `ColumnModel`
   - `RelationModel`
-- aggiungere qui prima i nuovi campi dominio
+- update domain first when introducing new model fields
 
 ### `src/features`
 
-- ogni cartella rappresenta un modulo UI verticale:
+- each folder is one vertical UI feature
+- examples:
   - `explorer`
   - `canvas`
   - `inspector`
   - `sql-preview`
   - `table-editor`
   - `command-palette`
-- ogni feature ha `*.tsx` + `*.module.scss`
 
 ### `src/lib`
 
-- logica pura, testabile e senza dipendenze React
-- aree attuali:
-  - `sql/` parser e generator SQL
-  - `templates/` template SQL pronti
-  - `file/` import/export file
-  - `schemaHelpers.ts` utility dominio
-  - `id.ts` id generation
-- nota: `lib/codegen/generateSequelizeScaffold.ts` e presente ma non wired nella UI corrente
+- pure testable logic without React dependencies
+- current areas:
+  - `sql/` parser + SQL generator
+  - `templates/` built-in template SQL
+  - `file/` text import/export helpers
+  - `schemaHelpers.ts`, `id.ts`
+- note: `lib/codegen/generateSequelizeScaffold.ts` exists but is not currently wired to the UI
 
 ### `src/store`
 
-- stato globale e persistenza localStorage
-- store separati per responsabilita:
+- global state and persistence
+- separate stores by concern:
   - `schemaStore`
   - `layoutStore`
   - `themeStore`
@@ -74,11 +72,11 @@ src/
 
 ### `src/styles`
 
-- `_tokens.scss`: variabili semantiche
-- `_mixins.scss`: mixin condivisi
-- `_base.scss`: css variables tema light/dark + reset base
+- `_tokens.scss`: semantic tokens
+- `_mixins.scss`: shared mixins
+- `_base.scss`: light/dark CSS variables + base reset
 
-## Entry point runtime
+## Runtime entry points
 
-- `src/main.tsx`: monta `App` e `DialogProvider`
-- `src/app/App.tsx`: layout 3 pannelli + command palette + resize/collapse/maximize
+- `src/main.tsx`: mounts `App` inside `DialogProvider`
+- `src/app/App.tsx`: 3-panel layout, resize/collapse/maximize, command palette

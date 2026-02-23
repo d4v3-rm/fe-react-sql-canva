@@ -23,9 +23,9 @@ export function DatabaseModelPanel() {
   function createSchema() {
     void (async () => {
       const raw = await prompt({
-        title: 'Nuovo schema PostgreSQL',
+        title: 'New PostgreSQL schema',
         placeholder: 'public',
-        confirmLabel: 'Crea schema',
+        confirmLabel: 'Create schema',
       })
 
       if (!raw || raw.trim() === '') {
@@ -38,8 +38,8 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Schema non valido',
-        message: 'Schema gia esistente o nome non valido.',
+        title: 'Invalid schema',
+        message: 'Schema already exists or the name is invalid.',
       })
     })()
   }
@@ -47,9 +47,9 @@ export function DatabaseModelPanel() {
   function editSchema(schemaName: string) {
     void (async () => {
       const next = await prompt({
-        title: `Rinomina schema ${schemaName}`,
+        title: `Rename schema ${schemaName}`,
         defaultValue: schemaName,
-        confirmLabel: 'Rinomina',
+        confirmLabel: 'Rename',
       })
 
       if (!next || next.trim() === '' || next === schemaName) {
@@ -62,8 +62,8 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Rinomina non disponibile',
-        message: 'Verifica che il nuovo nome sia valido e non duplicato.',
+        title: 'Rename unavailable',
+        message: 'Make sure the new name is valid and not duplicated.',
       })
     })()
   }
@@ -72,12 +72,12 @@ export function DatabaseModelPanel() {
     void (async () => {
       const linkedTables = tables.filter((table) => table.schema === schemaName).length
       const confirmed = await confirm({
-        title: `Eliminare schema "${schemaName}"`,
+        title: `Delete schema "${schemaName}"`,
         message:
           linkedTables > 0
-            ? `Le ${linkedTables} tabelle collegate verranno riallocate su uno schema di fallback.`
-            : 'Lo schema verra rimosso dal database.',
-        confirmLabel: 'Elimina schema',
+            ? `${linkedTables} linked tables will be moved to a fallback schema.`
+            : 'The schema will be removed from the database.',
+        confirmLabel: 'Delete schema',
         tone: 'danger',
       })
 
@@ -90,10 +90,10 @@ export function DatabaseModelPanel() {
   function createExtension() {
     void (async () => {
       const raw = await prompt({
-        title: 'Nuova extension PostgreSQL',
-        message: 'Esempio: pgcrypto',
+        title: 'New PostgreSQL extension',
+        message: 'Example: pgcrypto',
         placeholder: 'pgcrypto',
-        confirmLabel: 'Aggiungi extension',
+        confirmLabel: 'Add extension',
       })
 
       if (!raw || raw.trim() === '') {
@@ -106,14 +106,14 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Extension non valida',
-        message: 'Estensione gia esistente o nome non valido.',
+        title: 'Invalid extension',
+        message: 'Extension already exists or the name is invalid.',
       })
     })()
   }
 
   return (
-    <Card className={styles.panel} title="Database" subtitle="Modella il database completo: metadati, schemi, estensioni.">
+    <Card className={styles.panel} title="Database" subtitle="Model the full database: metadata, schemas, and extensions.">
       <div className={styles.metaGrid}>
         <Field label="Database name">
           <input value={database.name} onChange={(event) => updateDatabase({ name: event.target.value })} />
@@ -145,7 +145,7 @@ export function DatabaseModelPanel() {
           <h4>Schemas</h4>
           <Button compact onClick={createSchema}>
             <Plus size={12} />
-            Aggiungi schema
+            Add schema
           </Button>
         </div>
 
@@ -174,12 +174,12 @@ export function DatabaseModelPanel() {
           <h4>Extensions</h4>
           <Button compact onClick={createExtension}>
             <Plus size={12} />
-            Aggiungi extension
+            Add extension
           </Button>
         </div>
 
         {database.extensions.length === 0 ? (
-          <p className={styles.empty}>Nessuna extension configurata.</p>
+          <p className={styles.empty}>No extensions configured.</p>
         ) : (
           <div className={styles.tagList}>
             {database.extensions.map((extension) => (

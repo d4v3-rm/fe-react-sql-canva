@@ -1,13 +1,13 @@
 # 05 - SQL Sync Engine
 
-## Moduli coinvolti
+## Modules involved
 
-- generazione SQL: `src/lib/sql/generateSql.ts`
-- parsing SQL: `src/lib/sql/parseSql.ts`
-- tipi SQL: `src/lib/sql/types.ts`
-- identificatori SQL: `src/lib/sql/identifiers.ts`
+- SQL generation: `src/lib/sql/generateSql.ts`
+- SQL parsing: `src/lib/sql/parseSql.ts`
+- SQL type mapping: `src/lib/sql/types.ts`
+- SQL identifiers helpers: `src/lib/sql/identifiers.ts`
 
-## Generazione SQL (model -> script)
+## SQL generation (model -> script)
 
 Input:
 
@@ -17,7 +17,7 @@ Input:
 
 Output:
 
-- script SQL PostgreSQL con:
+- PostgreSQL script with:
   - `CREATE DATABASE`
   - `CREATE SCHEMA IF NOT EXISTS`
   - `CREATE EXTENSION IF NOT EXISTS`
@@ -25,48 +25,53 @@ Output:
   - `CREATE TABLE`
   - `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`
 
-## Parsing SQL (script -> model)
+## SQL parsing (script -> model)
 
-`parseSqlSchema` esegue:
+`parseSqlSchema` pipeline:
 
-1. pulizia commenti
-2. estrazione metadati database
-3. estrazione schemi ed estensioni
-4. parsing `CREATE TABLE`
-5. parsing relazioni:
+1. strip comments
+2. parse database metadata
+3. parse schemas and extensions
+4. parse `CREATE TABLE` blocks
+5. parse relation definitions:
    - inline `REFERENCES`
    - `ALTER TABLE ... ADD CONSTRAINT ... FOREIGN KEY`
-6. materializzazione relazioni con validazione riferimenti
-7. raccolta warnings non bloccanti
+6. materialize validated relations
+7. collect non-blocking warnings
 
-## Supporto attuale
+## Currently supported patterns
 
 - `CREATE TABLE`
-- `PRIMARY KEY` inline o table-level
+- inline or table-level `PRIMARY KEY`
 - `UNIQUE`, `NOT NULL`, `DEFAULT`
-- `FOREIGN KEY` inline e alter table
-- azioni FK: `NO ACTION`, `CASCADE`, `SET NULL`, `RESTRICT`, `SET DEFAULT`
+- inline and alter-table foreign keys
+- FK actions:
+  - `NO ACTION`
+  - `CASCADE`
+  - `SET NULL`
+  - `RESTRICT`
+  - `SET DEFAULT`
 
-## Contratto di sicurezza
+## Safety contract
 
-- se `parsedEntities === 0`, l'import fallisce in modo controllato
-- warnings non devono rompere UI
-- nessun throw non gestito verso il layer React
+- if `parsedEntities === 0`, import returns failure gracefully
+- warnings should never crash rendering
+- parser errors should stay controlled inside import flow
 
-## Come aggiungere un nuovo tipo SQL
+## Adding a new SQL type
 
-1. aggiornare `src/domain/schema.ts` (`DATA_TYPES`)
-2. aggiornare mapping in `src/lib/sql/types.ts`
-3. aggiornare UI `TableEditor` per eventuali campi extra (es. precision/scale)
-4. validare round-trip:
+1. update `src/domain/schema.ts` (`DATA_TYPES`)
+2. update mapping in `src/lib/sql/types.ts`
+3. update UI inputs in `TableEditor` if needed
+4. validate round-trip:
    - GUI -> SQL
    - SQL -> GUI
-   - GUI -> SQL (secondo passaggio)
+   - GUI -> SQL again
 
-## Test manuale minimo SQL sync
+## Minimum manual sync test
 
-1. creare tabella da GUI
-2. verificare SQL generato
-3. modificare SQL (nuova colonna o relazione)
-4. verificare update automatico GUI
-5. riesportare SQL e confrontare coerenza semantica
+1. create table via GUI
+2. verify generated SQL
+3. edit SQL (new column/relation)
+4. verify GUI updates automatically
+5. export SQL and confirm semantic consistency

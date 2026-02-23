@@ -2,74 +2,56 @@
 
 ## TypeScript
 
-- `strict: true` sempre rispettato.
-- evitare `any`; preferire type espliciti.
-- nessun cast inutile per "forzare" compilazione.
-- funzioni pure in `lib` con input/output tipizzati.
+- Keep `strict` compliance.
+- Avoid `any`; use explicit types/interfaces.
+- Avoid unsafe casts used only to silence errors.
+- Keep pure functions in `lib` with typed input/output.
 
 ## Naming
 
-- componenti React: `PascalCase` (`TableEditor.tsx`)
-- hook/store: `camelCase` (`useSchemaStore`)
-- cartelle feature: `kebab-case` (`table-editor`)
-- file style: stesso nome componente + `.module.scss`
+- React components: `PascalCase` (`TableEditor.tsx`)
+- hooks/stores/functions: `camelCase` (`useSchemaStore`)
+- feature folders: `kebab-case` (`table-editor`)
+- styles: same component name + `.module.scss`
 
-## Import e alias
+## Imports and aliases
 
-- usare alias `@/` per codice in `src`.
-- esempio:
+- Prefer `@/` alias for source imports.
 
 ```ts
 import { useSchemaStore } from '@/store/schemaStore'
 import { generateProjectSql } from '@/lib/sql/generateSql'
 ```
 
-## Responsabilita del file
+## Single responsibility
 
-- un file deve avere responsabilita chiara.
-- evitare file monolitici con logica non correlata.
-- se una funzione cresce troppo, estrarla in `lib` o helper locale.
+- each file should have one clear responsibility
+- split large logic into helpers (`lib` or local pure helpers)
+- avoid monolithic components
 
-## Pattern componenti
+## Component file layout
 
-Struttura raccomandata:
+Recommended order:
 
-1. import
-2. type/interface locali
-3. helper puri locali
-4. componente
-5. return JSX
+1. imports
+2. local types/interfaces
+3. pure local helpers
+4. component implementation
+5. JSX return
 
-Esempio minimo:
+## State and effects
 
-```tsx
-interface ExampleProps {
-  label: string
-}
+- use `useMemo` for expensive derived data
+- use `useEffect` only for real side effects
+- avoid duplicating store state in local state unless required
 
-function normalize(raw: string): string {
-  return raw.trim().toLowerCase()
-}
+## Error handling in UI
 
-export function Example({ label }: ExampleProps) {
-  const value = normalize(label)
-  return <span>{value}</span>
-}
-```
+- use dialog API (`confirm`, `prompt`, `alert`) for critical actions
+- provide explicit fallback UI (`EmptyState`) when context is missing
 
-## Stato e side effect
+## Lint compliance
 
-- usare `useMemo` per derivazioni costose.
-- usare `useEffect` solo per side effect reali.
-- non derivare stato locale duplicando stato store se non serve.
-
-## Gestione errori UI
-
-- usare `DialogProvider` (`confirm`, `prompt`, `alert`) per conferme critiche.
-- fallback UI espliciti (`EmptyState`) quando manca contesto (es. nessuna tabella selezionata).
-
-## Regole lint da rispettare
-
-- `npm run lint` deve essere pulito.
-- no warning ignorati in modo sistematico.
-- no codice morto introdotto da nuove feature.
+- `npm run lint` must be clean
+- do not leave dead code after refactor
+- do not suppress lint errors without clear justification

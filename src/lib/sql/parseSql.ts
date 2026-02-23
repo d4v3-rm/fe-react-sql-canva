@@ -256,7 +256,7 @@ function parseColumnDefinition(
 ): ColumnModel | null {
   const match = line.match(/^("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+(.+)$/)
   if (!match) {
-    warnings.push(`Definizione colonna ignorata: ${line}`)
+    warnings.push(`Ignored column definition: ${line}`)
     return null
   }
 
@@ -348,7 +348,7 @@ function parseCreateTableStatements(cleanedSql: string): {
   while (match) {
     const tableRef = parseTableRef(match[1])
     if (tableKeys.has(tableRef.key)) {
-      warnings.push(`Tabella duplicata ignorata: ${tableRef.schema}.${tableRef.name}`)
+      warnings.push(`Ignored duplicate table: ${tableRef.schema}.${tableRef.name}`)
       match = createTablePattern.exec(cleanedSql)
       continue
     }
@@ -387,7 +387,7 @@ function parseCreateTableStatements(cleanedSql: string): {
 
     if (columns.length === 0) {
       columns.push(createDefaultColumn('id'))
-      warnings.push(`Tabella ${tableRef.schema}.${tableRef.name} senza colonne valide. Creata colonna di fallback 'id'.`)
+      warnings.push(`Table ${tableRef.schema}.${tableRef.name} has no valid columns. Added fallback column 'id'.`)
     }
 
     if (primaryFromConstraints.length > 0) {
@@ -466,7 +466,7 @@ function materializeRelations(
     const targetTable = tableMap.get(seed.targetTableKey)
 
     if (!sourceTable || !targetTable) {
-      warnings.push(`Relazione ignorata (tabella mancante): ${seed.constraintName}`)
+      warnings.push(`Ignored relation (missing table): ${seed.constraintName}`)
       return
     }
 
@@ -474,7 +474,7 @@ function materializeRelations(
     const targetColumn = targetTable.columns.find((column) => column.name === seed.targetColumn)
 
     if (!sourceColumn || !targetColumn) {
-      warnings.push(`Relazione ignorata (colonna mancante): ${seed.constraintName}`)
+      warnings.push(`Ignored relation (missing column): ${seed.constraintName}`)
       return
     }
 
@@ -540,7 +540,7 @@ export function parseSqlSchema(sql: string): SqlImportResult {
     parsedDb.parsedCount + parsedSchemas.parsedCount + parsedExtensions.parsedCount + tables.length + relationSeeds.length
 
   if (parsedEntities === 0) {
-    warnings.push('Nessuna istruzione SQL compatibile trovata nel file.')
+    warnings.push('No compatible SQL statements were found in the file.')
   }
 
   return {

@@ -176,7 +176,7 @@ export default function App() {
         <button
           className={clsx(styles.windowButton, styles.minimizeButton)}
           onClick={() => togglePaneCollapsed(pane)}
-          title={collapsed ? 'Espandi pannello' : 'Collassa pannello'}
+          title={collapsed ? 'Expand panel' : 'Collapse panel'}
           type="button"
         >
           {collapsed ? <Plus size={12} /> : <Minus size={12} />}
@@ -186,7 +186,7 @@ export default function App() {
           <button
             className={clsx(styles.windowButton, styles.maximizeButton)}
             onClick={() => handleToggleMaximize(pane)}
-            title={maximizedPane === pane ? 'Ripristina layout' : 'Massimizza pannello'}
+            title={maximizedPane === pane ? 'Restore layout' : 'Maximize panel'}
             type="button"
           >
             {maximizedPane === pane ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
@@ -224,8 +224,8 @@ export default function App() {
         </div>
 
         <div className={styles.headerMeta}>
-          <span>{tables.length} tabelle</span>
-          <span>{relations.length} relazioni</span>
+          <span>{tables.length} tables</span>
+          <span>{relations.length} relations</span>
           <kbd>Ctrl+K</kbd>
         </div>
       </header>
@@ -256,7 +256,7 @@ export default function App() {
           <div
             className={styles.splitter}
             role="separator"
-            aria-label="Ridimensiona pannello sinistro"
+            aria-label="Resize left panel"
             aria-orientation="vertical"
             onDoubleClick={resetPaneWidths}
             onPointerDown={(event) => startResize('left', event)}
@@ -290,7 +290,7 @@ export default function App() {
           <div
             className={styles.splitter}
             role="separator"
-            aria-label="Ridimensiona pannello destro"
+            aria-label="Resize right panel"
             aria-orientation="vertical"
             onDoubleClick={resetPaneWidths}
             onPointerDown={(event) => startResize('right', event)}

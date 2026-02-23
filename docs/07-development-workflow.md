@@ -1,29 +1,29 @@
 # 07 - Development Workflow
 
-## Setup locale
+## Local setup
 
 ```bash
 npm install
 npm run dev
 ```
 
-## Branching consigliato
+## Branch naming
 
-Formato suggerito:
+Suggested format:
 
 - `feat/<scope>-<short-description>`
 - `fix/<scope>-<short-description>`
 - `refactor/<scope>-<short-description>`
 - `docs/<scope>-<short-description>`
 
-Esempi:
+Examples:
 
-- `feat/sql-add-partial-index-support`
+- `feat/sql-composite-unique-support`
 - `fix/explorer-schema-drop-highlight`
 
-## Stile commit
+## Commit style
 
-Usare prefissi chiari:
+Use clear prefixes:
 
 - `feat:`
 - `fix:`
@@ -31,33 +31,33 @@ Usare prefissi chiari:
 - `docs:`
 - `chore:`
 
-Esempio:
+Example:
 
 ```text
 feat(sql): support composite unique constraints in parser
 ```
 
-## Ciclo operativo consigliato
+## Recommended implementation cycle
 
-1. analisi impatto su dominio/store/UI
-2. implementazione minima funzionante
-3. rifinitura naming e splitting file
-4. lint + build
-5. smoke test manuale
-6. commit atomico
+1. analyze impact on domain/store/UI
+2. implement minimum working change
+3. refactor naming/splitting
+4. run lint + build
+5. run manual smoke checks
+6. commit in small logical steps
 
-## Definition of Done
+## Definition of done
 
-Una task e completa solo se:
+A task is complete only when:
 
-- comportamento richiesto presente
-- nessuna regressione evidente nel flusso principale
-- `npm run lint` e `npm run build` passano
-- documentazione aggiornata se cambia una convenzione o un flusso
+- requested behavior is implemented
+- no visible regression on main flows
+- `npm run lint` and `npm run build` pass
+- docs are updated when conventions or flows change
 
-## Cosa evitare
+## What to avoid
 
-- fix veloci che aggirano tipi/architettura
-- codice duplicato in piu feature
-- side effect in componenti presentazionali
-- hardcode di costanti dominio direttamente in UI
+- bypass fixes that weaken type safety
+- duplicated logic across features
+- business side effects inside presentational components
+- hardcoded domain constants inside UI layers

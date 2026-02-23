@@ -23,14 +23,14 @@ interface InspectorPanelProps {
 }
 
 const LAYOUT_PRESETS: { id: QuickLayoutPreset; label: string }[] = [
-  { id: 'balanced', label: 'Bilanciato' },
+  { id: 'balanced', label: 'Balanced' },
   { id: 'focus_canvas', label: 'Canvas' },
   { id: 'focus_inspector', label: 'Inspector' },
   { id: 'focus_sql', label: 'SQL' },
 ]
 
 const LAYOUT_PRESET_LABELS: Record<LayoutPreset, string> = {
-  balanced: 'Bilanciato',
+  balanced: 'Balanced',
   focus_canvas: 'Canvas',
   focus_inspector: 'Inspector',
   focus_sql: 'SQL',
@@ -49,10 +49,10 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
 
   const subtitle = useMemo(() => {
     if (!selectedTable) {
-      return `Database ${database.name} | ${database.schemas.length} schemi | ${relationCount} relazioni`
+      return `Database ${database.name} | ${database.schemas.length} schemas | ${relationCount} relations`
     }
 
-    return `Tabella ${selectedTable.schema}.${selectedTable.name} | ${selectedTable.columns.length} colonne`
+    return `Table ${selectedTable.schema}.${selectedTable.name} | ${selectedTable.columns.length} columns`
   }, [database.name, database.schemas.length, relationCount, selectedTable])
 
   return (
@@ -63,11 +63,11 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
           <p>{subtitle}</p>
         </div>
 
-        <CollapsiblePanel title="Vista" subtitle="Layout workspace e tema." defaultOpen={false}>
+        <CollapsiblePanel title="View" subtitle="Workspace layout and theme." defaultOpen={false}>
           <div className={styles.viewHeader}>
             <Button compact variant="ghost" onClick={toggleTheme}>
               {theme === 'dark' ? <MoonStar size={12} /> : <SunMedium size={12} />}
-              {theme === 'dark' ? 'Tema dark' : 'Tema light'}
+              {theme === 'dark' ? 'Dark theme' : 'Light theme'}
             </Button>
 
             <span className={styles.presetMeta}>Preset: {LAYOUT_PRESET_LABELS[activeLayoutPreset]}</span>
@@ -95,7 +95,7 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             type="button"
           >
             <PanelsTopLeft size={13} />
-            Struttura
+            Structure
           </button>
 
           <button
@@ -104,7 +104,7 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             type="button"
           >
             <Network size={13} />
-            Relazioni
+            Relations
           </button>
 
           <button
@@ -133,8 +133,8 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
           ) : (
             <section className={styles.emptyPanel}>
               <EmptyState
-                title="Nessuna tabella selezionata"
-                body="Apri una tabella dall'explorer o dal canvas per creare e modificare relazioni."
+                title="No table selected"
+                body="Open a table from Explorer or Canvas to create and edit relations."
               />
             </section>
           )

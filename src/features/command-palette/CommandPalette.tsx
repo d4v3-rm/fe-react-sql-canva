@@ -45,24 +45,24 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     () => [
       {
         id: 'new-table',
-        label: 'Nuova tabella',
-        description: 'Crea una nuova tabella nello schema principale.',
-        keywords: ['new', 'table', 'tabella', 'create'],
+        label: 'New table',
+        description: 'Create a new table in the primary schema.',
+        keywords: ['new', 'table', 'create', 'schema'],
         icon: <Database size={14} />,
         run: addTable,
       },
       {
         id: 'new-schema',
-        label: 'Nuovo schema',
-        description: 'Aggiunge uno schema PostgreSQL al database.',
+        label: 'New schema',
+        description: 'Add a PostgreSQL schema to the database.',
         keywords: ['schema', 'create', 'db'],
         icon: <FolderPlus size={14} />,
         run: () =>
           (async () => {
             const nextSchema = await prompt({
-              title: 'Nuovo schema',
+              title: 'New schema',
               placeholder: 'public',
-              confirmLabel: 'Crea schema',
+              confirmLabel: 'Create schema',
             })
 
             if (!nextSchema || nextSchema.trim() === '') {
@@ -75,15 +75,15 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             }
 
             await alert({
-              title: 'Schema non valido',
-              message: 'Schema gia esistente o nome non valido.',
+              title: 'Invalid schema',
+              message: 'Schema already exists or the name is invalid.',
             })
           })(),
       },
       {
         id: 'layout-balanced',
-        label: 'Layout: bilanciato',
-        description: 'Ripristina il layout standard a tre pannelli.',
+        label: 'Layout: balanced',
+        description: 'Restore the default three-panel layout.',
         keywords: ['layout', 'balanced', 'default', 'reset'],
         icon: <PanelsTopLeft size={14} />,
         run: () => applyLayoutPreset('balanced'),
@@ -91,7 +91,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {
         id: 'layout-canvas',
         label: 'Layout: focus canvas',
-        description: 'Massimizza il canvas relazionale.',
+        description: 'Maximize the relationship canvas.',
         keywords: ['layout', 'canvas', 'focus'],
         icon: <PanelsTopLeft size={14} />,
         run: () => applyLayoutPreset('focus_canvas'),
@@ -99,7 +99,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {
         id: 'layout-inspector',
         label: 'Layout: focus inspector',
-        description: 'Massimizza il pannello inspector.',
+        description: 'Maximize the inspector panel.',
         keywords: ['layout', 'inspector', 'focus'],
         icon: <PanelsTopLeft size={14} />,
         run: () => {
@@ -110,7 +110,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {
         id: 'layout-sql',
         label: 'Layout: focus sql',
-        description: 'Massimizza inspector e apre l editor SQL.',
+        description: 'Maximize inspector and open the SQL editor.',
         keywords: ['layout', 'sql', 'focus', 'editor'],
         icon: <PanelsTopLeft size={14} />,
         run: () => {
@@ -121,7 +121,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {
         id: 'fit-canvas',
         label: 'Canvas: fit all',
-        description: 'Adatta il canvas per visualizzare tutte le tabelle.',
+        description: 'Fit the canvas viewport to show all tables.',
         keywords: ['canvas', 'fit', 'zoom', 'all'],
         icon: <Telescope size={14} />,
         run: requestFitView,
@@ -129,31 +129,31 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       {
         id: 'center-selected',
         label: 'Canvas: center selected',
-        description: 'Centra il canvas sulla tabella selezionata.',
+        description: 'Center the canvas on the selected table.',
         keywords: ['canvas', 'center', 'selected', 'focus'],
         icon: <Telescope size={14} />,
         run: requestCenterSelected,
       },
       {
         id: 'toggle-theme',
-        label: 'Cambia tema',
-        description: 'Alterna tra tema light e dark.',
+        label: 'Toggle theme',
+        description: 'Switch between light and dark theme.',
         keywords: ['theme', 'dark', 'light', 'ui'],
         icon: <SunMoon size={14} />,
         run: toggleTheme,
       },
       {
         id: 'clear-project',
-        label: 'Nuovo progetto vuoto',
-        description: 'Resetta interamente il progetto corrente.',
+        label: 'New empty project',
+        description: 'Fully reset the current project.',
         keywords: ['reset', 'clear', 'project'],
         icon: <Binary size={14} />,
         run: () =>
           (async () => {
             const approved = await confirm({
-              title: 'Nuovo progetto vuoto',
-              message: 'Creare un nuovo progetto vuoto? I dati correnti saranno rimossi.',
-              confirmLabel: 'Crea progetto',
+              title: 'New empty project',
+              message: 'Create a new empty project? Current data will be removed.',
+              confirmLabel: 'Create project',
               tone: 'danger',
             })
 
@@ -171,9 +171,9 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
         run: () =>
           (async () => {
             const approved = await confirm({
-              title: `Applicare template "${template.name}"`,
-              message: 'Il progetto corrente verra sovrascritto.',
-              confirmLabel: 'Applica template',
+              title: `Apply template "${template.name}"`,
+              message: 'The current project will be overwritten.',
+              confirmLabel: 'Apply template',
               tone: 'danger',
             })
 
@@ -290,7 +290,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           <Search size={15} />
           <input
             autoFocus
-            placeholder="Cerca comando (es: template, tabella, schema...)"
+            placeholder="Search command (e.g. template, table, schema...)"
             value={query}
             onChange={(event) => {
               setQuery(event.target.value)
@@ -302,7 +302,7 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
 
         <div className={styles.list}>
           {filteredActions.length === 0 ? (
-            <p className={styles.empty}>Nessun comando trovato.</p>
+            <p className={styles.empty}>No commands found.</p>
           ) : (
             filteredActions.map((action, index) => (
               <button
