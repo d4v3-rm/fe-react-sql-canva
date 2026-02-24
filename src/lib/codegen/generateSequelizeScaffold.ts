@@ -1,3 +1,4 @@
+import { t } from '@/i18n'
 import type { ColumnModel, DatabaseModel, RelationModel, TableModel } from '@/domain/schema'
 
 export interface GeneratedScaffoldFile {
@@ -334,15 +335,15 @@ function buildModelSource(
   const validatorImports = collectValidatorImports(context.table.columns)
   const outgoingRelations = relationsBySourceTable.get(context.table.id) ?? []
   const incomingRelations = relationsByTargetTable.get(context.table.id) ?? []
-
-  const usedMemberNames = new Set<string>([...context.columnPropertyById.values()].map((value) => value.toLowerCase()))
-  const sequelizeDecoratorImports = new Set<string>(['Model', 'Table', 'Column', 'DataType', 'AllowNull'])
   const relationClassImports = new Set<string>()
   const relationLines: string[] = []
+  const sectionColumns: string[] = []
 
+  const sequelizeDecoratorImports = new Set<string>(['Model', 'Table', 'Column', 'DataType', 'AllowNull'])
   const ensureUniqueMember = (baseRaw: string, fallback: string): string => {
     const base = sanitizeMemberName(baseRaw, fallback)
-    return allocateUnique(base, usedMemberNames, (value, index) => `${value}${index}`)
+    const used = new Set<string>([...context.columnPropertyById.values()])
+    return allocateUnique(base, used, (value, index) => `${value}${index}`)
   }
 
   const columnBlocks = context.table.columns.map((column) => {
@@ -432,7 +433,10 @@ function buildModelSource(
 
     if (isOneToOne) {
       sequelizeDecoratorImports.add('HasOne')
-      const relationName = ensureUniqueMember(`${toCamelCase(sourceContext.table.name)}By${toPascalCase(sourceForeignKey)}`, 'related')
+      const relationName = ensureUniqueMember(
+        `${toCamelCase(sourceContext.table.name)}By${toPascalCase(sourceForeignKey)}`,
+        'related',
+      )
       relationLines.push(`  @HasOne(() => ${sourceContext.className}, { foreignKey: '${sourceForeignKey}', as: '${relationName}' })`)
       relationLines.push(`  declare ${relationName}?: ${sourceContext.className}`)
       relationLines.push('')
@@ -440,7 +444,10 @@ function buildModelSource(
     }
 
     sequelizeDecoratorImports.add('HasMany')
-    const relationName = ensureUniqueMember(`${toCamelCase(sourceContext.table.name)}ListBy${toPascalCase(sourceForeignKey)}`, 'relatedList')
+    const relationName = ensureUniqueMember(
+      `${toCamelCase(sourceContext.table.name)}ListBy${toPascalCase(sourceForeignKey)}`,
+      'relatedList',
+    )
     relationLines.push(`  @HasMany(() => ${sourceContext.className}, { foreignKey: '${sourceForeignKey}', as: '${relationName}' })`)
     relationLines.push(`  declare ${relationName}?: ${sourceContext.className}[]`)
     relationLines.push('')
@@ -506,7 +513,7 @@ function buildModelsIndex(contexts: TableContext[]): string {
 }
 
 function buildDatabaseBootstrap(database: DatabaseModel, contexts: TableContext[]): string {
-  const classNames = contexts.map((context) => context.className).sort((a, b) => a.localeCompare(b))
+  const classNames = contexts.map((context) => context.className).sort((a, b) => a.className.localeCompare(b))
   const importModelsLine = classNames.length > 0 ? `import { ${classNames.join(', ')} } from '../models'\n` : ''
   const modelsArray = classNames.length > 0 ? `[${classNames.join(', ')}]` : '[]'
 
@@ -576,18 +583,18 @@ function buildTsConfig(): string {
 }
 
 function buildReadme(database: DatabaseModel, contexts: TableContext[]): string {
-  const modelLines = contexts.length > 0 ? contexts.map((context) => `- ${context.className}`).join('\n') : '- No models available'
+  const modelLines = contexts.length > 0 ? contexts.map((context) => `- ${context.className}`).join('\n') : `- ${t('sequelizeScaffold.readmeFallback')}`
 
   return `# ${database.name} - Sequelize Scaffold
 
-TypeScript scaffolding generated in real time by SQL Canvas.
+${t('sequelizeScaffold.readmeHeader')}
 
 ## Stack
 - sequelize
 - sequelize-typescript
 - class-validator
 
-## Modelli generati
+## ${t('sequelizeScaffold.readmeModelsSection')}
 ${modelLines}
 `
 }

@@ -1,6 +1,7 @@
 import { useCallback, useEffect, useMemo, useRef, useState, type PropsWithChildren } from 'react'
 
 import { Button } from '@/components/ui/Button'
+import { t } from '@/i18n'
 
 import {
   DialogContext,
@@ -225,7 +226,7 @@ export function DialogProvider({ children }: PropsWithChildren) {
             <footer className={styles.actions}>
               {activeDialog.kind !== 'alert' ? (
                 <Button variant="ghost" compact onClick={closeWithCancel}>
-                  {activeDialog.options.cancelLabel ?? 'Cancel'}
+                  {activeDialog.options.cancelLabel ?? t('dialog.cancel')}
                 </Button>
               ) : null}
 
@@ -235,7 +236,7 @@ export function DialogProvider({ children }: PropsWithChildren) {
                 compact
                 onClick={closeWithConfirm}
               >
-                {activeDialog.options.confirmLabel ?? (activeDialog.kind === 'alert' ? 'Close' : 'Confirm')}
+                {activeDialog.options.confirmLabel ?? (activeDialog.kind === 'alert' ? t('dialog.close') : t('dialog.confirm'))}
               </Button>
             </footer>
           </section>

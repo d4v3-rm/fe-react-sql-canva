@@ -1,5 +1,6 @@
 import { createDefaultColumn, createDefaultDatabase } from '@/domain/defaults'
 import type { ColumnModel, DatabaseModel, ForeignKeyAction, RelationModel, SqlImportResult, TableModel } from '@/domain/schema'
+import { t } from '@/i18n'
 import { createId } from '@/lib/id'
 import { normalizeIdentifier } from '@/lib/sql/identifiers'
 import { normalizeDataType } from '@/lib/sql/types'
@@ -256,7 +257,7 @@ function parseColumnDefinition(
 ): ColumnModel | null {
   const match = line.match(/^("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+(.+)$/)
   if (!match) {
-    warnings.push(`Ignored column definition: ${line}`)
+    warnings.push(t('sqlParser.warnings.ignoredColumn', { line }))
     return null
   }
 
@@ -270,7 +271,7 @@ function parseColumnDefinition(
   const defaultMatch = constraintsSql.match(/\bDEFAULT\s+(.+?)(?=\s+(?:NOT\s+NULL|NULL|PRIMARY\s+KEY|UNIQUE|REFERENCES|CHECK|CONSTRAINT)\b|$)/i)
 
   const referencesMatch = constraintsSql.match(
-    /REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\)/i,
+    /REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)/i,
   )
 
   if (referencesMatch) {
@@ -302,7 +303,7 @@ function parseColumnDefinition(
 
 function parseForeignConstraint(line: string, sourceTableKey: string): RawRelation | null {
   const pattern =
-    /(?:CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+)?FOREIGN\s+KEY\s*\(("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\)([\s\S]*)/i
+    /(?:CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+)?FOREIGN\s+KEY\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)([\s\S]*)/i
   const match = line.match(pattern)
   if (!match) {
     return null
@@ -348,7 +349,7 @@ function parseCreateTableStatements(cleanedSql: string): {
   while (match) {
     const tableRef = parseTableRef(match[1])
     if (tableKeys.has(tableRef.key)) {
-      warnings.push(`Ignored duplicate table: ${tableRef.schema}.${tableRef.name}`)
+      warnings.push(t('sqlParser.warnings.duplicateTable', { qualifiedName: `${tableRef.schema}.${tableRef.name}` }))
       match = createTablePattern.exec(cleanedSql)
       continue
     }
@@ -387,7 +388,11 @@ function parseCreateTableStatements(cleanedSql: string): {
 
     if (columns.length === 0) {
       columns.push(createDefaultColumn('id'))
-      warnings.push(`Table ${tableRef.schema}.${tableRef.name} has no valid columns. Added fallback column 'id'.`)
+      warnings.push(
+        t('sqlParser.warnings.fallbackColumn', {
+          qualifiedName: `${tableRef.schema}.${tableRef.name}`,
+        }),
+      )
     }
 
     if (primaryFromConstraints.length > 0) {
@@ -422,7 +427,7 @@ function parseCreateTableStatements(cleanedSql: string): {
 
 function parseAlterTableRelations(cleanedSql: string): RawRelation[] {
   const pattern =
-    /ALTER\s+TABLE\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s+ADD\s+CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+FOREIGN\s+KEY\s*\(("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\)([\s\S]*?);/gi
+    /ALTER\s+TABLE\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s+ADD\s+CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+FOREIGN\s+KEY\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)([\s\S]*?);/gi
 
   const relations: RawRelation[] = []
 
@@ -466,7 +471,7 @@ function materializeRelations(
     const targetTable = tableMap.get(seed.targetTableKey)
 
     if (!sourceTable || !targetTable) {
-      warnings.push(`Ignored relation (missing table): ${seed.constraintName}`)
+      warnings.push(t('sqlParser.warnings.relationMissingTable', { name: seed.constraintName }))
       return
     }
 
@@ -474,7 +479,7 @@ function materializeRelations(
     const targetColumn = targetTable.columns.find((column) => column.name === seed.targetColumn)
 
     if (!sourceColumn || !targetColumn) {
-      warnings.push(`Ignored relation (missing column): ${seed.constraintName}`)
+      warnings.push(t('sqlParser.warnings.relationMissingColumn', { name: seed.constraintName }))
       return
     }
 
@@ -540,7 +545,7 @@ export function parseSqlSchema(sql: string): SqlImportResult {
     parsedDb.parsedCount + parsedSchemas.parsedCount + parsedExtensions.parsedCount + tables.length + relationSeeds.length
 
   if (parsedEntities === 0) {
-    warnings.push('No compatible SQL statements were found in the file.')
+    warnings.push(t('sqlParser.warnings.noStatements'))
   }
 
   return {

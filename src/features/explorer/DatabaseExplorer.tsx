@@ -22,6 +22,7 @@ import { Button } from '@/components/ui/Button'
 import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
 import { useDialog } from '@/components/ui/dialog/useDialog'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { t } from '@/i18n'
 import { readTextFile } from '@/lib/file/textFile'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -135,11 +136,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       const nextName = await prompt({
-        title: `Rename ${table.schema}.${table.name}`,
-        message: 'Enter the new table name.',
+        title: t('databaseExplorer.rename.title', { table: `${table.schema}.${table.name}` }),
+        message: t('databaseExplorer.rename.message'),
         defaultValue: table.name,
-        placeholder: 'users',
-        confirmLabel: 'Rename',
+        placeholder: t('databaseExplorer.rename.placeholder'),
+        confirmLabel: t('databaseExplorer.rename.confirm'),
       })
 
       if (!nextName || nextName.trim() === '' || nextName === table.name) {
@@ -152,9 +153,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       await alert({
-        title: 'Rename unavailable',
-        message: 'A table with this name already exists in the same schema.',
-        confirmLabel: 'Close',
+        title: t('databaseExplorer.rename.errorTitle'),
+        message: t('databaseExplorer.rename.errorMessage'),
+        confirmLabel: t('dialog.close'),
       })
     })()
   }
@@ -174,11 +175,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       const nextSchema = await prompt({
-        title: `Move ${table.name} to another schema`,
-        message: `Available schemas: ${database.schemas.join(', ')}`,
+        title: t('databaseExplorer.move.title', { name: table.name }),
+        message: t('databaseExplorer.move.message', { schemas: database.schemas.join(', ') }),
         defaultValue: table.schema,
-        placeholder: 'public',
-        confirmLabel: 'Move',
+        placeholder: t('databaseExplorer.move.placeholder'),
+        confirmLabel: t('databaseExplorer.move.confirm'),
       })
 
       if (!nextSchema || nextSchema.trim() === '' || nextSchema.trim() === table.schema) {
@@ -195,9 +196,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     void (async () => {
       const table = tableMap.get(tableId)
       const confirmed = await confirm({
-        title: 'Delete table',
-        message: `Delete table ${table?.schema}.${table?.name}?`,
-        confirmLabel: 'Delete',
+        title: t('databaseExplorer.delete.title'),
+        message: t('databaseExplorer.delete.message', { table: `${table?.schema}.${table?.name}` }),
+        confirmLabel: t('databaseExplorer.delete.confirm'),
         tone: 'danger',
       })
 
@@ -211,10 +212,10 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     void (async () => {
       const suggestedSchema = `schema_${database.schemas.length + 1}`
       const nextSchema = await prompt({
-        title: 'New PostgreSQL schema',
+        title: t('databaseExplorer.schema.title'),
         defaultValue: suggestedSchema,
-        placeholder: 'public',
-        confirmLabel: 'Create schema',
+        placeholder: t('databaseExplorer.schema.placeholder'),
+        confirmLabel: t('databaseExplorer.schema.confirm'),
       })
 
       if (!nextSchema || nextSchema.trim() === '') {
@@ -227,9 +228,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       }
 
       await alert({
-        title: 'Invalid schema',
-        message: 'Schema already exists or the name is invalid.',
-        confirmLabel: 'Close',
+        title: t('databaseExplorer.schema.invalidTitle'),
+        message: t('databaseExplorer.schema.invalidMessage'),
+        confirmLabel: t('dialog.close'),
       })
     })()
   }
@@ -322,9 +323,9 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
 
   async function handleResetProject() {
     const confirmed = await confirm({
-      title: 'New empty project',
-      message: 'Create a new empty project? Current data will be removed.',
-      confirmLabel: 'Create project',
+      title: t('databaseExplorer.reset.title'),
+      message: t('databaseExplorer.reset.message'),
+      confirmLabel: t('databaseExplorer.reset.confirm'),
       tone: 'danger',
     })
 
@@ -335,46 +336,52 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
 
   return (
     <section className={styles.explorer}>
-      <CollapsiblePanel title="Workspace" subtitle="Project actions and SQL import." defaultOpen={false}>
+      <CollapsiblePanel
+        title={t('databaseExplorer.workspaceTitle')}
+        subtitle={t('databaseExplorer.workspaceSubtitle')}
+        defaultOpen={false}
+      >
         <div className={styles.workspaceButtons}>
           <Button compact onClick={addTable}>
             <Plus size={12} />
-            New table
+            {t('databaseExplorer.newTable')}
           </Button>
 
           <Button compact variant="ghost" onClick={handleAddSchema}>
             <FolderPlus size={12} />
-            New schema
+            {t('databaseExplorer.newSchema')}
           </Button>
 
           <Button compact variant="ghost" onClick={handleOpenImportDialog} disabled={importing}>
             <FileUp size={12} />
-            {importing ? 'Importing...' : 'Import SQL'}
+            {importing ? t('databaseExplorer.importing') : t('databaseExplorer.importSql')}
           </Button>
 
           <Button compact variant="ghost" onClick={onOpenCommandPalette}>
             <Command size={12} />
-            Commands
+            {t('databaseExplorer.commands')}
           </Button>
 
           <Button compact variant="danger" onClick={() => void handleResetProject()}>
             <RotateCcw size={12} />
-            New project
+            {t('databaseExplorer.newProject')}
           </Button>
         </div>
 
         <div className={styles.workspaceMeta}>
-          <p>Last saved: {new Date(lastSavedAt).toLocaleTimeString('en-US')}</p>
-          {warnings.length > 0 ? <Badge tone="warning">Import warnings: {warnings.length}</Badge> : null}
+          <p>
+            {t('databaseExplorer.lastSavedLabel')}: {new Date(lastSavedAt).toLocaleTimeString('en-US')}
+          </p>
+          {warnings.length > 0 ? <Badge tone="warning">{t('databaseExplorer.importWarnings', { count: warnings.length })}</Badge> : null}
         </div>
       </CollapsiblePanel>
 
-      <p className={styles.explorerIntro}>Browse databases, schemas, and tables in a hierarchical view.</p>
+      <p className={styles.explorerIntro}>{t('databaseExplorer.intro')}</p>
       <div className={styles.topRow}>
         <label className={styles.searchField}>
           <Search size={14} />
           <input
-            placeholder="Search schema or table"
+            placeholder={t('databaseExplorer.searchPlaceholder')}
             value={query}
             onChange={(event) => setQuery(event.target.value)}
           />
@@ -393,11 +400,11 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
           <Database size={15} />
           <strong>{database.name}</strong>
         </div>
-        <Badge>{tables.length} tables</Badge>
+        <Badge>{t('databaseExplorer.databaseTableCount', { count: tables.length })}</Badge>
       </button>
 
       {filteredGroups.length === 0 ? (
-        <EmptyState title="No results" body="No schema or table matches the current filter." />
+        <EmptyState title={t('databaseExplorer.noResults')} body={t('databaseExplorer.noResultsBody')} />
       ) : (
         <div className={styles.tree}>
           {filteredGroups.map((group) => (
@@ -421,7 +428,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
               </header>
 
               {group.tables.length === 0 ? (
-                <p className={styles.emptySchema}>Drag a table here or create a new one.</p>
+                <p className={styles.emptySchema}>{t('databaseExplorer.emptySchema')}</p>
               ) : (
                 <div className={styles.tableRows}>
                   {group.tables.map((table) => (
@@ -472,19 +479,19 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                           <div className={styles.contextMenu}>
                             <button onClick={() => handleRenameTable(table.id)} type="button">
                               <Pencil size={12} />
-                              Rename
+                              {t('databaseExplorer.context.rename')}
                             </button>
                             <button onClick={() => handleDuplicateTable(table.id)} type="button">
                               <Copy size={12} />
-                              Duplicate
+                              {t('databaseExplorer.context.duplicate')}
                             </button>
                             <button onClick={() => handleMoveTable(table.id)} type="button">
                               <ArrowRightLeft size={12} />
-                              Move
+                              {t('databaseExplorer.context.move')}
                             </button>
                             <button className={styles.dangerAction} onClick={() => handleDeleteTable(table.id)} type="button">
                               <Trash2 size={12} />
-                              Delete
+                              {t('databaseExplorer.context.delete')}
                             </button>
                           </div>
                         ) : null}

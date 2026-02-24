@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { t } from '@/i18n'
 import { useSchemaStore } from '@/store/schemaStore'
 
 import styles from './TableList.module.scss'
@@ -19,11 +20,15 @@ export function TableList() {
   return (
     <Card
       className={styles.tableList}
-      title="Tables"
-      subtitle={`${database.schemas.length} schemas | ${tables.length} tables in ${database.name}`}
+      title={t('tableList.title')}
+      subtitle={t('tableList.subtitle', {
+        schemaCount: database.schemas.length,
+        tableCount: tables.length,
+        databaseName: database.name,
+      })}
     >
       {tables.length === 0 ? (
-        <EmptyState title="No tables" body="Add a new table from the toolbar to get started." />
+        <EmptyState title={t('tableList.emptyTitle')} body={t('tableList.emptyBody')} />
       ) : (
         <div className={styles.items}>
           {tables.map((table) => (
@@ -38,7 +43,7 @@ export function TableList() {
                 <span>{table.schema}</span>
               </div>
               <div className={styles.itemActions}>
-                <Badge>{table.columns.length} columns</Badge>
+                <Badge>{t('tableList.columns', { count: table.columns.length })}</Badge>
                 <Button
                   variant="danger"
                   compact
@@ -57,3 +62,4 @@ export function TableList() {
     </Card>
   )
 }
+

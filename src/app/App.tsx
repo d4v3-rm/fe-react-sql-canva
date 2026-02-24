@@ -6,6 +6,7 @@ import { SchemaCanvas } from '@/features/canvas/SchemaCanvas'
 import { CommandPalette } from '@/features/command-palette/CommandPalette'
 import { DatabaseExplorer } from '@/features/explorer/DatabaseExplorer'
 import { InspectorPanel } from '@/features/inspector/InspectorPanel'
+import { t } from '@/i18n'
 import { generateProjectSql } from '@/lib/sql/generateSql'
 import { useInspectorStore } from '@/store/inspectorStore'
 import { useLayoutStore, type PaneId, type QuickLayoutPreset } from '@/store/layoutStore'
@@ -27,14 +28,14 @@ function clamp(value: number, min: number, max: number): number {
 
 function paneTitle(pane: PaneId): string {
   if (pane === 'left') {
-    return 'Explorer'
+    return t('app.panes.explorer')
   }
 
   if (pane === 'center') {
-    return 'Canvas'
+    return t('app.panes.canvas')
   }
 
-  return 'Inspector'
+  return t('app.panes.inspector')
 }
 
 export default function App() {
@@ -176,7 +177,7 @@ export default function App() {
         <button
           className={clsx(styles.windowButton, styles.minimizeButton)}
           onClick={() => togglePaneCollapsed(pane)}
-          title={collapsed ? 'Expand panel' : 'Collapse panel'}
+          title={collapsed ? t('app.panel.expand') : t('app.panel.collapse')}
           type="button"
         >
           {collapsed ? <Plus size={12} /> : <Minus size={12} />}
@@ -186,7 +187,7 @@ export default function App() {
           <button
             className={clsx(styles.windowButton, styles.maximizeButton)}
             onClick={() => handleToggleMaximize(pane)}
-            title={maximizedPane === pane ? 'Restore layout' : 'Maximize panel'}
+            title={maximizedPane === pane ? t('app.panel.restore') : t('app.panel.maximize')}
             type="button"
           >
             {maximizedPane === pane ? <Minimize2 size={12} /> : <Maximize2 size={12} />}
@@ -219,14 +220,14 @@ export default function App() {
       <header className={styles.appHeader}>
         <div className={styles.headerBrand}>
           <DatabaseZap size={14} />
-          <strong>SQL Canvas</strong>
+          <strong>{t('app.brand')}</strong>
           <span>{database.name}</span>
         </div>
 
         <div className={styles.headerMeta}>
-          <span>{tables.length} tables</span>
-          <span>{relations.length} relations</span>
-          <kbd>Ctrl+K</kbd>
+          <span>{t('app.header.tables', { count: tables.length })}</span>
+          <span>{t('app.header.relations', { count: relations.length })}</span>
+          <kbd>{t('app.hotkey')}</kbd>
         </div>
       </header>
 
@@ -256,7 +257,7 @@ export default function App() {
           <div
             className={styles.splitter}
             role="separator"
-            aria-label="Resize left panel"
+            aria-label={t('app.resize.left')}
             aria-orientation="vertical"
             onDoubleClick={resetPaneWidths}
             onPointerDown={(event) => startResize('left', event)}
@@ -290,7 +291,7 @@ export default function App() {
           <div
             className={styles.splitter}
             role="separator"
-            aria-label="Resize right panel"
+            aria-label={t('app.resize.right')}
             aria-orientation="vertical"
             onDoubleClick={resetPaneWidths}
             onPointerDown={(event) => startResize('right', event)}

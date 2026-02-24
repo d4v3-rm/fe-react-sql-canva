@@ -4,6 +4,7 @@ import { Link2, Trash2 } from 'lucide-react'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { Field } from '@/components/ui/Field'
+import { t } from '@/i18n'
 import { FK_ACTIONS } from '@/domain/schema'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -58,9 +59,9 @@ export function RelationManager({ tableId }: RelationManagerProps) {
   }
 
   return (
-    <Card title="Relations" subtitle="Define foreign keys from the selected table.">
+    <Card title={t('relationManager.title')} subtitle={t('relationManager.subtitle')}>
       <div className={styles.createRelation}>
-        <Field label="Source column">
+        <Field label={t('relationManager.sourceColumn')}>
           <select value={safeSourceColumnId} onChange={(event) => setSourceColumnId(event.target.value)}>
             {sourceTable.columns.map((column) => (
               <option key={column.id} value={column.id}>
@@ -70,7 +71,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           </select>
         </Field>
 
-        <Field label="Target table">
+        <Field label={t('relationManager.targetTable')}>
           <select
             value={safeTargetTableId}
             onChange={(event) => {
@@ -86,7 +87,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           </select>
         </Field>
 
-        <Field label="Target column">
+        <Field label={t('relationManager.targetColumn')}>
           <select value={safeTargetColumnId} onChange={(event) => setTargetColumnId(event.target.value)}>
             {(selectedTargetTable?.columns ?? []).map((column) => (
               <option key={column.id} value={column.id}>
@@ -101,13 +102,13 @@ export function RelationManager({ tableId }: RelationManagerProps) {
           disabled={sourceTable.columns.length === 0 || targetTables.length === 0 || !safeTargetColumnId}
         >
           <Link2 size={14} />
-          Create relation
+          {t('relationManager.createRelation')}
         </Button>
       </div>
 
       <div className={styles.relationList}>
         {sourceRelations.length === 0 ? (
-          <p className={styles.empty}>No outgoing relations from the selected table.</p>
+          <p className={styles.empty}>{t('relationManager.emptyRelations')}</p>
         ) : (
           sourceRelations.map((relation) => {
             const targetTable = tables.find((table) => table.id === relation.targetTableId)
@@ -130,7 +131,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
                   {targetColumn?.name ?? '?'}
                 </p>
 
-                <Field label="Constraint name">
+                <Field label={t('relationManager.fieldConstraint')}>
                   <input
                     value={relation.constraintName}
                     onChange={(event) => updateRelation(relation.id, { constraintName: event.target.value })}
@@ -138,7 +139,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
                 </Field>
 
                 <div className={styles.actionsGrid}>
-                  <Field label="ON UPDATE">
+                  <Field label={t('relationManager.fieldOnUpdate')}>
                     <select
                       value={relation.onUpdate}
                       onChange={(event) => updateRelation(relation.id, { onUpdate: event.target.value as (typeof FK_ACTIONS)[number] })}
@@ -151,7 +152,7 @@ export function RelationManager({ tableId }: RelationManagerProps) {
                     </select>
                   </Field>
 
-                  <Field label="ON DELETE">
+                  <Field label={t('relationManager.fieldOnDelete')}>
                     <select
                       value={relation.onDelete}
                       onChange={(event) => updateRelation(relation.id, { onDelete: event.target.value as (typeof FK_ACTIONS)[number] })}

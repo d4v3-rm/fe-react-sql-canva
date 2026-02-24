@@ -4,6 +4,7 @@ import { Background, Controls, MiniMap, ReactFlow, type Edge, type NodeTypes, ty
 
 import { Button } from '@/components/ui/Button'
 import { useDialog } from '@/components/ui/dialog/useDialog'
+import { t } from '@/i18n'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
@@ -181,9 +182,9 @@ export function SchemaCanvas() {
 
   async function handleApplyTemplate(templateId: string, templateName: string) {
     const approved = await confirm({
-      title: `Apply template "${templateName}"`,
-      message: 'The current project will be overwritten.',
-      confirmLabel: 'Apply template',
+      title: t('canvas.templateApplyTitle', { name: templateName }),
+      message: t('canvas.templateApplyMessage'),
+      confirmLabel: t('canvas.templateApplyConfirm'),
       tone: 'danger',
     })
 
@@ -196,16 +197,13 @@ export function SchemaCanvas() {
 
   return (
     <section className={styles.canvasRoot}>
-      <p className={styles.canvasIntro}>Drag tables and visualize foreign key links.</p>
+      <p className={styles.canvasIntro}>{t('canvas.intro')}</p>
       {tables.length === 0 ? (
-        <EmptyState
-          title="Empty canvas"
-          body="Create at least one table to start modeling your PostgreSQL schema visually."
-        >
+        <EmptyState title={t('canvas.emptyTitle')} body={t('canvas.emptyBody')}>
           <div className={styles.quickStart}>
             <Button onClick={() => addTableInSchema('public')}>
               <Plus size={12} />
-              New table
+              {t('canvas.newTable')}
             </Button>
 
             <div className={styles.quickTemplates}>
@@ -228,15 +226,15 @@ export function SchemaCanvas() {
           <div className={styles.canvasActions}>
             <Button compact onClick={handleQuickAdd}>
               <Plus size={12} />
-              New table
+              {t('canvas.newTable')}
             </Button>
             <Button compact onClick={requestFitView}>
               <ScanSearch size={12} />
-              Fit all
+              {t('canvas.fitAll')}
             </Button>
             <Button compact onClick={requestCenterSelected} disabled={!selectedTableId}>
               <Focus size={12} />
-              Center selected
+              {t('canvas.centerSelected')}
             </Button>
           </div>
 

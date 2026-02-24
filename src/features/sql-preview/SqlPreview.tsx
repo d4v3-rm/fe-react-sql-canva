@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
+import { t } from '@/i18n'
 import { downloadTextFile } from '@/lib/file/textFile'
 import { useSchemaStore } from '@/store/schemaStore'
 
@@ -70,20 +71,27 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
     downloadTextFile('schema-export.sql', editableSql)
   }
 
+  const copyButtonLabel =
+    copyStatus === 'copied'
+      ? t('sqlPreview.copyStatusCopied')
+      : copyStatus === 'error'
+        ? t('sqlPreview.copyStatusError')
+        : t('sqlPreview.copyStatusCopy')
+
   const hasSyncError = editableSql !== sql && syncError
 
   return (
-    <Card title="SQL Editor" subtitle="Automatic synchronization with canvas (GUI <-> SQL).">
-      <CollapsiblePanel title="SQL actions" subtitle="Script operations and clipboard." defaultOpen={false}>
+    <Card title={t('sqlPreview.title')} subtitle={t('sqlPreview.subtitle')}>
+      <CollapsiblePanel title={t('sqlPreview.actionsTitle')} subtitle={t('sqlPreview.actionsSubtitle')} defaultOpen={false}>
         <div className={styles.sqlActions}>
           <Button compact variant="ghost" onClick={() => void handleCopySql()}>
             <Copy size={12} />
-            {copyStatus === 'copied' ? 'Copied' : copyStatus === 'error' ? 'Copy failed' : 'Copy SQL'}
+            {copyButtonLabel}
           </Button>
 
           <Button compact variant="ghost" onClick={handleExportSql}>
             <Download size={12} />
-            Export SQL
+            {t('sqlPreview.export')}
           </Button>
         </div>
       </CollapsiblePanel>
@@ -92,7 +100,7 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
         <div className={styles.warningBox}>
           <Badge tone="warning">
             <AlertTriangle size={12} />
-            Import warnings
+            {t('sqlPreview.warningsTitle')}
           </Badge>
           <ul>
             {warnings.map((warning, index) => (
@@ -102,7 +110,7 @@ export function SqlPreview({ sql }: SqlPreviewProps) {
         </div>
       ) : null}
 
-      {hasSyncError ? <Badge tone="warning">Invalid SQL</Badge> : null}
+      {hasSyncError ? <Badge tone="warning">{t('sqlPreview.invalidSql')}</Badge> : null}
 
       <div className={styles.editArea}>
         <textarea

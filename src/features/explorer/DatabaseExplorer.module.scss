@@ -1,4 +1,4 @@
-﻿@use '../../styles/mixins' as m;
+@use '../../styles/mixins' as m;
 @use '../../styles/tokens' as t;
 
 .explorer {
@@ -127,7 +127,7 @@
   border: 1px solid t.$color-border;
   border-radius: t.$radius-md;
   background: t.$color-surface;
-  overflow: hidden;
+  overflow: visible;
   transition: border-color t.$transition-fast;
 
   > header {
@@ -257,7 +257,7 @@
   position: absolute;
   top: calc(100% + 4px);
   right: 0;
-  z-index: 6;
+  z-index: 50;
   border: 1px solid t.$color-border;
   background: t.$color-surface;
   border-radius: t.$radius-sm;
@@ -300,3 +300,4 @@
     }
   }
 }
+

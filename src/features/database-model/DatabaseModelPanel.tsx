@@ -3,6 +3,7 @@ import { Pencil, Plus, Trash2 } from 'lucide-react'
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
+import { t } from '@/i18n'
 import { useDialog } from '@/components/ui/dialog/useDialog'
 import { Field } from '@/components/ui/Field'
 import { useSchemaStore } from '@/store/schemaStore'
@@ -23,9 +24,9 @@ export function DatabaseModelPanel() {
   function createSchema() {
     void (async () => {
       const raw = await prompt({
-        title: 'New PostgreSQL schema',
-        placeholder: 'public',
-        confirmLabel: 'Create schema',
+        title: t('databaseModel.schema.title'),
+        placeholder: t('databaseModel.schema.placeholder'),
+        confirmLabel: t('databaseModel.schema.confirm'),
       })
 
       if (!raw || raw.trim() === '') {
@@ -38,8 +39,8 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Invalid schema',
-        message: 'Schema already exists or the name is invalid.',
+        title: t('databaseModel.schema.invalidTitle'),
+        message: t('databaseModel.schema.invalidMessage'),
       })
     })()
   }
@@ -47,9 +48,9 @@ export function DatabaseModelPanel() {
   function editSchema(schemaName: string) {
     void (async () => {
       const next = await prompt({
-        title: `Rename schema ${schemaName}`,
+        title: t('databaseModel.schema.renameTitle', { name: schemaName }),
         defaultValue: schemaName,
-        confirmLabel: 'Rename',
+        confirmLabel: t('databaseModel.schema.renameConfirm'),
       })
 
       if (!next || next.trim() === '' || next === schemaName) {
@@ -62,8 +63,8 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Rename unavailable',
-        message: 'Make sure the new name is valid and not duplicated.',
+        title: t('databaseModel.schema.renameUnavailableTitle'),
+        message: t('databaseModel.schema.renameUnavailableMessage'),
       })
     })()
   }
@@ -72,12 +73,12 @@ export function DatabaseModelPanel() {
     void (async () => {
       const linkedTables = tables.filter((table) => table.schema === schemaName).length
       const confirmed = await confirm({
-        title: `Delete schema "${schemaName}"`,
+        title: t('databaseModel.schema.deleteTitle', { name: schemaName }),
         message:
           linkedTables > 0
-            ? `${linkedTables} linked tables will be moved to a fallback schema.`
-            : 'The schema will be removed from the database.',
-        confirmLabel: 'Delete schema',
+            ? t('databaseModel.schema.deleteMessageWithTables', { count: linkedTables })
+            : t('databaseModel.schema.deleteMessageWithoutTables'),
+        confirmLabel: t('databaseModel.schema.deleteConfirm'),
         tone: 'danger',
       })
 
@@ -90,10 +91,10 @@ export function DatabaseModelPanel() {
   function createExtension() {
     void (async () => {
       const raw = await prompt({
-        title: 'New PostgreSQL extension',
-        message: 'Example: pgcrypto',
-        placeholder: 'pgcrypto',
-        confirmLabel: 'Add extension',
+        title: t('databaseModel.extension.title'),
+        message: t('databaseModel.extension.message'),
+        placeholder: t('databaseModel.extension.placeholder'),
+        confirmLabel: t('databaseModel.extension.confirm'),
       })
 
       if (!raw || raw.trim() === '') {
@@ -106,46 +107,46 @@ export function DatabaseModelPanel() {
       }
 
       await alert({
-        title: 'Invalid extension',
-        message: 'Extension already exists or the name is invalid.',
+        title: t('databaseModel.extension.invalidTitle'),
+        message: t('databaseModel.extension.invalidMessage'),
       })
     })()
   }
 
   return (
-    <Card className={styles.panel} title="Database" subtitle="Model the full database: metadata, schemas, and extensions.">
+    <Card className={styles.panel} title={t('databaseModel.title')} subtitle={t('databaseModel.subtitle')}>
       <div className={styles.metaGrid}>
-        <Field label="Database name">
+        <Field label={t('databaseModel.fieldDatabaseName')}>
           <input value={database.name} onChange={(event) => updateDatabase({ name: event.target.value })} />
         </Field>
 
-        <Field label="Owner">
+        <Field label={t('databaseModel.fieldOwner')}>
           <input value={database.owner} onChange={(event) => updateDatabase({ owner: event.target.value })} />
         </Field>
 
-        <Field label="Encoding">
+        <Field label={t('databaseModel.fieldEncoding')}>
           <input value={database.encoding} onChange={(event) => updateDatabase({ encoding: event.target.value })} />
         </Field>
 
-        <Field label="LC_COLLATE">
+        <Field label={t('databaseModel.fieldLcCollate')}>
           <input value={database.lcCollate} onChange={(event) => updateDatabase({ lcCollate: event.target.value })} />
         </Field>
 
-        <Field label="LC_CTYPE">
+        <Field label={t('databaseModel.fieldLcCType')}>
           <input value={database.lcCType} onChange={(event) => updateDatabase({ lcCType: event.target.value })} />
         </Field>
 
-        <Field label="Template">
+        <Field label={t('databaseModel.fieldTemplate')}>
           <input value={database.template} onChange={(event) => updateDatabase({ template: event.target.value })} />
         </Field>
       </div>
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h4>Schemas</h4>
+          <h4>{t('databaseModel.schemasTitle')}</h4>
           <Button compact onClick={createSchema}>
             <Plus size={12} />
-            Add schema
+            {t('databaseModel.addSchema')}
           </Button>
         </div>
 
@@ -156,7 +157,7 @@ export function DatabaseModelPanel() {
             return (
               <div key={schemaName} className={styles.tagRow}>
                 <strong>{schemaName}</strong>
-                <Badge>{tableCount} tbl</Badge>
+                <Badge>{t('databaseModel.tableCount', { count: tableCount })}</Badge>
                 <Button compact onClick={() => editSchema(schemaName)}>
                   <Pencil size={12} />
                 </Button>
@@ -171,16 +172,14 @@ export function DatabaseModelPanel() {
 
       <section className={styles.section}>
         <div className={styles.sectionHeader}>
-          <h4>Extensions</h4>
+          <h4>{t('databaseModel.extensionsTitle')}</h4>
           <Button compact onClick={createExtension}>
             <Plus size={12} />
-            Add extension
+            {t('databaseModel.addExtension')}
           </Button>
         </div>
 
-        {database.extensions.length === 0 ? (
-          <p className={styles.empty}>No extensions configured.</p>
-        ) : (
+        {database.extensions.length === 0 ? <p className={styles.empty}>{t('databaseModel.noExtensions')}</p> : (
           <div className={styles.tagList}>
             {database.extensions.map((extension) => (
               <div key={extension} className={styles.tagRow}>
@@ -196,3 +195,4 @@ export function DatabaseModelPanel() {
     </Card>
   )
 }
+

@@ -5,6 +5,7 @@ import { useMemo } from 'react'
 import { Button } from '@/components/ui/Button'
 import { CollapsiblePanel } from '@/components/ui/CollapsiblePanel'
 import { EmptyState } from '@/components/ui/EmptyState'
+import { t } from '@/i18n'
 import { DatabaseModelPanel } from '@/features/database-model/DatabaseModelPanel'
 import { SqlPreview } from '@/features/sql-preview/SqlPreview'
 import { RelationManager } from '@/features/table-editor/RelationManager'
@@ -23,18 +24,18 @@ interface InspectorPanelProps {
 }
 
 const LAYOUT_PRESETS: { id: QuickLayoutPreset; label: string }[] = [
-  { id: 'balanced', label: 'Balanced' },
-  { id: 'focus_canvas', label: 'Canvas' },
-  { id: 'focus_inspector', label: 'Inspector' },
-  { id: 'focus_sql', label: 'SQL' },
+  { id: 'balanced', label: t('inspector.presets.balanced') },
+  { id: 'focus_canvas', label: t('inspector.presets.canvas') },
+  { id: 'focus_inspector', label: t('inspector.presets.inspector') },
+  { id: 'focus_sql', label: t('inspector.presets.sql') },
 ]
 
 const LAYOUT_PRESET_LABELS: Record<LayoutPreset, string> = {
-  balanced: 'Balanced',
-  focus_canvas: 'Canvas',
-  focus_inspector: 'Inspector',
-  focus_sql: 'SQL',
-  custom: 'Custom',
+  balanced: t('inspector.presets.balanced'),
+  focus_canvas: t('inspector.presets.canvas'),
+  focus_inspector: t('inspector.presets.inspector'),
+  focus_sql: t('inspector.presets.sql'),
+  custom: t('inspector.presets.custom'),
 }
 
 export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPreset }: InspectorPanelProps) {
@@ -49,28 +50,37 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
 
   const subtitle = useMemo(() => {
     if (!selectedTable) {
-      return `Database ${database.name} | ${database.schemas.length} schemas | ${relationCount} relations`
+      return t('inspector.subtitleDatabase', {
+        database: database.name,
+        schemaCount: database.schemas.length,
+        relationCount,
+      })
     }
 
-    return `Table ${selectedTable.schema}.${selectedTable.name} | ${selectedTable.columns.length} columns`
+    return t('inspector.subtitleTable', {
+      qualifiedName: `${selectedTable.schema}.${selectedTable.name}`,
+      columnCount: selectedTable.columns.length,
+    })
   }, [database.name, database.schemas.length, relationCount, selectedTable])
 
   return (
     <div className={styles.inspector}>
       <section className={styles.tabsCard}>
         <div className={styles.tabsMeta}>
-          <h3>Inspector</h3>
+          <h3>{t('inspector.title')}</h3>
           <p>{subtitle}</p>
         </div>
 
-        <CollapsiblePanel title="View" subtitle="Workspace layout and theme." defaultOpen={false}>
+        <CollapsiblePanel title={t('inspector.view.title')} subtitle={t('inspector.view.subtitle')} defaultOpen={false}>
           <div className={styles.viewHeader}>
             <Button compact variant="ghost" onClick={toggleTheme}>
               {theme === 'dark' ? <MoonStar size={12} /> : <SunMedium size={12} />}
-              {theme === 'dark' ? 'Dark theme' : 'Light theme'}
+              {theme === 'dark' ? t('inspector.view.theme.dark') : t('inspector.view.theme.light')}
             </Button>
 
-            <span className={styles.presetMeta}>Preset: {LAYOUT_PRESET_LABELS[activeLayoutPreset]}</span>
+            <span className={styles.presetMeta}>
+              {t('inspector.view.presetLabel', { preset: LAYOUT_PRESET_LABELS[activeLayoutPreset] })}
+            </span>
           </div>
 
           <div className={styles.presetButtons}>
@@ -95,7 +105,7 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             type="button"
           >
             <PanelsTopLeft size={13} />
-            Structure
+            {t('inspector.tabs.structure')}
           </button>
 
           <button
@@ -104,7 +114,7 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             type="button"
           >
             <Network size={13} />
-            Relations
+            {t('inspector.tabs.relations')}
           </button>
 
           <button
@@ -113,18 +123,14 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
             type="button"
           >
             <Binary size={13} />
-            SQL
+            {t('inspector.tabs.sql')}
           </button>
         </div>
       </section>
 
       <section className={styles.tabContent}>
         {activeTab === 'structure' ? (
-          selectedTable ? (
-            <TableEditor showRelations={false} />
-          ) : (
-            <DatabaseModelPanel />
-          )
+          selectedTable ? <TableEditor showRelations={false} /> : <DatabaseModelPanel />
         ) : null}
 
         {activeTab === 'relations' ? (
@@ -133,8 +139,8 @@ export function InspectorPanel({ sqlScript, activeLayoutPreset, onApplyLayoutPre
           ) : (
             <section className={styles.emptyPanel}>
               <EmptyState
-                title="No table selected"
-                body="Open a table from Explorer or Canvas to create and edit relations."
+                title={t('inspector.relationsEmptyTitle')}
+                body={t('inspector.relationsEmptyBody')}
               />
             </section>
           )

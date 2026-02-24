@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/Button'
 import { Card } from '@/components/ui/Card'
 import { EmptyState } from '@/components/ui/EmptyState'
 import { Field } from '@/components/ui/Field'
+import { t } from '@/i18n'
 import { DATA_TYPES, type ColumnModel, type DataType } from '@/domain/schema'
 import { useSchemaStore, useSelectedTable } from '@/store/schemaStore'
 
@@ -68,10 +69,10 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
 
   if (!selectedTable) {
     return (
-      <Card title="Table editor" subtitle="Select a table from the canvas or list.">
+      <Card title={t('tableEditor.selectHintTitle')} subtitle={t('tableEditor.selectHintBody')}>
         <EmptyState
-          title="No table selected"
-          body="When you select a table you can edit columns, types, and relations in detail."
+          title={t('tableEditor.emptyTitle')}
+          body={t('tableEditor.emptyBody')}
         />
       </Card>
     )
@@ -79,14 +80,14 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
 
   return (
     <div className={styles.editorStack}>
-      <Card title="Table editor" subtitle="Complete metadata and column definition.">
+      <Card title={t('tableEditor.title')} subtitle={t('tableEditor.subtitle')}>
         <div className={styles.metaGrid}>
-          <Field label="Schema">
+          <Field label={t('tableEditor.schemaLabel')}>
             <input
               list="database-schema-options"
               value={selectedTable.schema}
               onChange={(event) => updateTable(selectedTable.id, { schema: event.target.value })}
-              placeholder="public"
+              placeholder={t('commandPalette.shared.schemaPlaceholder')}
             />
             <datalist id="database-schema-options">
               {databaseSchemas.map((schemaName) => (
@@ -95,20 +96,20 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
             </datalist>
           </Field>
 
-          <Field label="Table name">
+          <Field label={t('tableEditor.nameLabel')}>
             <input
               value={selectedTable.name}
               onChange={(event) => updateTable(selectedTable.id, { name: event.target.value })}
-              placeholder="users"
+              placeholder={t('commandPalette.shared.schemaPlaceholder')}
             />
           </Field>
         </div>
 
         <div className={styles.columnsHeader}>
-          <h4>Columns</h4>
+          <h4>{t('tableEditor.columnsTitle')}</h4>
           <Button compact onClick={() => addColumn(selectedTable.id)}>
             <Plus size={13} />
-            Add column
+            {t('tableEditor.addColumn')}
           </Button>
         </div>
 
@@ -120,21 +121,21 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
             return (
               <article key={column.id} className={styles.columnCard}>
                 <div className={styles.columnCardHeader}>
-                  <strong>Column {index + 1}</strong>
+                  <strong>{t('tableEditor.columnTitle', { index: index + 1 })}</strong>
                   <Button variant="danger" compact onClick={() => deleteColumn(selectedTable.id, column.id)}>
                     <Trash2 size={12} />
                   </Button>
                 </div>
 
                 <div className={styles.columnGrid}>
-                  <Field label="Nome">
+                  <Field label={t('tableEditor.fieldName')}>
                     <input
                       value={column.name}
                       onChange={(event) => updateColumn(selectedTable.id, column.id, { name: event.target.value })}
                     />
                   </Field>
 
-                  <Field label="Tipo">
+                  <Field label={t('tableEditor.fieldType')}>
                     <select
                       value={column.type}
                       onChange={(event) => updateColumn(selectedTable.id, column.id, typePatch(column, event.target.value as DataType))}
@@ -147,7 +148,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                     </select>
                   </Field>
 
-                  <Field label="Length">
+                  <Field label={t('tableEditor.fieldLength')}>
                     <input
                       disabled={!isLengthEnabled}
                       value={column.length ?? ''}
@@ -155,7 +156,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                     />
                   </Field>
 
-                  <Field label="Scale">
+                  <Field label={t('tableEditor.fieldScale')}>
                     <input
                       disabled={!isScaleEnabled}
                       value={column.scale ?? ''}
@@ -163,7 +164,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                     />
                   </Field>
 
-                  <Field label="Default">
+                  <Field label={t('tableEditor.fieldDefault')}>
                     <input
                       value={column.defaultValue}
                       onChange={(event) => updateColumn(selectedTable.id, column.id, { defaultValue: event.target.value })}
@@ -179,7 +180,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                       onChange={(event) => updateColumn(selectedTable.id, column.id, { nullable: event.target.checked })}
                       type="checkbox"
                     />
-                    Nullable
+                    {t('tableEditor.flagNullable')}
                   </label>
 
                   <label>
@@ -188,7 +189,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                       onChange={(event) => updateColumn(selectedTable.id, column.id, { isPrimary: event.target.checked })}
                       type="checkbox"
                     />
-                    Primary Key
+                    {t('tableEditor.flagPrimary')}
                   </label>
 
                   <label>
@@ -197,7 +198,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                       onChange={(event) => updateColumn(selectedTable.id, column.id, { isUnique: event.target.checked })}
                       type="checkbox"
                     />
-                    Unique
+                    {t('tableEditor.flagUnique')}
                   </label>
 
                   <label>
@@ -207,7 +208,7 @@ export function TableEditor({ showRelations = true }: TableEditorProps) {
                       type="checkbox"
                       disabled={column.type !== 'serial' && column.type !== 'bigserial'}
                     />
-                    Auto Increment
+                    {t('tableEditor.flagAutoIncrement')}
                   </label>
                 </div>
               </article>

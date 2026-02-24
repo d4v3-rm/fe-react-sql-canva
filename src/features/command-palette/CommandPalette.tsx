@@ -3,6 +3,7 @@ import { Binary, Database, FolderPlus, LayoutTemplate, PanelsTopLeft, Search, Su
 import { useCallback, useEffect, useMemo, useState } from 'react'
 
 import { useDialog } from '@/components/ui/dialog/useDialog'
+import { t } from '@/i18n'
 import { PROJECT_TEMPLATES } from '@/lib/templates/databaseTemplates'
 import { useCanvasViewStore } from '@/store/canvasViewStore'
 import { useInspectorStore } from '@/store/inspectorStore'
@@ -45,24 +46,24 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
     () => [
       {
         id: 'new-table',
-        label: 'New table',
-        description: 'Create a new table in the primary schema.',
+        label: t('commandPalette.commands.newTable.label'),
+        description: t('commandPalette.commands.newTable.description'),
         keywords: ['new', 'table', 'create', 'schema'],
         icon: <Database size={14} />,
         run: addTable,
       },
       {
         id: 'new-schema',
-        label: 'New schema',
-        description: 'Add a PostgreSQL schema to the database.',
+        label: t('commandPalette.commands.newSchema.label'),
+        description: t('commandPalette.commands.newSchema.description'),
         keywords: ['schema', 'create', 'db'],
         icon: <FolderPlus size={14} />,
         run: () =>
           (async () => {
             const nextSchema = await prompt({
-              title: 'New schema',
-              placeholder: 'public',
-              confirmLabel: 'Create schema',
+              title: t('commandPalette.commands.newSchema.title'),
+              placeholder: t('databaseExplorer.schema.placeholder'),
+              confirmLabel: t('commandPalette.shared.schemaConfirm'),
             })
 
             if (!nextSchema || nextSchema.trim() === '') {
@@ -75,31 +76,31 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
             }
 
             await alert({
-              title: 'Invalid schema',
-              message: 'Schema already exists or the name is invalid.',
+              title: t('databaseExplorer.schema.invalidTitle'),
+              message: t('commandPalette.shared.invalidSchemaMessage'),
             })
           })(),
       },
       {
         id: 'layout-balanced',
-        label: 'Layout: balanced',
-        description: 'Restore the default three-panel layout.',
+        label: t('commandPalette.commands.layoutBalanced.label'),
+        description: t('commandPalette.commands.layoutBalanced.description'),
         keywords: ['layout', 'balanced', 'default', 'reset'],
         icon: <PanelsTopLeft size={14} />,
         run: () => applyLayoutPreset('balanced'),
       },
       {
         id: 'layout-canvas',
-        label: 'Layout: focus canvas',
-        description: 'Maximize the relationship canvas.',
+        label: t('commandPalette.commands.layoutCanvas.label'),
+        description: t('commandPalette.commands.layoutCanvas.description'),
         keywords: ['layout', 'canvas', 'focus'],
         icon: <PanelsTopLeft size={14} />,
         run: () => applyLayoutPreset('focus_canvas'),
       },
       {
         id: 'layout-inspector',
-        label: 'Layout: focus inspector',
-        description: 'Maximize the inspector panel.',
+        label: t('commandPalette.commands.layoutInspector.label'),
+        description: t('commandPalette.commands.layoutInspector.description'),
         keywords: ['layout', 'inspector', 'focus'],
         icon: <PanelsTopLeft size={14} />,
         run: () => {
@@ -109,8 +110,8 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       },
       {
         id: 'layout-sql',
-        label: 'Layout: focus sql',
-        description: 'Maximize inspector and open the SQL editor.',
+        label: t('commandPalette.commands.layoutSql.label'),
+        description: t('commandPalette.commands.layoutSql.description'),
         keywords: ['layout', 'sql', 'focus', 'editor'],
         icon: <PanelsTopLeft size={14} />,
         run: () => {
@@ -120,40 +121,40 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       },
       {
         id: 'fit-canvas',
-        label: 'Canvas: fit all',
-        description: 'Fit the canvas viewport to show all tables.',
+        label: t('commandPalette.commands.fitCanvas.label'),
+        description: t('commandPalette.commands.fitCanvas.description'),
         keywords: ['canvas', 'fit', 'zoom', 'all'],
         icon: <Telescope size={14} />,
         run: requestFitView,
       },
       {
         id: 'center-selected',
-        label: 'Canvas: center selected',
-        description: 'Center the canvas on the selected table.',
+        label: t('commandPalette.commands.centerCanvas.label'),
+        description: t('commandPalette.commands.centerCanvas.description'),
         keywords: ['canvas', 'center', 'selected', 'focus'],
         icon: <Telescope size={14} />,
         run: requestCenterSelected,
       },
       {
         id: 'toggle-theme',
-        label: 'Toggle theme',
-        description: 'Switch between light and dark theme.',
+        label: t('commandPalette.commands.toggleTheme.label'),
+        description: t('commandPalette.commands.toggleTheme.description'),
         keywords: ['theme', 'dark', 'light', 'ui'],
         icon: <SunMoon size={14} />,
         run: toggleTheme,
       },
       {
         id: 'clear-project',
-        label: 'New empty project',
-        description: 'Fully reset the current project.',
+        label: t('commandPalette.commands.newProject.label'),
+        description: t('commandPalette.commands.newProject.description'),
         keywords: ['reset', 'clear', 'project'],
         icon: <Binary size={14} />,
         run: () =>
           (async () => {
             const approved = await confirm({
-              title: 'New empty project',
-              message: 'Create a new empty project? Current data will be removed.',
-              confirmLabel: 'Create project',
+              title: t('commandPalette.shared.newProjectTitle'),
+              message: t('commandPalette.shared.newProjectMessage'),
+              confirmLabel: t('commandPalette.shared.newProjectConfirm'),
               tone: 'danger',
             })
 
@@ -164,16 +165,16 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
       },
       ...PROJECT_TEMPLATES.map<CommandAction>((template) => ({
         id: `template-${template.id}`,
-        label: `Template: ${template.name}`,
+        label: t('commandPalette.commands.template.label', { name: template.name }),
         description: template.description,
         keywords: ['template', template.id, template.name.toLowerCase()],
         icon: <LayoutTemplate size={14} />,
         run: () =>
           (async () => {
             const approved = await confirm({
-              title: `Apply template "${template.name}"`,
-              message: 'The current project will be overwritten.',
-              confirmLabel: 'Apply template',
+              title: t('canvas.templateApplyTitle', { name: template.name }),
+              message: t('canvas.templateApplyMessage'),
+              confirmLabel: t('canvas.templateApplyConfirm'),
               tone: 'danger',
             })
 
@@ -290,19 +291,19 @@ export function CommandPalette({ isOpen, onClose }: CommandPaletteProps) {
           <Search size={15} />
           <input
             autoFocus
-            placeholder="Search command (e.g. template, table, schema...)"
+            placeholder={t('commandPalette.placeholder')}
             value={query}
             onChange={(event) => {
               setQuery(event.target.value)
               setActiveIndex(0)
             }}
           />
-          <kbd>Ctrl+K</kbd>
+          <kbd>{t('app.hotkey')}</kbd>
         </label>
 
         <div className={styles.list}>
           {filteredActions.length === 0 ? (
-            <p className={styles.empty}>No commands found.</p>
+            <p className={styles.empty}>{t('commandPalette.noResults')}</p>
           ) : (
             filteredActions.map((action, index) => (
               <button
