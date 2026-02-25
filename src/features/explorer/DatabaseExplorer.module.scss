@@ -254,10 +254,8 @@
 }
 
 .contextMenu {
-  position: absolute;
-  top: calc(100% + 4px);
-  right: 0;
-  z-index: 50;
+  position: fixed;
+  z-index: 220;
   border: 1px solid t.$color-border;
   background: t.$color-surface;
   border-radius: t.$radius-sm;
@@ -300,4 +298,5 @@
     }
   }
 }
+
 

@@ -1,3 +1,4 @@
+import { createPortal } from 'react-dom'
 import clsx from 'clsx'
 import {
   ArrowRightLeft,
@@ -15,7 +16,7 @@ import {
   Table2,
   Trash2,
 } from 'lucide-react'
-import { useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -40,6 +41,11 @@ interface SchemaGroup {
   tables: ExplorerTable[]
 }
 
+interface ContextMenuPosition {
+  x: number
+  y: number
+}
+
 interface DatabaseExplorerProps {
   onOpenCommandPalette: () => void
 }
@@ -52,11 +58,16 @@ function sortBySchema(items: SchemaGroup[]): SchemaGroup[] {
   return [...items].sort((a, b) => a.schema.localeCompare(b.schema))
 }
 
+function clamp(value: number, min: number, max: number): number {
+  return Math.min(Math.max(value, min), max)
+}
+
 export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps) {
   const [query, setQuery] = useState('')
   const [draggingTableId, setDraggingTableId] = useState<string | null>(null)
   const [dropSchema, setDropSchema] = useState<string | null>(null)
   const [openMenuTableId, setOpenMenuTableId] = useState<string | null>(null)
+  const [menuPosition, setMenuPosition] = useState<ContextMenuPosition | null>(null)
   const [importing, setImporting] = useState(false)
 
   const hiddenInputRef = useRef<HTMLInputElement>(null)
@@ -124,7 +135,54 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
 
   function closeContextMenu() {
     setOpenMenuTableId(null)
+    setMenuPosition(null)
   }
+
+  function openContextMenu(tableId: string, x: number, y: number) {
+    const safeWidth = 132
+    const viewportWidth = window.innerWidth
+    const viewportHeight = window.innerHeight
+    const estimatedHeight = 176
+
+    const left = clamp(x, 8, viewportWidth - safeWidth - 8)
+    const top = clamp(y + 4, 8, viewportHeight - estimatedHeight - 8)
+
+    setOpenMenuTableId(tableId)
+    setMenuPosition({ x: left, y: top })
+  }
+
+  useEffect(() => {
+    if (!openMenuTableId) {
+      return
+    }
+
+    function onPointerDown(event: PointerEvent) {
+      const target = event.target as Element | null
+      if (!target) {
+        return
+      }
+
+      if (target.closest(`[data-table-menu-trigger="${openMenuTableId}"]`) || target.closest(`.${styles.contextMenu}`)) {
+        return
+      }
+
+      closeContextMenu()
+    }
+
+    function closeMenuOnScroll() {
+      closeContextMenu()
+    }
+
+    window.addEventListener('pointerdown', onPointerDown)
+    window.addEventListener('resize', closeContextMenu)
+    window.addEventListener('scroll', closeMenuOnScroll, true)
+
+    return () => {
+      window.removeEventListener('pointerdown', onPointerDown)
+      window.removeEventListener('resize', closeContextMenu)
+      window.removeEventListener('scroll', closeMenuOnScroll, true)
+    }
+  }, [openMenuTableId])
 
   function handleRenameTable(tableId: string) {
     closeContextMenu()
@@ -239,7 +297,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     event.dataTransfer.setData('application/x-sql-canvas-table', tableId)
     event.dataTransfer.effectAllowed = 'move'
     setDraggingTableId(tableId)
-    setOpenMenuTableId(null)
+    closeContextMenu()
   }
 
   function handleSchemaDragOver(schemaName: string, event: DragEvent<HTMLElement>) {
@@ -445,7 +503,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                       onContextMenu={(event) => {
                         event.preventDefault()
                         selectTable(table.id)
-                        setOpenMenuTableId(table.id)
+                        openContextMenu(table.id, event.clientX, event.clientY)
                       }}
                     >
                       <button
@@ -465,36 +523,24 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                       <div className={styles.tableActions}>
                         <Badge>{table.columnCount}</Badge>
                         <button
+                          data-table-menu-trigger={table.id}
                           className={styles.menuTrigger}
                           onClick={(event) => {
                             event.stopPropagation()
-                            setOpenMenuTableId((current) => (current === table.id ? null : table.id))
+                            const rect = event.currentTarget.getBoundingClientRect()
+                            const nextMenuOpen = openMenuTableId === table.id
+                            if (nextMenuOpen) {
+                              closeContextMenu()
+                              return
+                            }
+
+                            openContextMenu(table.id, rect.right, rect.bottom)
                           }}
+                          onPointerDown={(event) => event.stopPropagation()}
                           type="button"
                         >
                           <MoreHorizontal size={13} />
                         </button>
-
-                        {openMenuTableId === table.id ? (
-                          <div className={styles.contextMenu}>
-                            <button onClick={() => handleRenameTable(table.id)} type="button">
-                              <Pencil size={12} />
-                              {t('databaseExplorer.context.rename')}
-                            </button>
-                            <button onClick={() => handleDuplicateTable(table.id)} type="button">
-                              <Copy size={12} />
-                              {t('databaseExplorer.context.duplicate')}
-                            </button>
-                            <button onClick={() => handleMoveTable(table.id)} type="button">
-                              <ArrowRightLeft size={12} />
-                              {t('databaseExplorer.context.move')}
-                            </button>
-                            <button className={styles.dangerAction} onClick={() => handleDeleteTable(table.id)} type="button">
-                              <Trash2 size={12} />
-                              {t('databaseExplorer.context.delete')}
-                            </button>
-                          </div>
-                        ) : null}
                       </div>
                     </div>
                   ))}
@@ -504,6 +550,35 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
           ))}
         </div>
       )}
+
+      {openMenuTableId && menuPosition ? (
+        createPortal(
+          <div
+            className={styles.contextMenu}
+            style={{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }}
+            onPointerDown={(event) => event.stopPropagation()}
+            role="menu"
+          >
+            <button onClick={() => handleRenameTable(openMenuTableId)} type="button" role="menuitem">
+              <Pencil size={12} />
+              {t('databaseExplorer.context.rename')}
+            </button>
+            <button onClick={() => handleDuplicateTable(openMenuTableId)} type="button" role="menuitem">
+              <Copy size={12} />
+              {t('databaseExplorer.context.duplicate')}
+            </button>
+            <button onClick={() => handleMoveTable(openMenuTableId)} type="button" role="menuitem">
+              <ArrowRightLeft size={12} />
+              {t('databaseExplorer.context.move')}
+            </button>
+            <button className={styles.dangerAction} onClick={() => handleDeleteTable(openMenuTableId)} type="button" role="menuitem">
+              <Trash2 size={12} />
+              {t('databaseExplorer.context.delete')}
+            </button>
+          </div>,
+          document.body,
+        )
+      ) : null}
 
       <input
         ref={hiddenInputRef}
@@ -515,3 +590,8 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     </section>
   )
 }
+
+
+
+
+
