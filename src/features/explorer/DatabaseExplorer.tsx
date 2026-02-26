@@ -16,7 +16,8 @@ import {
   Table2,
   Trash2,
 } from 'lucide-react'
-import { useEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+import { useEffect, useLayoutEffect, useMemo, useRef, useState, type ChangeEvent, type DragEvent } from 'react'
+
 
 import { Badge } from '@/components/ui/Badge'
 import { Button } from '@/components/ui/Button'
@@ -46,6 +47,8 @@ interface ContextMenuPosition {
   y: number
 }
 
+const VIEWPORT_PADDING = 8
+
 interface DatabaseExplorerProps {
   onOpenCommandPalette: () => void
 }
@@ -59,6 +62,10 @@ function sortBySchema(items: SchemaGroup[]): SchemaGroup[] {
 }
 
 function clamp(value: number, min: number, max: number): number {
+  if (max < min) {
+    return min
+  }
+
   return Math.min(Math.max(value, min), max)
 }
 
@@ -71,6 +78,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
   const [importing, setImporting] = useState(false)
 
   const hiddenInputRef = useRef<HTMLInputElement>(null)
+  const menuRef = useRef<HTMLDivElement>(null)
 
   const database = useSchemaStore((state) => state.database)
   const tables = useSchemaStore((state) => state.tables)
@@ -139,16 +147,8 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
   }
 
   function openContextMenu(tableId: string, x: number, y: number) {
-    const safeWidth = 132
-    const viewportWidth = window.innerWidth
-    const viewportHeight = window.innerHeight
-    const estimatedHeight = 176
-
-    const left = clamp(x, 8, viewportWidth - safeWidth - 8)
-    const top = clamp(y + 4, 8, viewportHeight - estimatedHeight - 8)
-
     setOpenMenuTableId(tableId)
-    setMenuPosition({ x: left, y: top })
+    setMenuPosition({ x, y })
   }
 
   useEffect(() => {
@@ -169,20 +169,50 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       closeContextMenu()
     }
 
-    function closeMenuOnScroll() {
+    function onScroll() {
       closeContextMenu()
+    }
+
+    function onKeyDown(event: KeyboardEvent) {
+      if (event.key === "Escape") {
+        closeContextMenu()
+      }
     }
 
     window.addEventListener('pointerdown', onPointerDown)
     window.addEventListener('resize', closeContextMenu)
-    window.addEventListener('scroll', closeMenuOnScroll, true)
+    window.addEventListener('scroll', onScroll, true)
+    window.addEventListener('keydown', onKeyDown)
 
     return () => {
       window.removeEventListener('pointerdown', onPointerDown)
       window.removeEventListener('resize', closeContextMenu)
-      window.removeEventListener('scroll', closeMenuOnScroll, true)
+      window.removeEventListener('scroll', onScroll, true)
+      window.removeEventListener('keydown', onKeyDown)
     }
   }, [openMenuTableId])
+
+  useLayoutEffect(() => {
+    if (!menuRef.current || !menuPosition) {
+      return
+    }
+
+    const menuRect = menuRef.current.getBoundingClientRect()
+    const nextX = clamp(
+      menuPosition.x,
+      VIEWPORT_PADDING,
+      window.innerWidth - menuRect.width - VIEWPORT_PADDING,
+    )
+    const nextY = clamp(
+      menuPosition.y,
+      VIEWPORT_PADDING,
+      window.innerHeight - menuRect.height - VIEWPORT_PADDING,
+    )
+
+    if (nextX !== menuPosition.x || nextY !== menuPosition.y) {
+      setMenuPosition({ x: nextX, y: nextY })
+    }
+  }, [menuPosition, openMenuTableId])
 
   function handleRenameTable(tableId: string) {
     closeContextMenu()
@@ -503,7 +533,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                       onContextMenu={(event) => {
                         event.preventDefault()
                         selectTable(table.id)
-                        openContextMenu(table.id, event.clientX, event.clientY)
+                        openContextMenu(table.id, event.clientX + 4, event.clientY + 4)
                       }}
                     >
                       <button
@@ -534,7 +564,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
                               return
                             }
 
-                            openContextMenu(table.id, rect.right, rect.bottom)
+                            openContextMenu(table.id, rect.right + 4, rect.bottom + 2)
                           }}
                           onPointerDown={(event) => event.stopPropagation()}
                           type="button"
@@ -554,6 +584,7 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
       {openMenuTableId && menuPosition ? (
         createPortal(
           <div
+            ref={menuRef}
             className={styles.contextMenu}
             style={{ top: `${menuPosition.y}px`, left: `${menuPosition.x}px` }}
             onPointerDown={(event) => event.stopPropagation()}
@@ -590,8 +621,3 @@ export function DatabaseExplorer({ onOpenCommandPalette }: DatabaseExplorerProps
     </section>
   )
 }
-
-
-
-
-
