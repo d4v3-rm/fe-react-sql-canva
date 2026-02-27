@@ -271,7 +271,7 @@ function parseColumnDefinition(
   const defaultMatch = constraintsSql.match(/\bDEFAULT\s+(.+?)(?=\s+(?:NOT\s+NULL|NULL|PRIMARY\s+KEY|UNIQUE|REFERENCES|CHECK|CONSTRAINT)\b|$)/i)
 
   const referencesMatch = constraintsSql.match(
-    /REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)/i,
+    /REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(\s*((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))\s*\)([\s\S]*)/i,
   )
 
   if (referencesMatch) {
@@ -282,8 +282,8 @@ function parseColumnDefinition(
       sourceColumn: columnName,
       targetTableKey: targetTable.key,
       targetColumn: normalizeIdentifier(referencesMatch[2]),
-      onDelete: extractAction(constraintsSql, 'DELETE'),
-      onUpdate: extractAction(constraintsSql, 'UPDATE'),
+      onDelete: extractAction(referencesMatch[3] ?? '', 'DELETE'),
+      onUpdate: extractAction(referencesMatch[3] ?? '', 'UPDATE'),
     })
   }
 
@@ -303,7 +303,7 @@ function parseColumnDefinition(
 
 function parseForeignConstraint(line: string, sourceTableKey: string): RawRelation | null {
   const pattern =
-    /(?:CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+)?FOREIGN\s+KEY\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)([\s\S]*)/i
+    /(?:CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+)?FOREIGN\s+KEY\s*\(\s*((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))\s*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(\s*((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))\s*\)([\s\S]*)/i
   const match = line.match(pattern)
   if (!match) {
     return null
@@ -427,23 +427,23 @@ function parseCreateTableStatements(cleanedSql: string): {
 
 function parseAlterTableRelations(cleanedSql: string): RawRelation[] {
   const pattern =
-    /ALTER\s+TABLE\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s+ADD\s+CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+FOREIGN\s+KEY\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*\)([\s\S]*?);/gi
+    /ALTER\s+TABLE\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s+ADD\s+CONSTRAINT\s+("[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)\s+FOREIGN\s+KEY\s*\(\s*((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))\s*\)\s+REFERENCES\s+((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*)(?:\.(?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))?)\s*\(\s*((?:"[^"]+"|[a-zA-Z_][a-zA-Z0-9_$]*))\s*\)([\s\S]*?);/gi
 
   const relations: RawRelation[] = []
 
   let match = pattern.exec(cleanedSql)
   while (match) {
     const sourceTable = parseTableRef(match[1])
-    const targetTable = parseTableRef(match[5])
+    const targetTable = parseTableRef(match[4])
 
     relations.push({
       constraintName: normalizeIdentifier(match[2]),
       sourceTableKey: sourceTable.key,
       sourceColumn: normalizeIdentifier(match[3]),
       targetTableKey: targetTable.key,
-      targetColumn: normalizeIdentifier(match[6]),
-      onDelete: extractAction(match[7] ?? '', 'DELETE'),
-      onUpdate: extractAction(match[7] ?? '', 'UPDATE'),
+      targetColumn: normalizeIdentifier(match[5]),
+      onDelete: extractAction(match[6] ?? '', 'DELETE'),
+      onUpdate: extractAction(match[6] ?? '', 'UPDATE'),
     })
 
     match = pattern.exec(cleanedSql)
