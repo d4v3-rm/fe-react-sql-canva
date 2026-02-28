@@ -9,7 +9,8 @@
     "dev": "vite",
     "build": "tsc -b && vite build",
     "lint": "eslint .",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "set:version": "node scripts/set-version.js"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.1",

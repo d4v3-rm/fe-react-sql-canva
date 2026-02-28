@@ -5,7 +5,12 @@
 </p>
 
 <p align="center">
+  <img alt="SQL Canvas preview" src="./assets/preview.png" width="1200">
+</p>
+
+<p align="center">
   <img alt="React" src="https://img.shields.io/badge/React-19-61DAFB?logo=react&logoColor=white">
+  <img alt="Version" src="https://img.shields.io/badge/version-0.0.0-blue.svg">
   <img alt="TypeScript" src="https://img.shields.io/badge/TypeScript-Strict-3178C6?logo=typescript&logoColor=white">
   <img alt="Vite" src="https://img.shields.io/badge/Vite-7-646CFF?logo=vite&logoColor=white">
   <img alt="Zustand" src="https://img.shields.io/badge/Zustand-Persist-black">
@@ -174,6 +179,7 @@ Open `http://localhost:5173`.
 | `npm run build` | production build into `dist/` |
 | `npm run preview` | preview production build |
 | `npm run lint` | run ESLint |
+| `npm run set:version` | auto-increment `package.json`/`README` version from commit history (Conventional Commits) |
 
 ---
 
