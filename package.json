@@ -1,5 +1,5 @@
 {
-  "name": "sql-to-canva",
+  "name": "fe-react-sql-canva",
   "private": true,
   "version": "0.0.0",
   "description": "Visual PostgreSQL database modeler with SQL and ORM code generation.",

@@ -1,11 +1,11 @@
-<h1 align="center">🧩 SQL Canvas Modeler</h1>
+<h1 align="center">🧩 SQL to Canva</h1>
 
 <p align="center">
   <strong>Visual PostgreSQL modeling + bidirectional SQL editing, fully web-based.</strong>
 </p>
 
 <p align="center">
-  <img alt="SQL Canvas preview" src="./assets/preview.png" width="1200">
+  <img alt="SQL to Canva preview" src="./assets/preview.png" width="1200">
 </p>
 
 <p align="center">
@@ -23,7 +23,7 @@
 
 ## ✨ What It Is
 
-`SQL Canvas Modeler` is a frontend SPA to model PostgreSQL databases visually and edit SQL in real time with automatic synchronization between:
+`SQL to Canva` is a frontend SPA to model PostgreSQL databases visually and edit SQL in real time with automatic synchronization between:
 
 - 🧠 visual model (canvas + inspector)
 - 📜 SQL script (live editor)
