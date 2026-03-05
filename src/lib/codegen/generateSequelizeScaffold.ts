@@ -337,7 +337,6 @@ function buildModelSource(
   const incomingRelations = relationsByTargetTable.get(context.table.id) ?? []
   const relationClassImports = new Set<string>()
   const relationLines: string[] = []
-  const sectionColumns: string[] = []
 
   const sequelizeDecoratorImports = new Set<string>(['Model', 'Table', 'Column', 'DataType', 'AllowNull'])
   const ensureUniqueMember = (baseRaw: string, fallback: string): string => {
