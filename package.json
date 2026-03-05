@@ -21,7 +21,9 @@
     "build": "tsc -b && vite build",
     "lint": "eslint .",
     "preview": "vite preview",
-    "set:version": "node scripts/set-version.js"
+    "set:version": "node scripts/set-version.js",
+    "format:check": "eslint .",
+    "format": "eslint . --fix"
   },
   "dependencies": {
     "@xyflow/react": "^12.10.1",
