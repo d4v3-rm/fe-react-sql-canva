@@ -1,9 +1,20 @@
-{
+﻿{
   "name": "fe-react-sql-canva",
   "private": true,
   "version": "0.17.10",
-  "description": "Visual PostgreSQL database modeler with SQL and ORM code generation.",
-  "author": "d4v3-rm <>",
+  "description": "Visual PostgreSQL modeler with bidirectional SQL editing and ORM scaffolding.",
+  "keywords": [
+    "react",
+    "vite",
+    "postgresql",
+    "sql",
+    "orm",
+    "database",
+    "schema",
+    "visualization",
+    "frontend"
+  ],
+  "author": "d4v3-rm",
   "type": "module",
   "scripts": {
     "dev": "vite",
