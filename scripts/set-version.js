@@ -134,7 +134,7 @@ if (!nextVersion || !semverRegex.test(nextVersion)) {
 }
 
 const PACKAGE_JSON_PATH = path.join(ROOT_DIR, 'package.json')
-const PACKAGE_JSON = JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf8'))
+const PACKAGE_JSON = JSON.parse(readFileSync(PACKAGE_JSON_PATH, 'utf8').replace(/^\uFEFF/, ''))
 PACKAGE_JSON.version = nextVersion
 writeFileSync(PACKAGE_JSON_PATH, `${JSON.stringify(PACKAGE_JSON, null, 2)}\n`)
 
