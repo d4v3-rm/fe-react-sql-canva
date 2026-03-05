@@ -1,0 +1,21 @@
+@use '../../styles/tokens' as t;
+
+.field {
+  display: flex;
+  flex-direction: column;
+  gap: 0.28rem;
+}
+
+.label {
+  color: t.$color-text;
+  font-size: 0.72rem;
+  font-weight: 630;
+  text-transform: none;
+  letter-spacing: 0.015em;
+}
+
+.hint {
+  color: t.$color-text-soft;
+  font-size: 0.72rem;
+  font-weight: 500;
+}

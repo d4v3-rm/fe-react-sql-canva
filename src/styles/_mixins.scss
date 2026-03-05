@@ -1,0 +1,54 @@
+@use './tokens' as t;
+
+@mixin panel {
+  background: t.$color-surface;
+  border: 1px solid t.$color-border-strong;
+  border-radius: t.$radius-md;
+}
+
+@mixin section-title {
+  font-family: t.$font-heading;
+  font-size: 0.95rem;
+  font-weight: 650;
+  color: t.$color-text;
+  letter-spacing: 0.01em;
+}
+
+@mixin input-base {
+  width: 100%;
+  border: 1px solid t.$color-border;
+  background: t.$color-surface-soft;
+  border-radius: t.$radius-sm;
+  color: t.$color-text;
+  font-family: t.$font-body;
+  font-size: 0.88rem;
+  padding: 0.45rem 0.6rem;
+  transition: border-color t.$transition-fast, outline-color t.$transition-fast;
+
+  &:focus {
+    border-color: t.$color-primary;
+    outline: 2px solid t.$color-focus-ring;
+    outline-offset: 0;
+  }
+}
+
+@mixin slim-scrollbar {
+  scrollbar-width: thin;
+  scrollbar-color: t.$color-border-strong transparent;
+
+  &::-webkit-scrollbar {
+    width: 9px;
+    height: 9px;
+  }
+
+  &::-webkit-scrollbar-thumb {
+    background: t.$color-border-strong;
+    border-radius: 20px;
+  }
+}
+
+@mixin text-ellipsis {
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}

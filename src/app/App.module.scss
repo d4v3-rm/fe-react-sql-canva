@@ -1,0 +1,318 @@
+@use '../styles/mixins' as m;
+@use '../styles/tokens' as t;
+
+.page {
+  height: 100%;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  gap: 0.2rem;
+  padding: 0.24rem 0.5rem 0.5rem;
+  overflow-x: clip;
+}
+
+.appHeader {
+  min-width: 0;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.6rem;
+  padding: 0 0.08rem 0.16rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+}
+
+.headerBrand {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.34rem;
+  color: t.$color-text;
+
+  strong {
+    font-family: t.$font-heading;
+    font-size: 0.8rem;
+    font-weight: 680;
+    line-height: 1;
+  }
+
+  span {
+    font-size: 0.72rem;
+    color: t.$color-text-soft;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    max-width: min(220px, 40vw);
+  }
+}
+
+.headerMeta {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: t.$color-text-soft;
+  font-size: 0.67rem;
+
+  span {
+    white-space: nowrap;
+  }
+
+  kbd {
+    border: 1px solid t.$color-border;
+    border-radius: 5px;
+    background: t.$color-surface-soft;
+    color: t.$color-text-soft;
+    padding: 0.08rem 0.24rem;
+    font-size: 0.64rem;
+    font-family: t.$font-heading;
+    line-height: 1.2;
+  }
+}
+
+.layout {
+  --left-pane-width: 260px;
+  --right-pane-width: 400px;
+  min-height: 0;
+  min-width: 0;
+  display: flex;
+  align-items: stretch;
+  gap: 0.14rem;
+}
+
+.leftPane {
+  width: var(--left-pane-width);
+  min-width: 160px;
+  max-width: 520px;
+  flex: 0 0 var(--left-pane-width);
+  min-height: 0;
+}
+
+.centerPane {
+  min-width: 260px;
+  flex: 1 1 auto;
+  min-height: 0;
+}
+
+.rightPane {
+  width: var(--right-pane-width);
+  min-width: 180px;
+  max-width: 620px;
+  flex: 0 0 var(--right-pane-width);
+  min-height: 0;
+}
+
+.collapsedPane {
+  width: 64px;
+  min-width: 64px;
+  max-width: 64px;
+  flex: 0 0 64px;
+}
+
+.maximizedPane {
+  width: auto;
+  min-width: 0;
+  max-width: none;
+  flex: 1 1 auto;
+}
+
+.paneWindow {
+  @include m.panel;
+  border-color: t.$color-border;
+  height: 100%;
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  grid-template-rows: auto minmax(0, 1fr);
+  overflow: hidden;
+  background: t.$color-pane-bg-start;
+}
+
+.paneHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.5rem;
+  padding: 0.38rem 0.48rem;
+  border-bottom: 1px solid t.$color-border;
+  background: t.$color-pane-header-start;
+}
+
+.collapsedHeader {
+  justify-content: center;
+  padding: 0.32rem;
+}
+
+.paneTitle {
+  font-family: t.$font-heading;
+  font-size: 0.76rem;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+  color: t.$color-text-soft;
+}
+
+.windowButtons {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.2rem;
+}
+
+.collapsedPane .windowButtons {
+  width: 100%;
+  justify-content: center;
+}
+
+.windowButton {
+  width: 18px;
+  height: 18px;
+  border: 1px solid t.$color-border;
+  border-radius: 6px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  transition: opacity t.$transition-fast, background-color t.$transition-fast, border-color t.$transition-fast, color t.$transition-fast;
+}
+
+.collapsedPane .windowButton {
+  width: 22px;
+  height: 22px;
+}
+
+.minimizeButton {
+  background: t.$color-warning-soft;
+  border-color: t.$color-warning-border;
+  color: t.$color-warning-strong;
+}
+
+.maximizeButton {
+  background: t.$color-primary-soft;
+  border-color: t.$color-primary;
+  color: t.$color-primary-strong;
+}
+
+.paneContent {
+  min-height: 0;
+  min-width: 0;
+  display: grid;
+  overflow: hidden;
+
+  > * {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+.scrollPaneContent {
+  display: grid;
+  gap: 0.62rem;
+  align-content: start;
+  overflow-y: auto;
+  overflow-x: hidden;
+  padding: 0.56rem;
+  @include m.slim-scrollbar;
+}
+
+.collapsedLabel {
+  height: 100%;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  overflow: visible;
+  color: t.$color-text-soft;
+  padding: 0.4rem 0.2rem;
+}
+
+.collapsedLabelText {
+  display: inline-block;
+  max-width: none;
+  font-family: t.$font-heading;
+  letter-spacing: 0.08em;
+  font-size: 0.68rem;
+  text-transform: uppercase;
+  white-space: nowrap;
+  transform: rotate(-90deg);
+  transform-origin: center;
+}
+
+.splitter {
+  flex: 0 0 6px;
+  width: 6px;
+  border-radius: 0;
+  cursor: col-resize;
+  position: relative;
+  background: transparent;
+  border: none;
+  transition: background-color t.$transition-fast;
+  touch-action: none;
+
+  &::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    margin: auto;
+    width: 2px;
+    height: 64px;
+    border-radius: 999px;
+    background: t.$color-border-strong;
+    opacity: 0.72;
+    transition: background-color t.$transition-fast, opacity t.$transition-fast;
+  }
+
+  &:hover::before {
+    background: t.$color-primary;
+    opacity: 1;
+  }
+
+  &:active::before {
+    background: t.$color-primary-strong;
+    opacity: 1;
+  }
+}
+
+@media (max-width: 860px) {
+  .appHeader {
+    flex-wrap: wrap;
+    align-items: flex-start;
+  }
+
+  .headerMeta {
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .layout {
+    display: grid;
+    grid-template-columns: 1fr;
+    gap: 0.56rem;
+  }
+
+  .splitter {
+    display: none;
+  }
+
+  .leftPane,
+  .centerPane,
+  .rightPane,
+  .collapsedPane,
+  .maximizedPane {
+    width: auto;
+    max-width: none;
+    min-width: 0;
+    flex: initial;
+  }
+
+  .paneWindow {
+    min-height: 200px;
+  }
+
+  .collapsedLabel {
+    padding: 1rem;
+  }
+
+  .collapsedLabelText {
+    transform: none;
+    white-space: normal;
+    text-align: center;
+  }
+}

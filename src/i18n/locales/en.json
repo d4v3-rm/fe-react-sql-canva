@@ -1,0 +1,303 @@
+{
+  "app": {
+    "brand": "SQL to Canva",
+    "header": {
+      "tables": "{count} tables",
+      "relations": "{count} relations"
+    },
+    "hotkey": "Ctrl+K",
+    "panes": {
+      "explorer": "Explorer",
+      "canvas": "Canvas",
+      "inspector": "Inspector"
+    },
+    "panel": {
+      "expand": "Expand panel",
+      "collapse": "Collapse panel",
+      "maximize": "Maximize panel",
+      "restore": "Restore layout"
+    },
+    "resize": {
+      "left": "Resize left panel",
+      "right": "Resize right panel"
+    }
+  },
+  "dialog": {
+    "cancel": "Cancel",
+    "confirm": "Confirm",
+    "close": "Close"
+  },
+  "databaseExplorer": {
+    "workspaceTitle": "Workspace",
+    "workspaceSubtitle": "Project actions and SQL import.",
+    "newTable": "New table",
+    "newSchema": "New schema",
+    "importSql": "Import SQL",
+    "importing": "Importing...",
+    "commands": "Commands",
+    "newProject": "New project",
+    "lastSavedLabel": "Last saved",
+    "importWarnings": "Import warnings: {count}",
+    "intro": "Browse databases, schemas, and tables in a hierarchical view.",
+    "searchPlaceholder": "Search schema or table",
+    "databaseTableCount": "{count} tables",
+    "noResults": "No results",
+    "noResultsBody": "No schema or table matches the current filter.",
+    "emptySchema": "Drag a table here or create a new one.",
+    "rename": {
+      "title": "Rename {table}",
+      "message": "Enter the new table name.",
+      "placeholder": "users",
+      "confirm": "Rename",
+      "errorTitle": "Rename unavailable",
+      "errorMessage": "A table with this name already exists in the same schema."
+    },
+    "move": {
+      "title": "Move {name} to another schema",
+      "message": "Available schemas: {schemas}",
+      "placeholder": "public",
+      "confirm": "Move"
+    },
+    "delete": {
+      "title": "Delete table",
+      "message": "Delete table {table}?",
+      "confirm": "Delete"
+    },
+    "schema": {
+      "title": "New PostgreSQL schema",
+      "placeholder": "public",
+      "confirm": "Create schema",
+      "invalidTitle": "Invalid schema",
+      "invalidMessage": "Schema already exists or the name is invalid."
+    },
+    "reset": {
+      "title": "New empty project",
+      "message": "Create a new empty project? Current data will be removed.",
+      "confirm": "Create project"
+    },
+    "context": {
+      "rename": "Rename",
+      "duplicate": "Duplicate",
+      "move": "Move",
+      "delete": "Delete"
+    }
+  },
+  "databaseModel": {
+    "title": "Database",
+    "subtitle": "Model the full database: metadata, schemas, and extensions.",
+    "fieldDatabaseName": "Database name",
+    "fieldOwner": "Owner",
+    "fieldEncoding": "Encoding",
+    "fieldLcCollate": "LC_COLLATE",
+    "fieldLcCType": "LC_CTYPE",
+    "fieldTemplate": "Template",
+    "schemasTitle": "Schemas",
+    "extensionsTitle": "Extensions",
+    "addSchema": "Add schema",
+    "addExtension": "Add extension",
+    "noExtensions": "No extensions configured.",
+    "tableCount": "{count} tbl",
+    "schema": {
+      "title": "New PostgreSQL schema",
+      "message": "Example: public",
+      "confirm": "Create schema",
+      "invalidTitle": "Invalid schema",
+      "invalidMessage": "Schema already exists or the name is invalid.",
+      "renameTitle": "Rename schema {name}",
+      "renameConfirm": "Rename",
+      "renameUnavailableTitle": "Rename unavailable",
+      "renameUnavailableMessage": "Make sure the new name is valid and not duplicated.",
+      "deleteTitle": "Delete schema \"{name}\"",
+      "deleteMessageWithTables": "{count} linked tables will be moved to a fallback schema.",
+      "deleteMessageWithoutTables": "The schema will be removed from the database.",
+      "deleteConfirm": "Delete schema",
+      "placeholder": "public"
+    },
+    "extension": {
+      "title": "New PostgreSQL extension",
+      "message": "Example: pgcrypto",
+      "placeholder": "pgcrypto",
+      "confirm": "Add extension",
+      "invalidTitle": "Invalid extension",
+      "invalidMessage": "Extension already exists or the name is invalid."
+    },
+    "badge": {
+      "tables": "tbl"
+    }
+  },
+  "tableEditor": {
+    "selectHintTitle": "No table selected",
+    "selectHintBody": "Select a table from explorer or canvas to start editing columns and relations.",
+    "title": "Table editor",
+    "subtitle": "Complete metadata and column definition.",
+    "emptyTitle": "No table selected",
+    "emptyBody": "When you select a table you can edit columns, types, and relations in detail.",
+    "schemaLabel": "Schema",
+    "nameLabel": "Table name",
+    "columnsTitle": "Columns",
+    "addColumn": "Add column",
+    "columnTitle": "Column {index}",
+    "fieldName": "Name",
+    "fieldType": "Type",
+    "fieldLength": "Length",
+    "fieldScale": "Scale",
+    "fieldDefault": "Default",
+    "flagNullable": "Nullable",
+    "flagPrimary": "Primary Key",
+    "flagUnique": "Unique",
+    "flagAutoIncrement": "Auto Increment"
+  },
+  "relationManager": {
+    "title": "Relations",
+    "subtitle": "Define foreign keys from the selected table.",
+    "sourceColumn": "Source column",
+    "targetTable": "Target table",
+    "targetColumn": "Target column",
+    "createRelation": "Create relation",
+    "emptyRelations": "No outgoing relations from the selected table.",
+    "fieldConstraint": "Constraint name",
+    "fieldOnUpdate": "ON UPDATE",
+    "fieldOnDelete": "ON DELETE"
+  },
+  "tableList": {
+    "title": "Tables",
+    "subtitle": "{schemaCount} schemas | {tableCount} tables in {databaseName}",
+    "columns": "{count} columns",
+    "emptyTitle": "No tables",
+    "emptyBody": "Add a new table from the toolbar to get started."
+  },
+  "sqlPreview": {
+    "title": "SQL Editor",
+    "subtitle": "Automatic synchronization with canvas (GUI <-> SQL).",
+    "actionsTitle": "SQL actions",
+    "actionsSubtitle": "Script operations and clipboard.",
+    "copyStatusCopy": "Copy SQL",
+    "copyStatusCopied": "Copied",
+    "copyStatusError": "Copy failed",
+    "export": "Export SQL",
+    "warningsTitle": "Import warnings",
+    "invalidSql": "Invalid SQL"
+  },
+  "inspector": {
+    "title": "Inspector",
+    "subtitleDatabase": "Database {database} | {schemaCount} schemas | {relationCount} relations",
+    "subtitleTable": "Table {qualifiedName} | {columnCount} columns",
+    "view": {
+      "title": "View",
+      "subtitle": "Workspace layout and theme.",
+      "theme": {
+        "dark": "Dark theme",
+        "light": "Light theme"
+      },
+      "presetLabel": "Preset: {preset}"
+    },
+    "presets": {
+      "balanced": "Balanced",
+      "canvas": "Canvas",
+      "inspector": "Inspector",
+      "sql": "SQL",
+      "custom": "Custom"
+    },
+    "tabs": {
+      "structure": "Structure",
+      "relations": "Relations",
+      "sql": "SQL"
+    },
+    "relationsEmptyTitle": "No table selected",
+    "relationsEmptyBody": "Open a table from Explorer or Canvas to create and edit relations."
+  },
+  "commandPalette": {
+    "placeholder": "Search command (e.g. template, table, schema...)",
+    "noResults": "No commands found.",
+    "commands": {
+      "newTable": {
+        "label": "New table",
+        "description": "Create a new table in the primary schema."
+      },
+      "newSchema": {
+        "label": "New schema",
+        "description": "Add a PostgreSQL schema to the database.",
+        "title": "New schema"
+      },
+      "layoutBalanced": {
+        "label": "Layout: balanced",
+        "description": "Restore the default three-panel layout."
+      },
+      "layoutCanvas": {
+        "label": "Layout: focus canvas",
+        "description": "Maximize the relationship canvas."
+      },
+      "layoutInspector": {
+        "label": "Layout: focus inspector",
+        "description": "Maximize the inspector panel."
+      },
+      "layoutSql": {
+        "label": "Layout: focus sql",
+        "description": "Maximize inspector and open the SQL editor."
+      },
+      "fitCanvas": {
+        "label": "Canvas: fit all",
+        "description": "Fit the canvas viewport to show all tables."
+      },
+      "centerCanvas": {
+        "label": "Canvas: center selected",
+        "description": "Center the canvas on the selected table."
+      },
+      "toggleTheme": {
+        "label": "Toggle theme",
+        "description": "Switch between light and dark theme."
+      },
+      "newProject": {
+        "label": "New empty project",
+        "description": "Fully reset the current project."
+      },
+      "template": {
+        "label": "Template: {name}"
+      }
+    },
+    "shared": {
+      "applyTemplateMessage": "The current project will be overwritten.",
+      "applyTemplateConfirm": "Apply template",
+      "newProjectConfirm": "Create project",
+      "newProjectTitle": "Clear project",
+      "newProjectMessage": "This will remove all tables, relations, schemas and editor state.",
+      "newSchemaConfirm": "Create schema",
+      "schemaTitle": "New PostgreSQL schema",
+      "schemaPlaceholder": "public",
+      "schemaConfirm": "Create schema",
+      "invalidSchemaMessage": "Schema already exists or the name is invalid.",
+      "templateMessage": "The current project will be overwritten."
+    }
+  },
+  "canvas": {
+    "intro": "Drag tables and visualize foreign key links.",
+    "emptyTitle": "Empty canvas",
+    "emptyBody": "Create at least one table to start modeling your PostgreSQL schema visually.",
+    "newTable": "New table",
+    "fitAll": "Fit all",
+    "centerSelected": "Center selected",
+    "templateApplyTitle": "Apply template \"{name}\"",
+    "templateApplyMessage": "The current project will be overwritten.",
+    "templateApplyConfirm": "Apply template"
+  },
+  "sqlParser": {
+    "warnings": {
+      "ignoredColumn": "Ignored column definition: {line}",
+      "duplicateTable": "Ignored duplicate table: {qualifiedName}",
+      "fallbackColumn": "Table {qualifiedName} has no valid columns. Added fallback column 'id'.",
+      "relationMissingTable": "Ignored relation (missing table): {name}",
+      "relationMissingColumn": "Ignored relation (missing column): {name}",
+      "noStatements": "No compatible SQL statements were found in the file."
+    }
+  },
+  "sqlGenerator": {
+    "generatedBy": "Generated by SQL to Canva",
+    "adminStep": "1) Run CREATE DATABASE using an admin connection.",
+    "connectionStep": "2) Connect to the created database and run the transactional section."
+  },
+  "sequelizeScaffold": {
+    "readmeModelsSection": "Generated models",
+    "readmeFallback": "No models available",
+    "readmeHeader": "TypeScript scaffolding generated in real time by SQL to Canva."
+  }
+}

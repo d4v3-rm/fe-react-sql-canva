@@ -1,0 +1,307 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.explorer {
+  min-height: 0;
+  min-width: 0;
+  overflow-x: clip;
+  display: grid;
+  gap: 0.45rem;
+}
+
+.workspaceButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+  min-width: 0;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+    flex: 0 1 auto;
+    min-width: 0;
+  }
+}
+
+.workspaceMeta {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.35rem;
+  min-width: 0;
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.72rem;
+    white-space: nowrap;
+  }
+}
+
+.explorerIntro {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+}
+
+.topRow {
+  display: flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+}
+
+.searchField {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  flex: 1 1 auto;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  padding: 0.42rem 0.5rem;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  min-width: 0;
+
+  input {
+    border: none;
+    background: transparent;
+    outline: none;
+    width: 100%;
+    color: t.$color-text;
+    font-size: 0.78rem;
+  }
+}
+
+.databaseRoot {
+  width: 100%;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-row-alt-bg;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.45rem;
+  padding: 0.5rem 0.56rem;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
+  min-width: 0;
+
+  &:hover {
+    border-color: t.$color-primary;
+    background: t.$color-surface-soft;
+  }
+}
+
+.selectedRoot {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.rootInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.36rem;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.82rem;
+    font-family: t.$font-heading;
+  }
+}
+
+.tree {
+  display: grid;
+  gap: 0.4rem;
+  overflow-y: auto;
+  overflow-x: hidden;
+  max-height: min(100%, calc(100vh - 350px));
+  padding-right: 0.1rem;
+  @include m.slim-scrollbar;
+}
+
+.schemaBlock {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  overflow: visible;
+  transition: border-color t.$transition-fast;
+
+  > header {
+    padding: 0.38rem 0.42rem;
+    border-bottom: 1px solid t.$color-border;
+    background: t.$color-pane-header-start;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 0.4rem;
+    min-width: 0;
+
+    button {
+      display: inline-flex;
+      align-items: center;
+      justify-content: center;
+    }
+  }
+}
+
+.schemaDropTarget {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.schemaInfo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  min-width: 0;
+
+  strong {
+    @include m.text-ellipsis;
+    font-size: 0.75rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: t.$color-text-soft;
+  }
+}
+
+.emptySchema {
+  margin: 0;
+  padding: 0.5rem;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+}
+
+.tableRows {
+  display: grid;
+}
+
+.tableRow {
+  position: relative;
+  border-top: 1px solid t.$color-divider-soft;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 0.36rem;
+  padding: 0.08rem 0.22rem;
+  background: transparent;
+  min-width: 0;
+
+  &:hover {
+    background: t.$color-row-alt-bg;
+  }
+}
+
+.selectedTable {
+  background: t.$color-primary-soft;
+}
+
+.draggingTable {
+  opacity: 0.48;
+}
+
+.tableSelect {
+  border: none;
+  background: transparent;
+  width: 100%;
+  text-align: left;
+  cursor: pointer;
+  min-width: 0;
+  padding: 0.28rem 0.2rem;
+}
+
+.tableInfo {
+  min-width: 0;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.3rem;
+  color: t.$color-text;
+
+  span {
+    @include m.text-ellipsis;
+    font-size: 0.77rem;
+    font-weight: 650;
+  }
+}
+
+.tableActions {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  gap: 0.24rem;
+  flex: 0 0 auto;
+}
+
+.menuTrigger {
+  width: 22px;
+  height: 22px;
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  cursor: pointer;
+
+  &:hover {
+    border-color: t.$color-primary;
+    color: t.$color-text;
+  }
+}
+
+.contextMenu {
+  position: fixed;
+  z-index: 1000;
+  border: 1px solid t.$color-border;
+  background: t.$color-surface;
+  border-radius: t.$radius-sm;
+  min-width: 132px;
+  max-width: calc(100vw - 16px);
+  width: max-content;
+  box-sizing: border-box;
+  padding: 0.18rem;
+  display: grid;
+  gap: 0.12rem;
+
+  button {
+    width: 100%;
+    border: none;
+    background: transparent;
+    border-radius: 6px;
+    padding: 0.28rem 0.34rem;
+    display: inline-flex;
+    align-items: center;
+    justify-content: flex-start;
+    gap: 0.28rem;
+    font-size: 0.73rem;
+    color: t.$color-text;
+    white-space: nowrap;
+    text-align: left;
+    min-width: 0;
+    cursor: pointer;
+
+    &:hover {
+      background: t.$color-row-alt-bg;
+    }
+  }
+}
+
+.dangerAction {
+  color: t.$color-danger !important;
+}
+
+.hiddenInput {
+  display: none;
+}
+
+@media (max-width: 1280px) {
+  .workspaceMeta {
+    p {
+      white-space: normal;
+    }
+  }
+}

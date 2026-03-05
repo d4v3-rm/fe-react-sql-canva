@@ -1,0 +1,22 @@
+@use '../../styles/tokens' as t;
+
+.emptyState {
+  border: 1px dashed t.$color-border-strong;
+  border-radius: t.$radius-md;
+  padding: 1rem;
+  text-align: center;
+  background: t.$color-overlay-surface;
+
+  h4 {
+    margin: 0;
+    font-family: t.$font-heading;
+    font-size: 0.9rem;
+    color: t.$color-text;
+  }
+
+  p {
+    margin: 0.4rem 0 0;
+    font-size: 0.78rem;
+    color: t.$color-text-soft;
+  }
+}

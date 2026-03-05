@@ -1,0 +1,137 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.inspector {
+  min-height: 0;
+  display: grid;
+  gap: 0.62rem;
+  align-content: start;
+}
+
+.tabsCard {
+  position: sticky;
+  top: 0;
+  z-index: 2;
+  display: grid;
+  gap: 0.4rem;
+  padding: 0.2rem 0.2rem 0.3rem;
+  border-bottom: 1px solid t.$color-divider-soft;
+  background: t.$color-pane-bg-start;
+}
+
+.tabsMeta {
+  display: grid;
+  gap: 0.14rem;
+  min-width: 0;
+
+  h3 {
+    margin: 0;
+    @include m.section-title;
+    font-size: 0.84rem;
+  }
+
+  p {
+    margin: 0;
+    color: t.$color-text-soft;
+    font-size: 0.73rem;
+    overflow-wrap: anywhere;
+  }
+}
+
+.viewHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+}
+
+.presetMeta {
+  color: t.$color-text-soft;
+  font-size: 0.7rem;
+  font-family: t.$font-heading;
+  letter-spacing: 0.03em;
+  text-transform: uppercase;
+}
+
+.presetButtons {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+
+  button {
+    min-width: 0;
+  }
+}
+
+.presetButtonActive {
+  border-color: t.$color-primary !important;
+  background: t.$color-primary-soft !important;
+  color: t.$color-text !important;
+}
+
+.tabButtons {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 0.38rem;
+}
+
+.tabButton {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-sm;
+  background: t.$color-surface-soft;
+  color: t.$color-text-soft;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 0.28rem;
+  padding: 0.42rem;
+  font-size: 0.74rem;
+  font-family: t.$font-heading;
+  font-weight: 640;
+  letter-spacing: 0.02em;
+  min-width: 0;
+  text-align: center;
+  overflow-wrap: anywhere;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+  }
+}
+
+.activeTab {
+  border-color: t.$color-primary;
+  color: t.$color-text;
+  background: t.$color-primary-soft;
+}
+
+.tabContent {
+  min-height: 0;
+  display: grid;
+  gap: 0.62rem;
+
+  > * {
+    min-width: 0;
+  }
+}
+
+.emptyPanel {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  padding: 0.56rem;
+}
+
+@media (max-width: 1180px) {
+  .tabButtons {
+    grid-template-columns: 1fr;
+  }
+}

@@ -1,0 +1,50 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.sqlActions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 0.34rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+}
+
+.warningBox {
+  border: 1px solid t.$color-warning-border;
+  background: t.$color-warning-soft;
+  border-radius: t.$radius-md;
+  padding: 0.5rem;
+  display: grid;
+  gap: 0.36rem;
+
+  ul {
+    margin: 0;
+    padding-left: 1rem;
+    display: grid;
+    gap: 0.24rem;
+  }
+
+  li {
+    font-size: 0.76rem;
+    color: t.$color-warning;
+  }
+}
+
+.editArea {
+  display: grid;
+}
+
+.editArea textarea {
+  min-height: clamp(220px, 42vh, 340px);
+  max-height: 68vh;
+  max-width: 100%;
+  resize: vertical;
+  @include m.input-base;
+  font-family: 'Cascadia Code', 'Consolas', monospace;
+  line-height: 1.45;
+  font-size: 0.74rem;
+}

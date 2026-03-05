@@ -1,0 +1,68 @@
+@use '../../styles/tokens' as t;
+
+.canvasRoot {
+  min-height: 100%;
+  height: 100%;
+  display: grid;
+  gap: 0.4rem;
+  grid-template-rows: auto minmax(0, 1fr);
+  padding: 0.2rem 0.2rem 0.12rem;
+}
+
+.canvasIntro {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.74rem;
+  padding-inline: 0.04rem;
+}
+
+.quickStart {
+  margin-top: 0.7rem;
+  display: grid;
+  justify-items: center;
+  gap: 0.48rem;
+}
+
+.quickTemplates {
+  display: inline-flex;
+  flex-wrap: wrap;
+  justify-content: center;
+  gap: 0.34rem;
+}
+
+.canvasWrapper {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  overflow: hidden;
+  position: relative;
+  min-height: 320px;
+  height: 100%;
+  background: t.$color-canvas-bg-start;
+}
+
+.canvasActions {
+  position: absolute;
+  top: 0.48rem;
+  left: 0.48rem;
+  z-index: 4;
+  display: inline-flex;
+  gap: 0.32rem;
+
+  button {
+    display: inline-flex;
+    align-items: center;
+    gap: 0.28rem;
+  }
+}
+
+.minimap {
+  background: t.$color-minimap-bg;
+  border-radius: 8px;
+  border: 1px solid t.$color-border;
+}
+
+:global(.react-flow__controls button) {
+  border-color: t.$color-border;
+  color: t.$color-text;
+  background: t.$color-surface;
+}

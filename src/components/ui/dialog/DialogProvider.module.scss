@@ -1,0 +1,54 @@
+@use '../../../styles/mixins' as m;
+@use '../../../styles/tokens' as t;
+
+.overlay {
+  position: fixed;
+  inset: 0;
+  z-index: 140;
+  display: grid;
+  place-items: center;
+  padding: 1rem;
+  background: color-mix(in srgb, t.$color-bg 72%, black 28%);
+}
+
+.dialog {
+  width: min(440px, 100%);
+  border: 1px solid t.$color-border-strong;
+  border-radius: t.$radius-md;
+  background: t.$color-surface;
+  display: grid;
+  gap: 0.56rem;
+  padding: 0.66rem;
+}
+
+.dialogHeader {
+  min-width: 0;
+
+  h2 {
+    margin: 0;
+    @include m.section-title;
+    font-size: 0.9rem;
+    line-height: 1.2;
+    overflow-wrap: anywhere;
+  }
+}
+
+.dialogMessage {
+  margin: 0;
+  color: t.$color-text-soft;
+  font-size: 0.78rem;
+  line-height: 1.35;
+  overflow-wrap: anywhere;
+}
+
+.promptInput {
+  @include m.input-base;
+  width: 100%;
+}
+
+.actions {
+  display: inline-flex;
+  justify-content: flex-end;
+  flex-wrap: wrap;
+  gap: 0.3rem;
+}

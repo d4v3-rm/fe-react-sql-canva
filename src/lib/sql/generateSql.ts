@@ -1,0 +1,118 @@
+import { t } from '@/i18n'
+import type { RelationModel, SqlCanvasProject, TableModel } from '@/domain/schema'
+import { getColumnSqlType } from '@/lib/sql/types'
+import { qualifiedTableName, quoteIdentifier } from '@/lib/sql/identifiers'
+
+function quoteLiteral(value: string): string {
+  return `'${value.replaceAll("'", "''")}'`
+}
+
+function buildTableSql(table: TableModel): string {
+  const columnLines = table.columns.map((column) => {
+    const chunks = [`${quoteIdentifier(column.name)} ${getColumnSqlType(column)}`]
+
+    if (!column.nullable) {
+      chunks.push('NOT NULL')
+    }
+
+    if (column.defaultValue.trim()) {
+      chunks.push(`DEFAULT ${column.defaultValue.trim()}`)
+    }
+
+    if (column.isUnique && !column.isPrimary) {
+      chunks.push('UNIQUE')
+    }
+
+    return `  ${chunks.join(' ')}`
+  })
+
+  const primaryColumns = table.columns.filter((column) => column.isPrimary)
+  if (primaryColumns.length > 1) {
+    const primaryKeys = primaryColumns.map((column) => quoteIdentifier(column.name)).join(', ')
+    columnLines.push(`  PRIMARY KEY (${primaryKeys})`)
+  } else if (primaryColumns.length === 1) {
+    const primaryIndex = table.columns.findIndex((column) => column.id === primaryColumns[0].id)
+    if (primaryIndex >= 0) {
+      columnLines[primaryIndex] = `${columnLines[primaryIndex]} PRIMARY KEY`
+    }
+  }
+
+  return [`CREATE TABLE ${qualifiedTableName(table.schema, table.name)} (`, columnLines.join('\n'), ');'].join('\n')
+}
+
+function buildRelationSql(relations: RelationModel[], tableMap: Map<string, TableModel>): string[] {
+  return relations
+    .map((relation) => {
+      const sourceTable = tableMap.get(relation.sourceTableId)
+      const targetTable = tableMap.get(relation.targetTableId)
+
+      if (!sourceTable || !targetTable) {
+        return ''
+      }
+
+      const sourceColumn = sourceTable.columns.find((column) => column.id === relation.sourceColumnId)
+      const targetColumn = targetTable.columns.find((column) => column.id === relation.targetColumnId)
+
+      if (!sourceColumn || !targetColumn) {
+        return ''
+      }
+
+      return [
+        `ALTER TABLE ${qualifiedTableName(sourceTable.schema, sourceTable.name)}`,
+        `  ADD CONSTRAINT ${quoteIdentifier(relation.constraintName)}`,
+        `  FOREIGN KEY (${quoteIdentifier(sourceColumn.name)})`,
+        `  REFERENCES ${qualifiedTableName(targetTable.schema, targetTable.name)} (${quoteIdentifier(targetColumn.name)})`,
+        `  ON UPDATE ${relation.onUpdate}`,
+        `  ON DELETE ${relation.onDelete};`,
+      ].join('\n')
+    })
+    .filter(Boolean)
+}
+
+function collectSchemas(explicitSchemas: string[], tables: TableModel[]): string[] {
+  const set = new Set<string>()
+  explicitSchemas.forEach((schema) => set.add(schema))
+  tables.forEach((table) => set.add(table.schema))
+
+  if (set.size === 0) {
+    set.add('public')
+  }
+
+  return [...set]
+}
+
+export function generateProjectSql(project: Pick<SqlCanvasProject, 'database' | 'tables' | 'relations'>): string {
+  const tableMap = new Map(project.tables.map((table) => [table.id, table]))
+  const tableStatements = project.tables.map((table) => buildTableSql(table))
+  const relationStatements = buildRelationSql(project.relations, tableMap)
+  const schemaStatements = collectSchemas(project.database.schemas, project.tables).map(
+    (schema) => `CREATE SCHEMA IF NOT EXISTS ${quoteIdentifier(schema)};`,
+  )
+  const extensionStatements = project.database.extensions.map(
+    (extension) => `CREATE EXTENSION IF NOT EXISTS ${quoteIdentifier(extension)};`,
+  )
+
+  const databaseHeader = [
+    `CREATE DATABASE ${quoteIdentifier(project.database.name)}`,
+    `  WITH OWNER = ${quoteIdentifier(project.database.owner)}`,
+    `       ENCODING = ${quoteLiteral(project.database.encoding)}`,
+    `       LC_COLLATE = ${quoteLiteral(project.database.lcCollate)}`,
+    `       LC_CTYPE = ${quoteLiteral(project.database.lcCType)}`,
+    `       TEMPLATE = ${quoteIdentifier(project.database.template)};`,
+  ].join('\n')
+
+  return [
+    `-- ${t('sqlGenerator.generatedBy')}`,
+    `-- ${t('sqlGenerator.adminStep')}`,
+    `-- ${t('sqlGenerator.connectionStep')}`,
+    databaseHeader,
+    ...schemaStatements,
+    ...extensionStatements,
+    'BEGIN;',
+    ...tableStatements,
+    ...relationStatements,
+    'COMMIT;',
+  ]
+    .filter((line) => line.trim().length > 0)
+    .join('\n\n')
+}

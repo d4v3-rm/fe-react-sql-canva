@@ -1,0 +1,63 @@
+@use '../../styles/mixins' as m;
+@use '../../styles/tokens' as t;
+
+.tableList {
+  min-height: 0;
+  min-width: 0;
+}
+
+.items {
+  display: flex;
+  flex-direction: column;
+  gap: 0.42rem;
+  overflow: auto;
+  max-height: 320px;
+  @include m.slim-scrollbar;
+}
+
+.item {
+  border: 1px solid t.$color-border;
+  border-radius: t.$radius-md;
+  background: t.$color-row-alt-bg;
+  padding: 0.58rem;
+  display: flex;
+  justify-content: space-between;
+  gap: 0.65rem;
+  min-width: 0;
+  text-align: left;
+  cursor: pointer;
+  transition: border-color t.$transition-fast, background-color t.$transition-fast;
+
+  &:hover {
+    border-color: t.$color-primary;
+    background: t.$color-surface-soft;
+  }
+}
+
+.selected {
+  border-color: t.$color-primary;
+  background: t.$color-primary-soft;
+}
+
+.itemInfo {
+  min-width: 0;
+
+  strong {
+    display: block;
+    @include m.text-ellipsis;
+    font-family: t.$font-heading;
+    font-size: 0.88rem;
+  }
+
+  span {
+    color: t.$color-text-soft;
+    font-size: 0.75rem;
+  }
+}
+
+.itemActions {
+  display: flex;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: 0.32rem;
+}
