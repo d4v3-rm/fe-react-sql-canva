@@ -512,7 +512,7 @@ function buildModelsIndex(contexts: TableContext[]): string {
 }
 
 function buildDatabaseBootstrap(database: DatabaseModel, contexts: TableContext[]): string {
-  const classNames = contexts.map((context) => context.className).sort((a, b) => a.className.localeCompare(b))
+  const classNames = contexts.map((context) => context.className).sort((a, b) => a.localeCompare(b))
   const importModelsLine = classNames.length > 0 ? `import { ${classNames.join(', ')} } from '../models'\n` : ''
   const modelsArray = classNames.length > 0 ? `[${classNames.join(', ')}]` : '[]'
 
